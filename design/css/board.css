@@ -1,0 +1,51 @@
+/* Layout of the design canvas boards only. Not part of the app: do not lift. */
+.board { min-height: 100%; background: var(--bg); color: var(--text); font: var(--type-body); }
+.board__main { max-width: 1296px; margin: 0 auto; padding: var(--space-3xl) var(--space-l) 96px; box-sizing: border-box; display: flex; flex-direction: column; gap: var(--space-3xl); }
+.board__head { display: flex; flex-direction: column; gap: var(--space-s); }
+.board__kicker { margin: 0; font: var(--type-label); font-family: var(--font-display); letter-spacing: var(--wordmark-tracking); color: var(--text-2); }
+.board__title { margin: 0; font: var(--type-display); letter-spacing: var(--type-display-tracking); }
+.board__lead { margin: 0; font: var(--type-lead); color: var(--text-2); max-width: var(--measure); }
+.board__note { margin: 0; font: var(--type-meta); color: var(--text-3); max-width: var(--measure); }
+
+.spec { display: flex; flex-direction: column; gap: var(--space-xl); padding-top: var(--space-2xl); border-top: var(--border-divider) solid var(--line); }
+.spec__head { display: flex; flex-direction: column; gap: var(--space-xs); }
+.spec__title { margin: 0; font: var(--type-title); letter-spacing: var(--type-title-tracking); }
+.spec__src { margin: 0; font: var(--type-meta); color: var(--text-2); max-width: var(--measure); }
+.spec__sub { margin: 0; font: var(--type-label); color: var(--text-2); }
+
+.states { --state-min: 240px; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, var(--state-min)), 1fr)); gap: var(--space-xl) var(--space-l); align-items: start; }
+.states--s { --state-min: 168px; }
+.states--m { --state-min: 300px; }
+.states--l { --state-min: 400px; }
+.states--phone { display: flex; flex-wrap: wrap; }
+.state { display: flex; flex-direction: column; gap: var(--space-s); min-width: 0; }
+.state__stage { display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-s); padding: var(--space-l); border: var(--border-divider) solid var(--line); border-radius: var(--radius-s); }
+.state__stage--center { align-items: center; text-align: center; }
+.state__stage--surface { background: var(--surface); border-color: var(--surface); }
+.state__stage--light { background: var(--lamp-white); border-color: var(--lamp-white); color: var(--ink-on-light); }
+.state__stage--tall { min-height: 240px; justify-content: center; }
+.state__name { margin: 0; font: var(--type-label); }
+.state__note { margin: 0; font: var(--type-meta); color: var(--text-3); }
+
+/* a 390px-wide crop of a phone screen; no status bar is drawn */
+.phone { position: relative; flex: none; width: 390px; overflow: hidden; border: var(--border-divider) solid var(--line); border-radius: var(--radius-s); background: var(--bg); }
+.phone .light-surface,
+.phone .sheet,
+.phone .sheet-backdrop { position: absolute; }
+.phone .lens-view { --lens: 281px; }
+.phone .top-bar { position: relative; }
+
+/* stand-in for a live camera image: an ochre facade with a rust door */
+.cam { position: absolute; inset: 0; background: #B5864A; }
+.cam__sky { position: absolute; left: 0; right: 0; top: 0; height: 18%; background: #3E5470; }
+.cam__door { position: absolute; left: 34%; top: 30%; width: 32%; height: 52%; background: #8E3B26; border-radius: 48% 48% 0 0 / 22% 22% 0 0; }
+.cam__sill { position: absolute; left: 0; right: 0; bottom: 0; height: 14%; background: #6B5A45; }
+.cam--dark { background: #15171C; }
+.cam--dark .cam__sky { background: #0B0D12; }
+.cam--dark .cam__door { background: #1E1A18; }
+.cam--dark .cam__sill { background: #101114; }
+
+.qr-standin { position: relative; box-sizing: border-box; background: var(--lamp-white); }
+.qr-standin__finder { position: absolute; width: 28%; height: 28%; box-sizing: border-box; border: 6px solid var(--bg); }
+.qr-standin__finder::after { content: ""; position: absolute; inset: 22%; background: var(--bg); }
+.qr-standin__label { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); font: var(--type-meta); color: var(--ink-on-light-2); text-align: center; width: 40%; }

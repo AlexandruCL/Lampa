@@ -1,0 +1,66 @@
+/* LAMPA console.css: /curate (DESIGN.md 7.15). From 1024px: a 360px echo list and the detail beside it;
+   below that the list is the screen and a row opens the detail. Nothing animates in the console: it is a
+   keyboard-heavy tool. */
+
+.console { min-height: 100vh; display: flex; flex-direction: column; background: var(--bg); color: var(--text); font: var(--type-body); }
+.console__notice { padding: var(--space-m) var(--space-l) 0; }
+.console__panes { flex: 1; display: flex; min-height: 0; }
+.console__list { flex: none; width: 360px; margin: 0; padding: 0; list-style: none; border-right: var(--border-divider) solid var(--line); overflow-y: auto; }
+
+.queue-row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2xs);
+  width: 100%;
+  min-height: 64px;
+  padding: var(--space-m) var(--space-l);
+  box-sizing: border-box;
+  border: 0;
+  border-bottom: var(--border-divider) solid var(--line);
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.queue-row[aria-current="true"] { background: var(--surface-2); }
+.queue-row__site { font: var(--type-body); font-weight: 600; overflow-wrap: anywhere; }
+.queue-row__meta { font: var(--type-meta); color: var(--text-2); font-variant-numeric: tabular-nums; }
+.queue-row--loading { cursor: default; }
+.queue-row--loading .queue-row__site { font-weight: 400; color: var(--text-3); }
+
+.console__detail { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: var(--space-l); padding: var(--space-xl); box-sizing: border-box; background: var(--surface); }
+.console__detail-head { display: flex; flex-direction: column; gap: var(--space-2xs); }
+.console__site { margin: 0; font: var(--type-title); letter-spacing: var(--type-title-tracking); overflow-wrap: anywhere; }
+.console__facts { margin: 0; font: var(--type-meta); color: var(--text-2); font-variant-numeric: tabular-nums; }
+.console__section-label { margin: 0 0 var(--space-xs); font: var(--type-label); color: var(--text-2); }
+.console__transcript { margin: 0; max-width: var(--measure); font: var(--type-body); color: var(--text); hyphens: auto; }
+.console__muted { margin: 0; font: var(--type-body); color: var(--text-3); }
+.console__consent { margin: 0; max-width: var(--measure); font: var(--type-body); color: var(--text-2); }
+.console__actions { margin-top: auto; display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-s); }
+.console__confirm { margin: 0; flex-basis: 100%; font: var(--type-body); color: var(--text); }
+
+.console__center { width: 100%; max-width: 480px; margin: 0 auto; padding: var(--space-3xl) var(--space-l); box-sizing: border-box; display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-m); }
+.console__wordmark { margin: 0; font: var(--type-label); font-family: var(--font-display); letter-spacing: var(--wordmark-tracking); color: var(--text-2); }
+.console__title { margin: 0; font: var(--type-title); letter-spacing: var(--type-title-tracking); }
+.console__text { margin: 0; max-width: var(--measure); color: var(--text); }
+
+/* Add a place: one column that also works on the curator's phone */
+.place-form { width: 100%; max-width: 640px; margin: 0 auto; padding: var(--space-xl) var(--space-l) var(--space-3xl); box-sizing: border-box; display: flex; flex-direction: column; gap: var(--space-l); }
+.place-form__group { margin: 0; padding: 0; border: 0; min-width: 0; display: flex; flex-direction: column; gap: var(--space-s); }
+.place-form__legend { padding: 0; margin-bottom: var(--space-xs); font: var(--type-label); color: var(--text); }
+.place-form__fact { display: flex; flex-direction: column; gap: var(--space-xs); padding-bottom: var(--space-m); border-bottom: var(--border-divider) solid var(--line); }
+.place-form__coords { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-s); }
+.steps { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: var(--space-s); }
+.step { display: flex; align-items: flex-start; gap: var(--space-s); font: var(--type-body); color: var(--text); }
+.step__mark { width: 24px; height: 24px; flex: none; display: grid; place-items: center; }
+.step--pending { color: var(--text-3); }
+.step--done .icon { color: var(--ok); }
+.step--failed .icon { color: var(--danger); }
+.step__error { display: block; font: var(--type-meta); color: var(--text-2); }
+
+@media (max-width: 1023px) {
+  .console__panes { display: block; }
+  .console__list { width: auto; border-right: 0; }
+  .console__detail { padding: var(--space-l); }
+}

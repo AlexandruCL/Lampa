@@ -1,0 +1,96 @@
+/* LAMPA livingmap.css: /screen (DESIGN.md 7.13). Every size is a 1920 x 1080 value times --u.
+   In the app the map layer (streets, river, windows, candles, rings) is Canvas 2D; the side panel, ticker,
+   start screen, subtitle and credit are DOM, styled here. The .living-map__art, __site and __candle rules
+   draw the canvas layer on the design canvas only. */
+
+.living-map {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--text);
+  font: var(--screen-body);
+}
+.lm-design { --u: 1px; width: 1920px; height: 1080px; } /* canvas boards only: draws at the design size */
+
+.living-map__map { position: absolute; left: 0; top: 0; width: calc(1380 * var(--u)); height: 100%; overflow: hidden; }
+.living-map__art { position: absolute; inset: 0; width: 100%; height: 100%; }
+.living-map__street { fill: none; stroke: var(--line); stroke-width: calc(1.5 * var(--u)); stroke-linecap: round; transition: stroke 800ms var(--ease-out); }
+.living-map__ring { fill: none; stroke: var(--line-strong); stroke-opacity: 0.5; stroke-width: calc(2 * var(--u)); stroke-dasharray: calc(10 * var(--u)) calc(8 * var(--u)); transition: stroke 800ms var(--ease-out); }
+.living-map__river { fill: none; stroke: var(--river); stroke-opacity: 0.35; stroke-width: calc(14 * var(--u)); stroke-linejoin: round; stroke-linecap: round; }
+.living-map--finale .living-map__street,
+.living-map--finale .living-map__ring { stroke: var(--lamp); stroke-opacity: 1; }
+.living-map__district { position: absolute; margin: 0; font: var(--screen-meta); color: var(--text-3); transform: translate(-50%, -50%); }
+
+/* a site: its window (or the candle field) centred on the projected point, the label under it */
+.living-map__site { position: absolute; transform: translate(-50%, -50%); }
+.living-map__label { position: absolute; left: 50%; top: calc(100% + 10 * var(--u)); transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; text-align: center; white-space: nowrap; }
+.living-map__name { font: var(--screen-name); color: var(--text); }
+.living-map__glow { font: var(--screen-meta); color: var(--text-2); font-variant-numeric: tabular-nums; }
+.living-map__label--memorial .living-map__name { color: var(--text-2); }
+.living-map__pulse { position: absolute; left: 50%; top: 50%; border: calc(2 * var(--u)) solid var(--text); border-radius: var(--radius-round); transform: translate(-50%, -50%); pointer-events: none; }
+.living-map__subtitle {
+  position: absolute;
+  left: 50%;
+  top: calc(100% + 84 * var(--u));
+  transform: translateX(-50%);
+  width: max-content;
+  max-width: calc(520 * var(--u));
+  box-sizing: border-box;
+  padding: calc(12 * var(--u)) calc(16 * var(--u));
+  border-radius: var(--radius-s);
+  background: var(--surface);
+  font: var(--screen-subtitle);
+  color: var(--text);
+  white-space: normal;
+}
+.living-map__subtitle-lang { display: block; font: var(--screen-meta); color: var(--text-3); }
+
+/* the memorial: a candle field, never a window */
+.living-map__field { width: calc(192 * var(--u)); height: calc(192 * var(--u)); box-sizing: border-box; border: 1px solid var(--line); border-radius: var(--radius-round); position: relative; z-index: var(--z-light); }
+.living-map__candle {
+  position: absolute;
+  width: calc(18 * var(--u));
+  height: calc(18 * var(--u));
+  transform: translate(-50%, -50%);
+  border-radius: var(--radius-round);
+  background: radial-gradient(circle, var(--lamp-white) 0 calc(3 * var(--u)), color-mix(in srgb, var(--lamp-white) 25%, transparent) calc(3 * var(--u)), transparent calc(9 * var(--u)));
+  transition: opacity 3000ms var(--ease-out);
+}
+
+.living-map__credit { position: absolute; right: calc(16 * var(--u)); bottom: calc(16 * var(--u)); margin: 0; font: var(--screen-meta); color: var(--text-3); }
+
+.living-map__panel {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: calc(540 * var(--u));
+  box-sizing: border-box;
+  padding: calc(64 * var(--u));
+  border-left: 1px solid var(--line);
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  gap: calc(32 * var(--u));
+}
+.living-map__mark { margin: 0; font: var(--screen-title); letter-spacing: var(--wordmark-tracking); }
+.living-map__stat { display: flex; flex-direction: column; gap: calc(4 * var(--u)); }
+.living-map__stat-label { margin: 0; font: var(--screen-meta); color: var(--text-2); }
+.living-map__number { margin: 0; font: var(--screen-numeral); font-variant-numeric: tabular-nums; color: var(--text); }
+.living-map__number--lamps { color: var(--text-2); }
+.living-map__number--lamps .living-map__lit { color: var(--lamp); }
+.living-map__status { margin: 0; font: var(--screen-meta); color: var(--text-2); }
+.living-map__qr { margin-top: auto; }
+
+/* before the first click: browsers need one gesture before audio */
+.living-map__start { position: absolute; inset: 0; z-index: var(--z-light); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: calc(24 * var(--u)); background: var(--bg); text-align: center; }
+.living-map__start-line { margin: 0; font: var(--screen-meta); color: var(--text-2); }
+
+/* under 1024px wide (4.5) */
+.living-map__narrow { display: none; }
+@media (max-width: 1023px) {
+  .living-map > :not(.living-map__narrow) { display: none; }
+  .living-map__narrow { display: grid; place-items: center; height: 100%; padding: var(--space-l); box-sizing: border-box; font: var(--type-lead); color: var(--text); text-align: center; }
+}

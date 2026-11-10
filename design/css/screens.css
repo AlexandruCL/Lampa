@@ -1,0 +1,89 @@
+/* LAMPA screens.css
+   Layout of the phone views in DESIGN.md section 7. Reads tokens.css; the parts come from components.css.
+   A view is one .screen: top bar, an optional Notice that pushes content down, the body, and the action
+   area in the bottom 40% so the thumb reaches it one-handed. */
+
+.screen {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  box-sizing: border-box;
+  overflow-x: hidden;
+  background: var(--bg);
+  color: var(--text);
+}
+/* station views (Talk, Colour, Lamp, Echo, Between sites) enter from 12px below; 5.6 zeroes the shift */
+.screen--station { transition: opacity var(--dur-base) var(--ease-out), transform var(--dur-base) var(--ease-out); }
+@starting-style {
+  .screen--station { opacity: 0; transform: translateY(var(--view-shift)); }
+}
+
+.screen__notice { position: relative; z-index: var(--z-notice); padding: 0 var(--space-l) var(--space-s); }
+.screen__body {
+  flex: 1 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-s);
+  padding: 0 var(--space-l);
+  text-align: center;
+}
+.screen__body--start { align-items: stretch; text-align: left; }
+.screen__body--center { justify-content: center; }
+.screen__actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+  padding: var(--space-l) var(--space-l) calc(var(--space-l) + env(safe-area-inset-bottom, 0px));
+}
+.screen__grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); gap: var(--space-s); }
+.screen__quiet { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0 var(--space-s); }
+
+.screen__wordmark { margin: var(--space-3xl) 0 var(--space-xs); font: var(--type-label); font-family: var(--font-display); letter-spacing: var(--wordmark-tracking); color: var(--text-2); }
+.screen__name { margin: 0; font: var(--type-display); letter-spacing: var(--type-display-tracking); text-wrap: balance; overflow-wrap: anywhere; }
+.screen__title { margin: 0; font: var(--type-title); letter-spacing: var(--type-title-tracking); text-wrap: balance; overflow-wrap: anywhere; }
+.screen__line { margin: 0; font: var(--type-lead); color: var(--text-2); text-wrap: balance; }
+.screen__text { margin: 0; font: var(--type-body); color: var(--text); max-width: var(--measure); hyphens: auto; }
+.screen__meta { margin: 0; font: var(--type-meta); color: var(--text-3); }
+.screen__hint { display: flex; align-items: flex-start; gap: var(--space-xs); margin: 0; font: var(--type-body); color: var(--text-2); text-align: left; }
+.screen__visual { display: grid; place-items: center; margin: var(--space-l) 0; }
+.screen__error { display: flex; align-items: flex-start; gap: var(--space-xs); margin: 0; font: var(--type-body); color: var(--text); text-align: left; }
+.screen__error .icon { color: var(--danger); }
+
+/* Talk: set_light tints the view at min(intensity, 1) x 0.25; the component writes colour and opacity */
+.screen__tint { position: absolute; inset: 0; pointer-events: none; transition: opacity var(--dur-glow) var(--ease-in-out); }
+.screen__captions { flex: 1 1 0; min-height: 0; padding: var(--space-s) var(--space-l) 0; }
+.screen__talk { display: flex; flex-direction: column; align-items: center; gap: var(--space-s); }
+
+/* Lens: actions sit on the scrim at the bottom of the camera view. After a catch the name, the line and
+   three buttons share the space under the lens, so the text moves up to --space-l and the action area
+   drops its top padding (the scrim already separates it). */
+.lens-view__below { top: calc(42% + var(--lens) / 2 + var(--space-l)); }
+.lens-view__actions {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+  padding: 0 var(--space-l) calc(var(--space-l) + env(safe-area-inset-bottom, 0px));
+}
+
+/* Memorial: a reading page; the candle sits --space-2xl below the testimonies */
+.memorial__candle { display: flex; justify-content: center; margin-top: var(--space-2xl); }
+
+/* Finale: three dips to 40% brightness in 1.5s, then 2s of --bg (7.12) */
+.screen__dip { position: absolute; inset: 0; z-index: var(--z-light); background: var(--bg); opacity: 0; pointer-events: none; }
+@keyframes finale-dips {
+  0%, 33%, 66%, 100% { opacity: 0; }
+  16%, 49%, 82% { opacity: 0.6; }
+}
+
+@media (max-width: 359px) {
+  .screen__notice, .screen__body, .screen__actions, .lens-view__actions, .screen__captions { padding-left: var(--space-m); padding-right: var(--space-m); }
+}
+@media (min-width: 720px) {
+  .screen { max-width: var(--column-wide); margin: 0 auto; }
+}
