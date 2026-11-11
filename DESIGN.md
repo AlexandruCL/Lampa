@@ -2,7 +2,7 @@
 
 This document is the whole visual and UX specification for the hackathon build. It stands alone: every value an engineer needs is written here. It covers the phone app (`/`, `/s/:siteId`), the Living Map (`/screen`), the Pulse dashboard (`/pulse`) and the curator console (`/curate`).
 
-Five sites ship: the Iron Tree, Piața Unirii, Piața Victoriei (the 1884 lamps), Theresia Bastion with the Bega, and the Metropolitan Cathedral (Catedrala Mitropolitană), which is the 1989 memorial and works differently (section 7.11).
+Five sites ship: Muzeul MX Corneliu Miklosi (the hackathon venue in Timișoara), Piața Unirii, Piața Victoriei (the 1884 lamps), Theresia Bastion with the Bega, and the Metropolitan Cathedral (Catedrala Mitropolitană), which is the 1989 memorial and works differently (section 7.11).
 
 Stack it is written for: Vite, React, TypeScript; styling is one global stylesheet of tokens (`tokens.css`, holding every custom property in this document plus the base rules in 4.5) and one CSS Module per component that reads only those custom properties. No Tailwind, no motion library, no icon library. Canvas 2D for `/screen`, Recharts plus hand-written SVG for `/pulse`, the `qrcode` npm package for QR codes.
 
@@ -478,7 +478,7 @@ Purpose: glanceable direction and distance to the chosen site. Anatomy, top to b
 | arriving at the memorial | hidden | "Here" | none; the memorial view opens |
 | lantern (10 s without touch) | opacity 0.6, everything else 0.6 | stays | tap anywhere restores 1.0 in `--dur-fast` |
 
-In the lantern state the arrow (`--lamp` at 60% on `--bg`) still measures above 3:1 and the distance numeral above 4.5:1. The accessible text is updated at most every 10 s: "Iron Tree, 220 metres, ahead and slightly left".
+In the lantern state the arrow (`--lamp` at 60% on `--bg`) still measures above 3:1 and the distance numeral above 4.5:1. The accessible text is updated at most every 10 s: "Muzeul MX Corneliu Miklosi, 220 metres, ahead and slightly left".
 
 ### 6.13 LampCounter
 
@@ -580,7 +580,7 @@ The interface speaks plainly and quietly; the sites speak with character (that i
 | Headphones hint | "Put on headphones. LAMPA guides you with sound." | "Pune-ți căștile. LAMPA te ghidează prin sunet." |
 | Keep open | "Keep LAMPA open while you walk. Sound and location stop when the page is in the background." | "Ține LAMPA deschisă cât mergi. Sunetul și locația se opresc când pagina e în fundal." |
 | Lens | "Point at a colour and hold still" | "Țintește o culoare și ține telefonul nemișcat" |
-| Caught | "Your colour is in the Iron Tree window. 47 of 48." | "Culoarea ta e în vitraliul Arborelui de Fier. 47 din 48." |
+| Caught | "Your colour is in the window of Muzeul MX Corneliu Miklosi. 47 of 48." | "Culoarea ta e în vitraliul Muzeului MX Corneliu Miklosi. 47 din 48." |
 | Talk fallback | "Live conversation is resting. Tap a question." | "Conversația live e în pauză. Alege o întrebare." |
 | Echo sent | "Sent. A curator listens to it before it plays here." | "Trimis. Un curator îl ascultă înainte să se audă aici." |
 | Offline | "No connection. The sound keeps playing. Your colours send when you are back online." | "Fără conexiune. Sunetul continuă. Culorile tale se trimit când revii online." |

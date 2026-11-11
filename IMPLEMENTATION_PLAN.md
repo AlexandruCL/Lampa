@@ -1,6 +1,6 @@
 # LAMPA implementation plan
 
-48 hours, 4 people. Source: `LAMPA_Hackathon_Concept_Timisoara_v4.pdf` (section numbers below point into it), plus `LAMPA_Hackathon_Concept_Timisoara_v5.pdf`, which is v4 with an addendum page for the fifth site.
+48 hours, 4 people. Source: `LAMPA_Hackathon_Concept_Timisoara_v4.pdf` (section numbers below point into it), plus `LAMPA_Hackathon_Concept_Timisoara_v6.pdf`, which is v5 (v4 plus the addendum page for the fifth site) with the Iron Tree replaced by Muzeul MX Corneliu Miklosi throughout the text.
 
 This plan covers code, data, integrations, testing and submission. It contains no visual or UX design work: that goes in `DESIGN.md`. Every screen task here means a working, unstyled screen. Styling is done by each screen's owner in the same block, see "Where styling hours come from" at the end.
 
@@ -8,6 +8,7 @@ This plan covers code, data, integrations, testing and submission. It contains n
 
 These were settled after `DESIGN.md` was written and override anything older in this file or the PDF.
 
+- The Iron Tree is replaced by Muzeul MX Corneliu Miklosi in Timișoara, the venue where the hackathon takes place. It is a persona site like the Iron Tree was (same code path, same YAML format). Its coordinates, facts with sources, persona traits, sound-bed prompt and direction hint are not written yet: the team collects them on site before hour 0. Nothing in the code depends on the Iron Tree: the palette id `tree` stays as an internal colour set name.
 - Five sites, not four. The fifth is the Metropolitan Cathedral, a 1989 memorial: narrated, sourced testimonies and a candle, nothing else (details in section 7).
 - The Lamp station moves from P1 to P2. P4 builds the design tokens and base components at the start of Build 1. P4's load is over budget and the team accepts it.
 - The clock offset endpoint moves from Build 4 to Build 3, because the lamp pulse needs it.
@@ -77,7 +78,7 @@ The ElevenLabs sketches in section 11.1 come from research. P2 checks method nam
 Only if the rules allow preparation. None of this is code.
 
 - Accounts created and keys in a shared vault: ElevenLabs (paid month started), Tiger Cloud, Auth0 tenant, Vercel, Render, GitHub repo with secret scanning on.
-- Content for the four persona sites as YAML in the format of section 8.3: coordinates, facts with sources, persona traits, first message, three tap-to-ask questions with answers, sound-bed prompt, direction hint. Romanian and English at minimum. Each persona also gets one plain, pre-written sentence pointing visitors to the Cathedral, with no jokes; personas never improvise about 1989.
+- Content for the four persona sites (Muzeul MX Corneliu Miklosi, Piața Unirii, Piața Victoriei, Theresia Bastion with the Bega) as YAML in the format of section 8.3: coordinates, facts with sources, persona traits, first message, three tap-to-ask questions with answers, sound-bed prompt, direction hint. Romanian and English at minimum. Each persona also gets one plain, pre-written sentence pointing visitors to the Cathedral, with no jokes; personas never improvise about 1989.
 - Content for the Metropolitan Cathedral as YAML with `is_memorial: true`: coordinates, direction hint, a quiet sound-bed prompt, and three to five short narrations of published accounts of December 1989, each with its source. No persona, no tap-to-ask. A team member checks every narration against its source before hour 0.
 - Devices: one iPhone, one Android, a laptop with HDMI for `/screen`, a speaker, a mobile hotspot.
 
