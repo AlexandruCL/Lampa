@@ -430,6 +430,6 @@ Needs from others: socket messages from Fabi by hour 6, the signed-URL call and 
 
 ## Where styling hours come from
 
-Task estimates above produce unstyled, working screens. `DESIGN.md` puts the required styling at about 13.5 person-hours, which does not fit the 2 free hours left in Build 4.
+Task estimates above produce unstyled, working screens. `DESIGN.md` puts the required styling at about 9.75 person-hours, which does not fit the 2 free hours left in Build 4.
 
 So each owner styles a screen in the same block where they build it, out of that block's slack, using the tokens and base components Cristea ships at the start of Build 1. `DESIGN.md` section 9 lists each styling item with its owner. If a block's slack runs out, cut from the top of the cut order (Radio Lampa first). Do not take styling time from checkpoints or the freeze window.
