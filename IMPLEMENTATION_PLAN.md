@@ -10,7 +10,7 @@ These were settled after `DESIGN.md` was written and override anything older in 
 
 - The Iron Tree is replaced by Muzeul MX Corneliu Miklosi in Timișoara, the venue where the hackathon takes place. It is a persona site like the Iron Tree was (same code path, same YAML format). Its coordinates, facts with sources, persona traits, sound-bed prompt and direction hint are not written yet: the team collects them on site before hour 0. Nothing in the code depends on the Iron Tree: the palette id `tree` stays as an internal colour set name.
 - Five sites, not four. The fifth is the Metropolitan Cathedral, a 1989 memorial: narrated, sourced testimonies and a candle, nothing else (details in section 7).
-- The Lamp station moves from P1 to P2. Cristea builds the design tokens and base components at the start of Build 1. Cristea's load is over budget and the team accepts it.
+- The Lamp station moves from Ionut to Patrick. Cristea builds the design tokens and base components at the start of Build 1. Cristea's load is over budget and the team accepts it.
 - The clock offset endpoint moves from Build 4 to Build 3, because the lamp pulse needs it.
 - Radio Lampa stays, first in the cut order. Memorial mode leaves the cut order.
 - Remote mode opens at `/?mode=remote`.
@@ -22,7 +22,7 @@ These were settled after `DESIGN.md` was written and override anything older in 
 | Bucket | Per person | Team | Notes |
 |---|---|---|---|
 | Setup and kick-off | 2 h | 8 h | repo, deploys, accounts wired, contracts agreed |
-| Feature tasks | 20 h | 80 h | the estimates in section 6. After the 10 November moves: P1 18.25 h, P2 23 h, P3 21 h, Cristea 23.75 h (86 h) |
+| Feature tasks | 20 h | 80 h | the estimates in section 6. After the 10 November moves: Ionut 18.25 h, Patrick 23 h, Fabi 21 h, Cristea 23.75 h (86 h) |
 | Slack inside build blocks | 4 h | 16 h | meals, breaks, small blockers; blocks are planned at about 80% |
 | Checkpoints (integrate, then fix) | 5 h | 20 h | three of them, everyone stops building |
 | Freeze: bugs only, device pass, load test | 4 h | 16 h | no new features after hour 40 |
@@ -39,9 +39,9 @@ The PDF lists five roles (section 10.1). With four people, pitch work is shared 
 
 | Person | Lane | Owns |
 |---|---|---|
-| P1 | Phone experience | join, primer, sensors, geofence, demo mode, colour lens, echo recorder, between-sites screens, memorial candle |
-| P2 | Sound and voice | ElevenLabs agent, voices, generation script, Web Audio engine, Talk station, navigation sound, Lamp station |
-| P3 | Data and real-time | Tiger schema, events API, Socket.IO, glow loop, panes and windows, Pulse, crowd simulator, clock offset |
+| Ionut | Phone experience | join, primer, sensors, geofence, demo mode, colour lens, echo recorder, between-sites screens, memorial candle |
+| Patrick | Sound and voice | ElevenLabs agent, voices, generation script, Web Audio engine, Talk station, navigation sound, Lamp station |
+| Fabi | Data and real-time | Tiger schema, events API, Socket.IO, glow loop, panes and windows, Pulse, crowd simulator, clock offset |
 | Cristea | Identity, infra, Living Map | repo, deploys, design tokens and base components, Auth0, sessions, curator console, add-a-place, `/screen` and its map lines |
 
 Each person merges to `main` through small pull requests. `main` auto-deploys, so a broken `main` blocks phone testing for everyone: fix or revert within 15 minutes.
@@ -71,7 +71,7 @@ Each person merges to `main` through small pull requests. `main` auto-deploys, s
 
 Phone sensors need HTTPS. From hour 2, test on real phones against the deployed URL (or a tunnel to the dev server). Do not wait for a checkpoint to find out that iOS rejected a permission call.
 
-The ElevenLabs sketches in section 11.1 come from research. P2 checks method names, signed-URL flow and credit prices against the current docs in the first two hours, before anyone builds on them.
+The ElevenLabs sketches in section 11.1 come from research. Patrick checks method names, signed-URL flow and credit prices against the current docs in the first two hours, before anyone builds on them.
 
 ## 4. Before hour 0
 
@@ -82,7 +82,7 @@ Only if the rules allow preparation. None of this is code.
 - Content for the Metropolitan Cathedral as YAML with `is_memorial: true`: coordinates, direction hint, a quiet sound-bed prompt, and three to five short narrations of published accounts of December 1989, each with its source. No persona, no tap-to-ask. A team member checks every narration against its source before hour 0.
 - Devices: one iPhone, one Android, a laptop with HDMI for `/screen`, a speaker, a mobile hotspot.
 
-If content is not ready at hour 0, P2 loses the overnight generation slot and Talk fallback slips a full block.
+If content is not ready at hour 0, Patrick loses the overnight generation slot and Talk fallback slips a full block.
 
 ## 5. Timeline
 
@@ -112,9 +112,9 @@ Hours are relative to the start. The sleep windows assume a start around midday.
 | Who | Task |
 |---|---|
 | Cristea | npm workspaces: `apps/web` (Vite, React, TypeScript), `apps/api` (Express, TypeScript), `packages/shared`. Web on Vercel, API on Render, both deploying from `main`. `.env.example`, no `.env` in git |
-| P3 | Tiger service. Migration 001: extensions, `sites`, `windows`, `panes`, `echoes`, `blobs`, `interaction_events` hypertable. `npm run db:reset` rebuilds schema, seeds the five sites from YAML and writes `packages/shared/sites.json` |
-| P2 | Verify ElevenLabs docs and prices. Create the one agent template with overrides enabled. Fetch a signed URL from a script |
-| P1 | Routes: `/`, `/s/:siteId`, `/screen`, `/pulse`, `/curate`. Typed API client. Vitest running |
+| Fabi | Tiger service. Migration 001: extensions, `sites`, `windows`, `panes`, `echoes`, `blobs`, `interaction_events` hypertable. `npm run db:reset` rebuilds schema, seeds the five sites from YAML and writes `packages/shared/sites.json` |
+| Patrick | Verify ElevenLabs docs and prices. Create the one agent template with overrides enabled. Fetch a signed URL from a script |
+| Ionut | Routes: `/`, `/s/:siteId`, `/screen`, `/pulse`, `/curate`. Typed API client. Vitest running |
 | All | 30 minutes on the contract, written into `packages/shared`: event kinds (`wake`, `talk_turn`, `colour`, `lamp`, `candle`, `echo_approved`, `echo_heard`, `arrived`) and socket messages (`glow`, `pane`, `window_complete`, `echo_approved`, `lamps` with a per-site count of people lighting now, `candle`, `finale`). Remote mode is `/?mode=remote` |
 
 Done when the deployed URL opens over HTTPS on both phones and `npm run db:reset` works from a clean database.
@@ -125,18 +125,18 @@ Goal: a tap on a phone changes what `/screen` shows.
 
 | Who | Task | Hours |
 |---|---|---|
-| P1 | Landing at `/s/:siteId` and the primer: one tap requests location and compass (iOS `requestPermission`) and resumes the AudioContext | 2 |
-| P1 | `useGeolocation`, `useCompass` (iOS and Android paths), `useGeofence` with the hysteresis recipe from section 9.7, plus geo helpers with tests | 2.5 |
-| P1 | Demo mode: `?demo=1` injects position and heading | 1 |
-| P1 | Site view from `sites.json`: asleep or awake from glow, entry points for the four interactions (memorial site: listen and candle only), `wake` event, client batching to `POST /events` every 2 s | 1 |
-| P2 | Voices for the four personas. Prompt renderer from Appendix A | 1.5 |
-| P2 | `scripts/publish-site.ts`: greeting and tap-to-ask clips per language, two takes of each sound bed, files named by input hash so nothing is paid for twice. For a memorial site: narrations in a calm narrator voice instead of persona clips | 3.5 |
-| P2 | Project-wide sounds: glass tone, lamp crackle, arrival chime, waltz | 0.5 |
-| P2 | Audio engine v1: unlock on tap, load and loop a bed, gain follows glow | 1.5 |
-| P3 | `POST /events`: Zod validation, server-side weights, batch insert | 1.5 |
-| P3 | Socket.IO `/live` with rooms `city`, `site:<id>`, `screen`. Broadcast on insert | 1.5 |
-| P3 | `site_activity_1m` continuous aggregate, the glow query, the 5 s loop that pushes glow to all clients. Test for the decay maths | 2.5 |
-| P3 | `GET /sites?near=` with PostGIS, `GET /sites/:id` | 1 |
+| Ionut | Landing at `/s/:siteId` and the primer: one tap requests location and compass (iOS `requestPermission`) and resumes the AudioContext | 2 |
+| Ionut | `useGeolocation`, `useCompass` (iOS and Android paths), `useGeofence` with the hysteresis recipe from section 9.7, plus geo helpers with tests | 2.5 |
+| Ionut | Demo mode: `?demo=1` injects position and heading | 1 |
+| Ionut | Site view from `sites.json`: asleep or awake from glow, entry points for the four interactions (memorial site: listen and candle only), `wake` event, client batching to `POST /events` every 2 s | 1 |
+| Patrick | Voices for the four personas. Prompt renderer from Appendix A | 1.5 |
+| Patrick | `scripts/publish-site.ts`: greeting and tap-to-ask clips per language, two takes of each sound bed, files named by input hash so nothing is paid for twice. For a memorial site: narrations in a calm narrator voice instead of persona clips | 3.5 |
+| Patrick | Project-wide sounds: glass tone, lamp crackle, arrival chime, waltz | 0.5 |
+| Patrick | Audio engine v1: unlock on tap, load and loop a bed, gain follows glow | 1.5 |
+| Fabi | `POST /events`: Zod validation, server-side weights, batch insert | 1.5 |
+| Fabi | Socket.IO `/live` with rooms `city`, `site:<id>`, `screen`. Broadcast on insert | 1.5 |
+| Fabi | `site_activity_1m` continuous aggregate, the glow query, the 5 s loop that pushes glow to all clients. Test for the decay maths | 2.5 |
+| Fabi | `GET /sites?near=` with PostGIS, `GET /sites/:id` | 1 |
 | Cristea | Design tokens first: `tokens.css`, the two self-hosted fonts (`@fontsource/atkinson-hyperlegible-next`, `@fontsource/piazzolla`), the nine icons, Button, Notice, Ring, RoundControl, as `DESIGN.md` specifies. Everyone styles against these | 2.5 |
 | Cristea | Auth0 tenant: SPA app, API with RBAC and permissions in the token, roles, passwordless and passkey | 1.5 |
 | Cristea | `POST /session/anon` (signed JWT, 24 h), `requireVisitor` middleware that accepts the anon token or an Auth0 token, rate limiting | 2 |
@@ -160,21 +160,21 @@ Goal: the two stations the demo is built around.
 
 | Who | Task | Hours |
 |---|---|---|
-| P1 | Colour lens: rear camera, 64x64 centre sample 10 times a second, 12 hue bins weighted by saturation x brightness, night-glass fallback. Test for the bin picker with fixed pixel arrays | 3.5 |
-| P1 | Hold steady for 2 s (colour distance plus rotation rate), `POST /panes`, vibration where supported, caught-pane feedback | 1.5 |
-| P1 | Colour names: one ro and en name per hue bin, shown under the caught swatch | 0.25 |
-| P2 | Talk, live: `GET /agent/session`, `useConversation`, client tools (`show_archive_image`, `set_light`, `start_colour_catch`, `start_echo_recording`, `suggest_next_site`), captions | 3 |
-| P2 | Talk fallback: tap-to-ask with pre-generated clips, browser speech synthesis as last resort, automatic switch on agent error | 1.5 |
-| P2 | Colour to note: hue to pentatonic step, lightness to octave, via `playbackRate` on the glass sample | 0.5 |
-| P3 | `POST /panes`: rate limit, slot assignment, window completes at 48, archive and open a new one, broadcast. Test for slot and completion logic | 2.5 |
-| P3 | `colour_readings` hypertable and the `colour_1h` aggregate | 0.5 |
-| P3 | Agent server tools `get_site_stats` and `get_recent_echo`, behind a shared-secret header | 1 |
-| P3 | `scripts/simulate-crowd.ts`, minimal: fake sessions sending events and panes. Everyone uses it from here on to develop without phones | 1 |
+| Ionut | Colour lens: rear camera, 64x64 centre sample 10 times a second, 12 hue bins weighted by saturation x brightness, night-glass fallback. Test for the bin picker with fixed pixel arrays | 3.5 |
+| Ionut | Hold steady for 2 s (colour distance plus rotation rate), `POST /panes`, vibration where supported, caught-pane feedback | 1.5 |
+| Ionut | Colour names: one ro and en name per hue bin, shown under the caught swatch | 0.25 |
+| Patrick | Talk, live: `GET /agent/session`, `useConversation`, client tools (`show_archive_image`, `set_light`, `start_colour_catch`, `start_echo_recording`, `suggest_next_site`), captions | 3 |
+| Patrick | Talk fallback: tap-to-ask with pre-generated clips, browser speech synthesis as last resort, automatic switch on agent error | 1.5 |
+| Patrick | Colour to note: hue to pentatonic step, lightness to octave, via `playbackRate` on the glass sample | 0.5 |
+| Fabi | `POST /panes`: rate limit, slot assignment, window completes at 48, archive and open a new one, broadcast. Test for slot and completion logic | 2.5 |
+| Fabi | `colour_readings` hypertable and the `colour_1h` aggregate | 0.5 |
+| Fabi | Agent server tools `get_site_stats` and `get_recent_echo`, behind a shared-secret header | 1 |
+| Fabi | `scripts/simulate-crowd.ts`, minimal: fake sessions sending events and panes. Everyone uses it from here on to develop without phones | 1 |
 | Cristea | `GET /agent/session`: signed URL, per-site overrides, dynamic variables, rate limit. The API key never reaches the browser | 1.5 |
 | Cristea | `/screen` v2: each site draws its window with 48 slots, panes appear on the socket message, ticker, counters | 3.5 |
 | Cristea | Map lines: trace the Bega and the Cetate ring from OpenStreetMap as about five polylines in `packages/shared`, draw them once to the static layer, add the OSM credit | 0.75 |
 
-Before sleeping, P2 starts `publish-site.ts` for all five sites.
+Before sleeping, Patrick starts `publish-site.ts` for all five sites.
 
 ### Checkpoint 2 (hours 24 to 25)
 
@@ -182,26 +182,26 @@ Before sleeping, P2 starts `publish-site.ts` for all five sites.
 2. The crowd simulator fills a window to 48, it completes, and a new one starts.
 3. Live Talk answers on a phone and at least one client tool fires.
 4. With the ElevenLabs key removed, Talk falls back to tap-to-ask without a reload.
-5. P2 has listened to every generated bed and picked a take.
+5. Patrick has listened to every generated bed and picked a take.
 
 ### Build 3: Echo, navigation, Lamp, Pulse, sign-in (hours 25 to 32)
 
 | Who | Task | Hours |
 |---|---|---|
-| P1 | Echo recorder: MediaRecorder (webm on Chrome, mp4 on Safari), 20 s cap, consent checkbox, upload | 1.5 |
-| P1 | Between sites: arrow and distance, sites list with distance and glow, next-site score from section 7.7, Google and Apple Maps links | 2.5 |
-| P2 | Lamp: raise gesture (pitch above 60 degrees for 1.5 s, below 40 to lower), full-screen light, Wake Lock, `lamp` events per minute held, city counter and "people lighting this site now" | 2 |
-| P2 | Lamp pulse: every lit phone pulses on a slow 4 s cycle aligned to server time through the clock offset | 0.5 |
-| P2 | Navigation audio: sound compass for the 2 to 3 nearest sites (HRTF panner from bearing minus heading, low-pass by distance), beacon for the chosen site, arrival chime, 12 dB ducking under the persona voice | 3.5 |
-| P2 | Approved echoes play as whispers from the site's direction | 1 |
-| P2 | Room sound on `/screen`: each bed at gain equal to glow, panned by map position | 1.5 |
-| P3 | Lamps lit today: query and broadcast | 1 |
-| P3 | People lighting now: distinct sessions with a `lamp` event at each site in the last 90 s, sent per site in the `lamps` message | 0.5 |
-| P3 | Clock offset endpoint (5 pings, lowest RTT), moved here from Build 4 for the lamp pulse | 0.5 |
-| P3 | `candle` events and broadcast; Pulse shows the memorial's candles as marks with no numbers | 0.5 |
-| P3 | `GET /pulse/*`, cached 5 s: glow, gap-filled interactions, unique visitors with hyperloglog, colour clock, languages | 2.5 |
-| P3 | `/pulse` page: charts and the colour clock ring | 2 |
-| P3 | Post-call webhook with HMAC check into `conversations` | 0.5 |
+| Ionut | Echo recorder: MediaRecorder (webm on Chrome, mp4 on Safari), 20 s cap, consent checkbox, upload | 1.5 |
+| Ionut | Between sites: arrow and distance, sites list with distance and glow, next-site score from section 7.7, Google and Apple Maps links | 2.5 |
+| Patrick | Lamp: raise gesture (pitch above 60 degrees for 1.5 s, below 40 to lower), full-screen light, Wake Lock, `lamp` events per minute held, city counter and "people lighting this site now" | 2 |
+| Patrick | Lamp pulse: every lit phone pulses on a slow 4 s cycle aligned to server time through the clock offset | 0.5 |
+| Patrick | Navigation audio: sound compass for the 2 to 3 nearest sites (HRTF panner from bearing minus heading, low-pass by distance), beacon for the chosen site, arrival chime, 12 dB ducking under the persona voice | 3.5 |
+| Patrick | Approved echoes play as whispers from the site's direction | 1 |
+| Patrick | Room sound on `/screen`: each bed at gain equal to glow, panned by map position | 1.5 |
+| Fabi | Lamps lit today: query and broadcast | 1 |
+| Fabi | People lighting now: distinct sessions with a `lamp` event at each site in the last 90 s, sent per site in the `lamps` message | 0.5 |
+| Fabi | Clock offset endpoint (5 pings, lowest RTT), moved here from Build 4 for the lamp pulse | 0.5 |
+| Fabi | `candle` events and broadcast; Pulse shows the memorial's candles as marks with no numbers | 0.5 |
+| Fabi | `GET /pulse/*`, cached 5 s: glow, gap-filled interactions, unique visitors with hyperloglog, colour clock, languages | 2.5 |
+| Fabi | `/pulse` page: charts and the colour clock ring | 2 |
+| Fabi | Post-call webhook with HMAC check into `conversations` | 0.5 |
 | Cristea | `POST /echoes`: multipart upload, store in `blobs`, Scribe transcript, status `pending` | 2 |
 | Cristea | Approve and reject endpoints behind `moderate:echo`, broadcast on approval. Test: the endpoint returns 403 without the permission | 1 |
 | Cristea | Post-login Action: roles claim, MFA forced for curator and admin | 0.5 |
@@ -219,13 +219,13 @@ Three hours, so each person gets one main item. Anything not working at hour 40 
 
 | Who | Task | Hours | Fallback if cut |
 |---|---|---|---|
-| P1 | Language dictionary for ro and en, picked from `navigator.language` | 1.5 | English only |
-| P1 | Memorial candle: lights after 60 s of stillness measured by motion only (no microphone), 5 s with `?demo=1`, sends a `candle` event | 1 | a tap lights the candle; the memorial site itself is never cut |
-| P2 | 1884 finale cue on phones and `/screen`: crackle, silence, waltz, started at a shared server time | 1.5 | play the waltz on `/screen` only |
-| P2 | One Radio Lampa episode, generated once from today's numbers (first to cut) | 1 | skip |
-| P3 | Finale trigger at 731 lamps, using the clock offset from Build 3 | 0.5 | broadcast "start now" without sync |
-| P3 | Compression and retention policies. `EXPLAIN ANALYZE` of raw table against aggregate, numbers into the README | 1 | policies only |
-| P3 | `npm run demo:reset`: clean state, one window at 47 of 48, lamps just under 731 | 0.5 | not optional, do this first |
+| Ionut | Language dictionary for ro and en, picked from `navigator.language` | 1.5 | English only |
+| Ionut | Memorial candle: lights after 60 s of stillness measured by motion only (no microphone), 5 s with `?demo=1`, sends a `candle` event | 1 | a tap lights the candle; the memorial site itself is never cut |
+| Patrick | 1884 finale cue on phones and `/screen`: crackle, silence, waltz, started at a shared server time | 1.5 | play the waltz on `/screen` only |
+| Patrick | One Radio Lampa episode, generated once from today's numbers (first to cut) | 1 | skip |
+| Fabi | Finale trigger at 731 lamps, using the clock offset from Build 3 | 0.5 | broadcast "start now" without sync |
+| Fabi | Compression and retention policies. `EXPLAIN ANALYZE` of raw table against aggregate, numbers into the README | 1 | policies only |
+| Fabi | `npm run demo:reset`: clean state, one window at 47 of 48, lamps just under 731 | 0.5 | not optional, do this first |
 | Cristea | Add a place: form in the console (use my location, name, facts, persona), `POST /sites` and `/sites/:id/publish` behind `write:site`, calling the same publish code as the script. QR code for the new URL | 2.5 | show a pre-filled form and a pre-published sixth site |
 
 ### Freeze (hours 40 to 44)
@@ -299,10 +299,10 @@ Small, and only where a silent bug would break the demo.
 
 | Test | Owner |
 |---|---|
-| `bearing`, Haversine, geofence enter and exit with accuracy | P1 |
-| Hue-bin colour picker on fixed pixel arrays | P1 |
-| Glow decay: known events at known times give the expected value | P3 |
-| Pane slot assignment and window completion at 48 | P3 |
+| `bearing`, Haversine, geofence enter and exit with accuracy | Ionut |
+| Hue-bin colour picker on fixed pixel arrays | Ionut |
+| Glow decay: known events at known times give the expected value | Fabi |
+| Pane slot assignment and window completion at 48 | Fabi |
 | Moderation endpoint returns 403 without `moderate:echo` | Cristea |
 | Anonymous token: expired or tampered tokens are rejected | Cristea |
 
@@ -312,8 +312,8 @@ Small, and only where a silent bug would break the demo.
 
 | Risk | What it costs | What we do |
 |---|---|---|
-| iOS refuses a sensor or audio call made outside a tap | hours, found late | P1 tests on the iPhone from hour 2, not at the checkpoint |
-| ElevenLabs API differs from the PDF sketches | P2's Build 1 and 2 | docs check in Setup. Tap-to-ask needs only plain TTS, so it survives |
+| iOS refuses a sensor or audio call made outside a tap | hours, found late | Ionut tests on the iPhone from hour 2, not at the checkpoint |
+| ElevenLabs API differs from the PDF sketches | Patrick's Build 1 and 2 | docs check in Setup. Tap-to-ask needs only plain TTS, so it survives |
 | Credits run out during development | no live Talk at the demo | develop against the recorded clips. Live conversation only at checkpoints and rehearsals |
 | Render free tier sleeps and drops sockets | a dead `/screen` on stage | keep-alive tab. Socket.IO reconnect, then refetch state on reconnect |
 | Continuous aggregate lags behind new events | glow looks frozen | `materialized_only = false` in migration 001, verified at checkpoint 1 |
@@ -336,9 +336,9 @@ From section 10.7, checked at hour 44:
 
 ## 11. Per member
 
-The same tasks as section 6, regrouped so each person can read their own 48 hours top to bottom. Checkpoints, freeze and submission (section 5) are shared by all four and are not repeated here. Cristea was P4 in earlier versions of this plan. Replace P1 to P3 with names in section 2.
+The same tasks as section 6, regrouped so each person can read their own 48 hours top to bottom. Checkpoints, freeze and submission (section 5) are shared by all four and are not repeated here. In earlier versions of this plan Ionut was P1, Patrick was P2, Fabi was P3 and Cristea was P4.
 
-### P1: phone experience (18.25 h of tasks)
+### Ionut: phone experience (18.25 h of tasks)
 
 | Block | Task | Hours |
 |---|---|---|
@@ -355,9 +355,9 @@ The same tasks as section 6, regrouped so each person can read their own 48 hour
 | Build 4 | ro and en dictionary (a native speaker reviews the Romanian strings first) | 1.5 |
 | Build 4 | Memorial candle: motion-only stillness, 5 s in demo mode | 1 |
 
-Needs from others: `POST /events` and `GET /sites` from P3 by hour 6, `POST /panes` from P3 by hour 15, `POST /echoes` from Cristea by hour 28. Until each lands, code against the Zod schema in `packages/shared`.
+Needs from others: `POST /events` and `GET /sites` from Fabi by hour 6, `POST /panes` from Fabi by hour 15, `POST /echoes` from Cristea by hour 28. Until each lands, code against the Zod schema in `packages/shared`.
 
-### P2: sound and voice (23 h of tasks)
+### Patrick: sound and voice (23 h of tasks)
 
 | Block | Task | Hours |
 |---|---|---|
@@ -378,9 +378,9 @@ Needs from others: `POST /events` and `GET /sites` from P3 by hour 6, `POST /pan
 | Build 4 | 1884 finale cue at a shared server time | 1.5 |
 | Build 4 | One Radio Lampa episode (first to cut) | 1 |
 
-Needs from others: site content YAML at hour 0, `GET /agent/session` from Cristea by hour 14, heading and position from P1's hooks by hour 25, the clock offset and the per-site lamp count from P3 in Build 3.
+Needs from others: site content YAML at hour 0, `GET /agent/session` from Cristea by hour 14, heading and position from Ionut's hooks by hour 25, the clock offset and the per-site lamp count from Fabi in Build 3.
 
-### P3: data and real-time (21 h of tasks)
+### Fabi: data and real-time (21 h of tasks)
 
 | Block | Task | Hours |
 |---|---|---|
@@ -426,7 +426,7 @@ Needs from others: `requireVisitor` middleware from Cristea by hour 6. Everyone 
 | Build 3 | Memorial candles and ticker line on `/screen` | 0.5 |
 | Build 4 | Add a place: form, endpoints, QR code | 2.5 |
 
-Needs from others: socket messages from P3 by hour 6, the signed-URL call and Scribe snippet from P2, `publish-site.ts` as an importable function from P2 for add-a-place.
+Needs from others: socket messages from Fabi by hour 6, the signed-URL call and Scribe snippet from Patrick, `publish-site.ts` as an importable function from Patrick for add-a-place.
 
 ## Where styling hours come from
 
