@@ -917,33 +917,33 @@ Every screen, route and view the implementation plan names, and where it is spec
 
 ## 9. Build order
 
-Styling is done inline: each owner styles a screen in the same block in which they build it, using that block's slack, not Build 4. Nothing is built unstyled and restyled later. P4 lays the foundation (item 1) at the very start of Build 1 so every later screen is built on the tokens and base components from its first line. Radio Lampa stays first in the plan's cut order; the memorial is not in the cut order.
+Styling is done inline: each owner styles a screen in the same block in which they build it, using that block's slack, not Build 4. Nothing is built unstyled and restyled later. Cristea lays the foundation (item 1) at the very start of Build 1 so every later screen is built on the tokens and base components from its first line. Radio Lampa stays first in the plan's cut order; the memorial is not in the cut order.
 
 Hours are styling time on top of the feature task, taken from the owner's slack in that block. Required items are needed for the demo script or are decided as required (the memorial); optional items can go without breaking anything.
 
 | # | Item | Owner, block | Smallest version that counts | Styling hours | Status |
 |---|---|---|---|---|---|
-| 1 | Foundation: `tokens.css` (every custom property in 2.1, 3, 4, 5.1, plus the 4.5 baseline and the 6.1 focus rule), fonts, the nine icons, and the base components Button, Notice, Ring, RoundControl | P4, start of Build 1 | Button primary, secondary, quiet, icon; Notice info and error; Ring with linear fill; RoundControl idle, listening, recording, disabled | 1.5 | required |
+| 1 | Foundation: `tokens.css` (every custom property in 2.1, 3, 4, 5.1, plus the 4.5 baseline and the 6.1 focus rule), fonts, the nine icons, and the base components Button, Notice, Ring, RoundControl | Cristea, start of Build 1 | Button primary, secondary, quiet, icon; Notice info and error; Ring with linear fill; RoundControl idle, listening, recording, disabled | 1.5 | required |
 | 2 | Join and Site view: GlowMark, RoseWindow (SVG), memorial landing variant | P1, Build 1 | 7.1 success, location denied, audio blocked, memorial variant; 7.2 asleep and awake | 1.0 | required (demo 0:20) |
-| 3 | Living Map base: palette, projection, OpenStreetMap polylines and credit, five-site spacing rule, start button | P4, Build 1 | 7.13 map layer, site labels, credit; windows as plain circles until item 6 | 0.75 | required (demo 0:00) |
+| 3 | Living Map base: palette, projection, OpenStreetMap polylines and credit, five-site spacing rule, start button | Cristea, Build 1 | 7.13 map layer, site labels, credit; windows as plain circles until item 6 | 0.75 | required (demo 0:00) |
 | 4 | Colour lens with colour names | P1, Build 2 | 6.11 reading, holding, caught, window complete, name under the swatch; the flight can be a fade | 0.75 | required (demo 0:50) |
 | 5 | Talk | P2, Build 2 | Captions, RoundControl, tap-to-ask fallback; archive image inline only (no Sheet) | 0.5 | required (demo 0:20) |
-| 6 | Living Map windows: RoseWindow on canvas, pane flash, Ticker, counters, QRBlock | P4, Build 2 | 7.13 side panel and windows; skip ripples | 0.75 | required (demo 0:50 to 2:00) |
+| 6 | Living Map windows: RoseWindow on canvas, pane flash, Ticker, counters, QRBlock | Cristea, Build 2 | 7.13 side panel and windows; skip ripples | 0.75 | required (demo 0:50 to 2:00) |
 | 7 | Echo recorder | P1, Build 3 | 7.6 recording, consent, sent, upload failed | 0.25 | required (demo 1:20) |
 | 8 | Between sites and Sites list, memorial states included | P1, Build 3 | CompassCard tracking, no-compass and memorial states; Sites list as a plain view instead of a Sheet | 0.75 | required (demo 1:40) |
 | 9 | Lamp station: LightSurface, LampCounter, presence line, synchronised pulse | P2, Build 3 | 7.7 instruction, lit, presence line states, pulse in phase (steady when no offset) | 0.75 | required (demo 2:00) |
-| 10 | Curator queue | P4, Build 3 | 7.15 list, detail, AudioPlayer as a native `<audio controls>` styled with tokens, approve, reject without the inline confirm | 0.5 | required (demo 1:20) |
-| 11 | Living Map memorial: candle field and the calm ticker line | P4, Build 3 | 7.13 candle field and the 6.18 memorial line | 0.5 | required |
+| 10 | Curator queue | Cristea, Build 3 | 7.15 list, detail, AudioPlayer as a native `<audio controls>` styled with tokens, approve, reject without the inline confirm | 0.5 | required (demo 1:20) |
+| 11 | Living Map memorial: candle field and the calm ticker line | Cristea, Build 3 | 7.13 candle field and the 6.18 memorial line | 0.5 | required |
 | 12 | Pulse, with CandleMarks | P3, Build 3 | ChartCard styling, ColourClock, glow bars, lamps, CandleMarks; languages chart only if it ships | 0.75 | required (demo 2:20) |
 | 13 | Memorial view: Testimony list and Candle | P1, Build 4 | 7.11 with testimonies playing, the stillness Candle (5 s in demo mode) and the tap fallback; if the stillness check is not working at the freeze, ship the tap fallback alone | 0.75 | required |
 | 14 | Phone finale | P2, Build 4 | 7.12 without dips; if the synced finale is cut, `/screen` plays it alone | 0.25 | required if the finale ships |
-| 15 | Add a place | P4, Build 4 | Field styling, publish step list, QRBlock | 0.5 | optional (the pre-filled form is the fallback) |
-| 16 | Echo ripples and subtitles on `/screen` | P4, Build 3 or 4 | 5.5 rings plus the 7.13 subtitle | 0.5 | optional |
+| 15 | Add a place | Cristea, Build 4 | Field styling, publish step list, QRBlock | 0.5 | optional (the pre-filled form is the fallback) |
+| 16 | Echo ripples and subtitles on `/screen` | Cristea, Build 3 or 4 | 5.5 rings plus the 7.13 subtitle | 0.5 | optional |
 | 17 | Sheet component | P1, Build 3 | replaces the plain views for the Sites list, archive image and "What happens to my voice" | 0.5 | optional |
 | 18 | Lantern dim | P1, Build 3 | 6.12 lantern state | 0.25 | optional |
 | 19 | Radio Lampa label on `/screen` | P2, Build 4 | the side-panel label in 7.13 | 0.1 | first to cut |
 
-Required styling per owner: P1 3.5 h (items 2, 4, 7, 8, 13), P2 1.5 h (5, 9, 14), P3 0.75 h (12), P4 4.0 h (1, 3, 6, 10, 11). P1 and P4 use almost all of their 4 h of block slack. If a block overruns, drop the optional items first, then shrink a required item to the smallest version in this table. Never take styling time from a checkpoint or the freeze.
+Required styling per owner: P1 3.5 h (items 2, 4, 7, 8, 13), P2 1.5 h (5, 9, 14), P3 0.75 h (12), Cristea 4.0 h (1, 3, 6, 10, 11). P1 and Cristea use almost all of their 4 h of block slack. If a block overruns, drop the optional items first, then shrink a required item to the smallest version in this table. Never take styling time from a checkpoint or the freeze.
 
 Required tokens: all of them.
 
@@ -987,7 +987,7 @@ These were open in the first version of this document; the user has decided them
 12. **Styling setup**: one global `tokens.css` plus CSS Modules; no Tailwind.
 13. **Join without the API**: the five seeded sites are built into the web app (7.1).
 14. **Auth0 branding**: logo and amber primary colour only (7.10).
-15. **Styling budget**: each owner styles inline from block slack; P4 builds the foundation at the start of Build 1; the Lamp station belongs to P2 (section 9).
+15. **Styling budget**: each owner styles inline from block slack; Cristea builds the foundation at the start of Build 1; the Lamp station belongs to P2 (section 9).
 
 ### 10.3 Still open
 

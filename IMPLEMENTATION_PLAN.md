@@ -10,7 +10,7 @@ These were settled after `DESIGN.md` was written and override anything older in 
 
 - The Iron Tree is replaced by Muzeul MX Corneliu Miklosi in Timișoara, the venue where the hackathon takes place. It is a persona site like the Iron Tree was (same code path, same YAML format). Its coordinates, facts with sources, persona traits, sound-bed prompt and direction hint are not written yet: the team collects them on site before hour 0. Nothing in the code depends on the Iron Tree: the palette id `tree` stays as an internal colour set name.
 - Five sites, not four. The fifth is the Metropolitan Cathedral, a 1989 memorial: narrated, sourced testimonies and a candle, nothing else (details in section 7).
-- The Lamp station moves from P1 to P2. P4 builds the design tokens and base components at the start of Build 1. P4's load is over budget and the team accepts it.
+- The Lamp station moves from P1 to P2. Cristea builds the design tokens and base components at the start of Build 1. Cristea's load is over budget and the team accepts it.
 - The clock offset endpoint moves from Build 4 to Build 3, because the lamp pulse needs it.
 - Radio Lampa stays, first in the cut order. Memorial mode leaves the cut order.
 - Remote mode opens at `/?mode=remote`.
@@ -22,7 +22,7 @@ These were settled after `DESIGN.md` was written and override anything older in 
 | Bucket | Per person | Team | Notes |
 |---|---|---|---|
 | Setup and kick-off | 2 h | 8 h | repo, deploys, accounts wired, contracts agreed |
-| Feature tasks | 20 h | 80 h | the estimates in section 6. After the 10 November moves: P1 18.25 h, P2 23 h, P3 21 h, P4 23.75 h (86 h) |
+| Feature tasks | 20 h | 80 h | the estimates in section 6. After the 10 November moves: P1 18.25 h, P2 23 h, P3 21 h, Cristea 23.75 h (86 h) |
 | Slack inside build blocks | 4 h | 16 h | meals, breaks, small blockers; blocks are planned at about 80% |
 | Checkpoints (integrate, then fix) | 5 h | 20 h | three of them, everyone stops building |
 | Freeze: bugs only, device pass, load test | 4 h | 16 h | no new features after hour 40 |
@@ -35,14 +35,14 @@ Bug time is 9 h per person (36 person-hours): the three checkpoints plus the fre
 
 ## 2. Lanes
 
-The PDF lists five roles (section 10.1). With four people, pitch work is shared and the Living Map moves to P4.
+The PDF lists five roles (section 10.1). With four people, pitch work is shared and the Living Map moves to Cristea.
 
 | Person | Lane | Owns |
 |---|---|---|
 | P1 | Phone experience | join, primer, sensors, geofence, demo mode, colour lens, echo recorder, between-sites screens, memorial candle |
 | P2 | Sound and voice | ElevenLabs agent, voices, generation script, Web Audio engine, Talk station, navigation sound, Lamp station |
 | P3 | Data and real-time | Tiger schema, events API, Socket.IO, glow loop, panes and windows, Pulse, crowd simulator, clock offset |
-| P4 | Identity, infra, Living Map | repo, deploys, design tokens and base components, Auth0, sessions, curator console, add-a-place, `/screen` and its map lines |
+| Cristea | Identity, infra, Living Map | repo, deploys, design tokens and base components, Auth0, sessions, curator console, add-a-place, `/screen` and its map lines |
 
 Each person merges to `main` through small pull requests. `main` auto-deploys, so a broken `main` blocks phone testing for everyone: fix or revert within 15 minutes.
 
@@ -111,7 +111,7 @@ Hours are relative to the start. The sleep windows assume a start around midday.
 
 | Who | Task |
 |---|---|
-| P4 | npm workspaces: `apps/web` (Vite, React, TypeScript), `apps/api` (Express, TypeScript), `packages/shared`. Web on Vercel, API on Render, both deploying from `main`. `.env.example`, no `.env` in git |
+| Cristea | npm workspaces: `apps/web` (Vite, React, TypeScript), `apps/api` (Express, TypeScript), `packages/shared`. Web on Vercel, API on Render, both deploying from `main`. `.env.example`, no `.env` in git |
 | P3 | Tiger service. Migration 001: extensions, `sites`, `windows`, `panes`, `echoes`, `blobs`, `interaction_events` hypertable. `npm run db:reset` rebuilds schema, seeds the five sites from YAML and writes `packages/shared/sites.json` |
 | P2 | Verify ElevenLabs docs and prices. Create the one agent template with overrides enabled. Fetch a signed URL from a script |
 | P1 | Routes: `/`, `/s/:siteId`, `/screen`, `/pulse`, `/curate`. Typed API client. Vitest running |
@@ -137,10 +137,10 @@ Goal: a tap on a phone changes what `/screen` shows.
 | P3 | Socket.IO `/live` with rooms `city`, `site:<id>`, `screen`. Broadcast on insert | 1.5 |
 | P3 | `site_activity_1m` continuous aggregate, the glow query, the 5 s loop that pushes glow to all clients. Test for the decay maths | 2.5 |
 | P3 | `GET /sites?near=` with PostGIS, `GET /sites/:id` | 1 |
-| P4 | Design tokens first: `tokens.css`, the two self-hosted fonts (`@fontsource/atkinson-hyperlegible-next`, `@fontsource/piazzolla`), the nine icons, Button, Notice, Ring, RoundControl, as `DESIGN.md` specifies. Everyone styles against these | 2.5 |
-| P4 | Auth0 tenant: SPA app, API with RBAC and permissions in the token, roles, passwordless and passkey | 1.5 |
-| P4 | `POST /session/anon` (signed JWT, 24 h), `requireVisitor` middleware that accepts the anon token or an Auth0 token, rate limiting | 2 |
-| P4 | `/screen` v1: sites placed by projecting lat and lng onto the canvas, brightness follows glow, live over the socket | 3 |
+| Cristea | Design tokens first: `tokens.css`, the two self-hosted fonts (`@fontsource/atkinson-hyperlegible-next`, `@fontsource/piazzolla`), the nine icons, Button, Notice, Ring, RoundControl, as `DESIGN.md` specifies. Everyone styles against these | 2.5 |
+| Cristea | Auth0 tenant: SPA app, API with RBAC and permissions in the token, roles, passwordless and passkey | 1.5 |
+| Cristea | `POST /session/anon` (signed JWT, 24 h), `requireVisitor` middleware that accepts the anon token or an Auth0 token, rate limiting | 2 |
+| Cristea | `/screen` v1: sites placed by projecting lat and lng onto the canvas, brightness follows glow, live over the socket | 3 |
 
 ### Checkpoint 1 (hours 10 to 12)
 
@@ -170,9 +170,9 @@ Goal: the two stations the demo is built around.
 | P3 | `colour_readings` hypertable and the `colour_1h` aggregate | 0.5 |
 | P3 | Agent server tools `get_site_stats` and `get_recent_echo`, behind a shared-secret header | 1 |
 | P3 | `scripts/simulate-crowd.ts`, minimal: fake sessions sending events and panes. Everyone uses it from here on to develop without phones | 1 |
-| P4 | `GET /agent/session`: signed URL, per-site overrides, dynamic variables, rate limit. The API key never reaches the browser | 1.5 |
-| P4 | `/screen` v2: each site draws its window with 48 slots, panes appear on the socket message, ticker, counters | 3.5 |
-| P4 | Map lines: trace the Bega and the Cetate ring from OpenStreetMap as about five polylines in `packages/shared`, draw them once to the static layer, add the OSM credit | 0.75 |
+| Cristea | `GET /agent/session`: signed URL, per-site overrides, dynamic variables, rate limit. The API key never reaches the browser | 1.5 |
+| Cristea | `/screen` v2: each site draws its window with 48 slots, panes appear on the socket message, ticker, counters | 3.5 |
+| Cristea | Map lines: trace the Bega and the Cetate ring from OpenStreetMap as about five polylines in `packages/shared`, draw them once to the static layer, add the OSM credit | 0.75 |
 
 Before sleeping, P2 starts `publish-site.ts` for all five sites.
 
@@ -202,12 +202,12 @@ Before sleeping, P2 starts `publish-site.ts` for all five sites.
 | P3 | `GET /pulse/*`, cached 5 s: glow, gap-filled interactions, unique visitors with hyperloglog, colour clock, languages | 2.5 |
 | P3 | `/pulse` page: charts and the colour clock ring | 2 |
 | P3 | Post-call webhook with HMAC check into `conversations` | 0.5 |
-| P4 | `POST /echoes`: multipart upload, store in `blobs`, Scribe transcript, status `pending` | 2 |
-| P4 | Approve and reject endpoints behind `moderate:echo`, broadcast on approval. Test: the endpoint returns 403 without the permission | 1 |
-| P4 | Post-login Action: roles claim, MFA forced for curator and admin | 0.5 |
-| P4 | Curator console v1: queue with audio player, transcript, approve, reject | 2 |
-| P4 | Keep my colours: `loginWithRedirect`, then `POST /me/claim` moves anonymous rows to the Auth0 subject | 0.5 |
-| P4 | Memorial on `/screen`: candle points at the Cathedral that fade over the same hours as glow, a quiet ticker line, no number, no room sound | 0.5 |
+| Cristea | `POST /echoes`: multipart upload, store in `blobs`, Scribe transcript, status `pending` | 2 |
+| Cristea | Approve and reject endpoints behind `moderate:echo`, broadcast on approval. Test: the endpoint returns 403 without the permission | 1 |
+| Cristea | Post-login Action: roles claim, MFA forced for curator and admin | 0.5 |
+| Cristea | Curator console v1: queue with audio player, transcript, approve, reject | 2 |
+| Cristea | Keep my colours: `loginWithRedirect`, then `POST /me/claim` moves anonymous rows to the Auth0 subject | 0.5 |
+| Cristea | Memorial on `/screen`: candle points at the Cathedral that fade over the same hours as glow, a quiet ticker line, no number, no room sound | 0.5 |
 
 ### Checkpoint 3 (hours 32 to 34)
 
@@ -226,7 +226,7 @@ Three hours, so each person gets one main item. Anything not working at hour 40 
 | P3 | Finale trigger at 731 lamps, using the clock offset from Build 3 | 0.5 | broadcast "start now" without sync |
 | P3 | Compression and retention policies. `EXPLAIN ANALYZE` of raw table against aggregate, numbers into the README | 1 | policies only |
 | P3 | `npm run demo:reset`: clean state, one window at 47 of 48, lamps just under 731 | 0.5 | not optional, do this first |
-| P4 | Add a place: form in the console (use my location, name, facts, persona), `POST /sites` and `/sites/:id/publish` behind `write:site`, calling the same publish code as the script. QR code for the new URL | 2.5 | show a pre-filled form and a pre-published sixth site |
+| Cristea | Add a place: form in the console (use my location, name, facts, persona), `POST /sites` and `/sites/:id/publish` behind `write:site`, calling the same publish code as the script. QR code for the new URL | 2.5 | show a pre-filled form and a pre-published sixth site |
 
 ### Freeze (hours 40 to 44)
 
@@ -303,8 +303,8 @@ Small, and only where a silent bug would break the demo.
 | Hue-bin colour picker on fixed pixel arrays | P1 |
 | Glow decay: known events at known times give the expected value | P3 |
 | Pane slot assignment and window completion at 48 | P3 |
-| Moderation endpoint returns 403 without `moderate:echo` | P4 |
-| Anonymous token: expired or tampered tokens are rejected | P4 |
+| Moderation endpoint returns 403 without `moderate:echo` | Cristea |
+| Anonymous token: expired or tampered tokens are rejected | Cristea |
 
 `npm test` runs before every checkpoint. Everything else is verified by the checkpoint lists on real phones.
 
@@ -317,9 +317,9 @@ Small, and only where a silent bug would break the demo.
 | Credits run out during development | no live Talk at the demo | develop against the recorded clips. Live conversation only at checkpoints and rehearsals |
 | Render free tier sleeps and drops sockets | a dead `/screen` on stage | keep-alive tab. Socket.IO reconnect, then refetch state on reconnect |
 | Continuous aggregate lags behind new events | glow looks frozen | `materialized_only = false` in migration 001, verified at checkpoint 1 |
-| Auth0 passkey and MFA setup takes longer than 2 h | P4 falls behind on `/screen` | email code first, passkey only if the tenant accepts it quickly |
+| Auth0 passkey and MFA setup takes longer than 2 h | Cristea falls behind on `/screen` | email code first, passkey only if the tenant accepts it quickly |
 | One lane blocks another | idle people | the contract from Setup, plus `simulate-crowd` so nobody waits for a phone |
-| P4 is over budget: Build 1 holds about 9 h of tasks in an 8 h block | `/screen` v1 late for Checkpoint 1 | accepted by the team. Tokens ship first because everyone styles against them; if P4 is still behind at Checkpoint 3, add-a-place falls back to the pre-filled form |
+| Cristea is over budget: Build 1 holds about 9 h of tasks in an 8 h block | `/screen` v1 late for Checkpoint 1 | accepted by the team. Tokens ship first because everyone styles against them; if Cristea is still behind at Checkpoint 3, add-a-place falls back to the pre-filled form |
 | A narration about 1989 contains an error | harm to people who lived it, and to the project's credibility | every narration is checked against its cited source before hour 0; no generated text about 1989 is improvised at runtime |
 
 ## 10. Done
@@ -336,7 +336,7 @@ From section 10.7, checked at hour 44:
 
 ## 11. Per member
 
-The same tasks as section 6, regrouped so each person can read their own 48 hours top to bottom. Checkpoints, freeze and submission (section 5) are shared by all four and are not repeated here. Replace P1 to P4 with names in section 2.
+The same tasks as section 6, regrouped so each person can read their own 48 hours top to bottom. Checkpoints, freeze and submission (section 5) are shared by all four and are not repeated here. Cristea was P4 in earlier versions of this plan. Replace P1 to P3 with names in section 2.
 
 ### P1: phone experience (18.25 h of tasks)
 
@@ -355,7 +355,7 @@ The same tasks as section 6, regrouped so each person can read their own 48 hour
 | Build 4 | ro and en dictionary (a native speaker reviews the Romanian strings first) | 1.5 |
 | Build 4 | Memorial candle: motion-only stillness, 5 s in demo mode | 1 |
 
-Needs from others: `POST /events` and `GET /sites` from P3 by hour 6, `POST /panes` from P3 by hour 15, `POST /echoes` from P4 by hour 28. Until each lands, code against the Zod schema in `packages/shared`.
+Needs from others: `POST /events` and `GET /sites` from P3 by hour 6, `POST /panes` from P3 by hour 15, `POST /echoes` from Cristea by hour 28. Until each lands, code against the Zod schema in `packages/shared`.
 
 ### P2: sound and voice (23 h of tasks)
 
@@ -378,7 +378,7 @@ Needs from others: `POST /events` and `GET /sites` from P3 by hour 6, `POST /pan
 | Build 4 | 1884 finale cue at a shared server time | 1.5 |
 | Build 4 | One Radio Lampa episode (first to cut) | 1 |
 
-Needs from others: site content YAML at hour 0, `GET /agent/session` from P4 by hour 14, heading and position from P1's hooks by hour 25, the clock offset and the per-site lamp count from P3 in Build 3.
+Needs from others: site content YAML at hour 0, `GET /agent/session` from Cristea by hour 14, heading and position from P1's hooks by hour 25, the clock offset and the per-site lamp count from P3 in Build 3.
 
 ### P3: data and real-time (21 h of tasks)
 
@@ -404,9 +404,9 @@ Needs from others: site content YAML at hour 0, `GET /agent/session` from P4 by 
 | Build 4 | Finale trigger | 0.5 |
 | Build 4 | Compression, retention, `EXPLAIN ANALYZE` numbers | 1 |
 
-Needs from others: `requireVisitor` middleware from P4 by hour 6. Everyone else depends on this lane first, so `POST /events` and the socket ship before anything else in Build 1.
+Needs from others: `requireVisitor` middleware from Cristea by hour 6. Everyone else depends on this lane first, so `POST /events` and the socket ship before anything else in Build 1.
 
-### P4: identity, infra, Living Map (23.75 h of tasks, over budget by agreement)
+### Cristea: identity, infra, Living Map (23.75 h of tasks, over budget by agreement)
 
 | Block | Task | Hours |
 |---|---|---|
@@ -432,4 +432,4 @@ Needs from others: socket messages from P3 by hour 6, the signed-URL call and Sc
 
 Task estimates above produce unstyled, working screens. `DESIGN.md` puts the required styling at about 13.5 person-hours, which does not fit the 2 free hours left in Build 4.
 
-So each owner styles a screen in the same block where they build it, out of that block's slack, using the tokens and base components P4 ships at the start of Build 1. `DESIGN.md` section 9 lists each styling item with its owner. If a block's slack runs out, cut from the top of the cut order (Radio Lampa first). Do not take styling time from checkpoints or the freeze window.
+So each owner styles a screen in the same block where they build it, out of that block's slack, using the tokens and base components Cristea ships at the start of Build 1. `DESIGN.md` section 9 lists each styling item with its owner. If a block's slack runs out, cut from the top of the cut order (Radio Lampa first). Do not take styling time from checkpoints or the freeze window.
