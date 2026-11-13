@@ -1,7 +1,10 @@
 import type { MapLine, Site } from "@lampa/shared";
 import type { RefObject } from "react";
-import { glowAlpha, glowLine, haloAlpha } from "./glow";
+import { glowLine, haloAlpha } from "./glow";
 import { layout, MAP_WIDTH, projectLines, SITE_RADIUS } from "./projection";
+import { mixHex, paneShare, slotShape, SLOTS } from "./rose";
+import type { ScreenEffect } from "./useScreenSocket";
+import type { WindowsState } from "./windows";
 
 const EASE_MS = 1200;
 const HALO_REACH = 1.6;
@@ -9,31 +12,48 @@ const LABEL_GAP = 10;
 const NAME = { weight: 600, size: 30, line: 36 };
 const META = { weight: 400, size: 22, line: 28 };
 
+// DESIGN.md 5.5 and 5.6.
+export const PANE_FLASH_MS = 1400;
+export const PANE_RING_MS = 1200;
+const PANE_RING_GROWTH = 0.3;
+const PANE_RING_ALPHA = 0.5;
+export const FLARE_IN_MS = 600;
+export const FLARE_HOLD_MS = 1200;
+export const FLARE_OUT_MS = 1600;
+export const FLARE_EMPTY_MS = 800;
+const FLARE_REACH = 2.6;
+const REDUCED_MS = 600;
+
 type Ease = { from: number; to: number; start: number };
+type Refs = {
+  glowRef: RefObject<Record<string, number>>;
+  windowsRef: RefObject<WindowsState>;
+  effectsRef: RefObject<ScreenEffect[]>;
+};
+
+const easeOut = (t: number) => 1 - (1 - t) ** 3;
+const progress = (elapsed: number, ms: number) => Math.min(1, Math.max(0, elapsed / ms));
+
+// shortcut: assumes colour tokens read back as opaque #rrggbb, parse other formats if a token changes.
+function hexOf(ctx: CanvasRenderingContext2D, color: string): string {
+  ctx.fillStyle = color;
+  return String(ctx.fillStyle);
+}
 
 // Canvas gradients interpolate without premultiplying, so fading to "transparent" would darken the halo edge.
-// shortcut: assumes --lamp reads back as an opaque #rrggbb, parse other formats if the token changes.
-function clearOf(ctx: CanvasRenderingContext2D, color: string): string {
-  ctx.fillStyle = color;
-  const n = parseInt(String(ctx.fillStyle).slice(1), 16);
+function clearOf(hex: string): string {
+  const n = parseInt(hex.slice(1), 16);
   return `rgba(${n >> 16}, ${(n >> 8) & 255}, ${n & 255}, 0)`;
 }
 
-export function startCanvas(
-  canvas: HTMLCanvasElement,
-  sites: Site[],
-  lines: MapLine[],
-  glowRef: RefObject<Record<string, number>>,
-): () => void {
+export function startCanvas(canvas: HTMLCanvasElement, sites: Site[], lines: MapLine[], { glowRef, windowsRef, effectsRef }: Refs): () => void {
   const ctx = canvas.getContext("2d");
   const art = document.createElement("canvas");
   const artCtx = art.getContext("2d");
   if (!ctx || !artCtx) return () => {};
   const css = getComputedStyle(document.documentElement);
   const token = (name: string) => css.getPropertyValue(name).trim();
-  const [bg, lamp, line, lineStrong, river, text, text2, fontUi, fontDisplay] = [
-    "--bg",
-    "--lamp",
+  const [line, lineStrong, river, text, text2, fontUi, fontDisplay] = [
     "--line",
     "--line-strong",
     "--river",
@@ -42,13 +62,25 @@ export function startCanvas(
     "--font-ui",
     "--font-display",
   ].map(token);
-  const lampClear = clearOf(ctx, lamp);
+  const [bg, lamp, lampWhite, surface2] = ["--bg", "--lamp", "--lamp-white", "--surface-2"].map((n) => hexOf(ctx, token(n)));
+  const lampClear = clearOf(lamp);
+  const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const paneMs = reduced ? REDUCED_MS : Math.max(PANE_FLASH_MS, PANE_RING_MS);
+  const completeMs = reduced ? REDUCED_MS : FLARE_IN_MS + FLARE_HOLD_MS + FLARE_OUT_MS;
 
   const byId = new Map(sites.map((s) => [s.id, s]));
   const placed = layout(sites, lines);
   const projected = projectLines(sites, lines);
+  const shapes = Array.from({ length: SLOTS }, (_, i) => slotShape(i));
 
-  // DESIGN.md 5.5: the map art is drawn once per size and copied each frame.
+  let dpr = 1;
+  let frame = 0;
+  let fontsReady = false;
+  void document.fonts.ready.then(() => {
+    fontsReady = true;
+  });
+
+  // DESIGN.md 5.5: the map art and the window frames are drawn once per size and copied each frame.
   const drawArt = () => {
     const u = canvas.width / MAP_WIDTH;
     art.width = canvas.width;
@@ -68,15 +100,17 @@ export function startCanvas(
       artCtx.stroke();
     }
     artCtx.globalAlpha = 1;
+    artCtx.setLineDash([]);
+    artCtx.strokeStyle = lineStrong;
+    artCtx.lineWidth = 1.5 * dpr;
+    for (const p of placed) {
+      if (byId.get(p.id)!.is_memorial) continue;
+      artCtx.beginPath();
+      artCtx.arc(p.x * u, p.y * u, (SITE_RADIUS + 2) * u, 0, Math.PI * 2);
+      artCtx.stroke();
+    }
   };
   const eases = new Map<string, Ease>(placed.map((p) => [p.id, { from: 0, to: 0, start: 0 }]));
-
-  let dpr = 1;
-  let frame = 0;
-  let fontsReady = false;
-  void document.fonts.ready.then(() => {
-    fontsReady = true;
-  });
 
   const fit = () => {
     dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -87,8 +121,7 @@ export function startCanvas(
 
   const shownGlow = (id: string, now: number) => {
     const e = eases.get(id)!;
-    const t = Math.min(1, (now - e.start) / EASE_MS);
-    const shown = e.from + (e.to - e.from) * (1 - (1 - t) ** 3);
+    const shown = e.from + (e.to - e.from) * easeOut(progress(now - e.start, EASE_MS));
     const target = glowRef.current[id] ?? 0;
     if (target !== e.to) Object.assign(e, { from: shown, to: target, start: now });
     return shown;
@@ -109,7 +142,93 @@ export function startCanvas(
     }
   };
 
+  // Angles from slotShape start at 12 o'clock; canvas angles start at 3 o'clock. Both run clockwise on screen.
+  const slot = (x: number, y: number, r: number, i: number, fill: string, alpha = 1) => {
+    const { r0, r1, a0, a1 } = shapes[i];
+    ctx.globalAlpha = alpha;
+    ctx.beginPath();
+    ctx.arc(x, y, r1 * r, a0 - Math.PI / 2, a1 - Math.PI / 2);
+    ctx.arc(x, y, r0 * r, a1 - Math.PI / 2, a0 - Math.PI / 2, true);
+    ctx.closePath();
+    ctx.fillStyle = fill;
+    ctx.fill();
+    ctx.stroke();
+  };
+
+  /** 0 to 1: how far the complete flare is from rest (rise, hold, settle). */
+  const flareLevel = (elapsed: number) => {
+    if (elapsed < FLARE_IN_MS) return easeOut(elapsed / FLARE_IN_MS);
+    if (elapsed < FLARE_IN_MS + FLARE_HOLD_MS) return 1;
+    return 1 - easeOut(progress(elapsed - FLARE_IN_MS - FLARE_HOLD_MS, FLARE_OUT_MS));
+  };
+
+  const drawWindow = (siteId: string, x: number, y: number, r: number, glow: number, effects: ScreenEffect[], now: number) => {
+    const complete = effects.find((e) => e.kind === "complete");
+    const flare = complete && !reduced ? flareLevel(now - complete.at) : 0;
+    const reach = HALO_REACH + (FLARE_REACH - HALO_REACH) * flare;
+    const halo = ctx.createRadialGradient(x, y, 0, x, y, reach * r);
+    halo.addColorStop(0, lamp);
+    halo.addColorStop(1, lampClear);
+    ctx.globalAlpha = haloAlpha(glow) + (1 - haloAlpha(glow)) * flare;
+    ctx.fillStyle = halo;
+    ctx.beginPath();
+    ctx.arc(x, y, reach * r, 0, Math.PI * 2);
+    ctx.fill();
+
+    // DESIGN.md 6.6: the gaps between the rings are leading too, so the window sits on a --bg disk over the halo.
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = bg;
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fill();
+
+    const panes = windowsRef.current.windows[siteId]?.panes ?? [];
+    const share = paneShare(glow);
+    ctx.strokeStyle = bg;
+    ctx.lineWidth = Math.max(1.5 * dpr, 0.012 * r);
+    ctx.lineJoin = "miter";
+    for (let i = 0; i < SLOTS; i++) {
+      const hex = panes[i];
+      if (!hex) {
+        slot(x, y, r, i, surface2);
+        continue;
+      }
+      const fill = mixHex(hex, bg, share);
+      const flash = effects.find((e) => e.kind === "pane" && e.slot === i && e.hex === hex);
+      if (!flash) slot(x, y, r, i, fill);
+      else if (reduced) {
+        slot(x, y, r, i, surface2);
+        slot(x, y, r, i, fill, progress(now - flash.at, REDUCED_MS));
+      } else slot(x, y, r, i, mixHex(fill, lampWhite, easeOut(progress(now - flash.at, PANE_FLASH_MS))));
+    }
+
+    if (complete?.kind === "complete") {
+      const elapsed = now - complete.at;
+      // Full-brightness panes during rise and hold, then a cross-fade to the current window over the last 800ms.
+      const alpha = reduced
+        ? 1 - progress(elapsed, REDUCED_MS)
+        : 1 - progress(elapsed - (completeMs - FLARE_EMPTY_MS), FLARE_EMPTY_MS);
+      complete.panes.forEach((hex, i) => slot(x, y, r, i, hex ? mixHex(hex, bg, 1) : surface2, alpha));
+    }
+
+    if (!reduced) {
+      for (const e of effects) {
+        if (e.kind !== "pane") continue;
+        const t = progress(now - e.at, PANE_RING_MS);
+        if (t >= 1) continue;
+        ctx.globalAlpha = PANE_RING_ALPHA * (1 - t);
+        ctx.strokeStyle = text;
+        ctx.lineWidth = 2 * (canvas.width / MAP_WIDTH);
+        ctx.beginPath();
+        ctx.arc(x, y, r * (1 + PANE_RING_GROWTH * t), 0, Math.PI * 2);
+        ctx.stroke();
+      }
+    }
+    ctx.globalAlpha = 1;
+  };
+
   const draw = (now: number) => {
+    effectsRef.current = effectsRef.current.filter((e) => now - e.at < (e.kind === "pane" ? paneMs : completeMs));
     // The canvas spans the 1380-unit map area, so one design unit is canvas.width / 1380 device pixels.
     const s = canvas.width / MAP_WIDTH;
     ctx.globalAlpha = 1;
@@ -129,19 +248,7 @@ export function startCanvas(
         continue;
       }
       const glow = shownGlow(p.id, now);
-      const halo = ctx.createRadialGradient(x, y, 0, x, y, HALO_REACH * r);
-      halo.addColorStop(0, lamp);
-      halo.addColorStop(1, lampClear);
-      ctx.globalAlpha = haloAlpha(glow);
-      ctx.fillStyle = halo;
-      ctx.beginPath();
-      ctx.arc(x, y, HALO_REACH * r, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.globalAlpha = glowAlpha(glow);
-      ctx.fillStyle = lamp;
-      ctx.beginPath();
-      ctx.arc(x, y, r, 0, Math.PI * 2);
-      ctx.fill();
+      drawWindow(p.id, x, y, r, glow, effectsRef.current.filter((e) => e.siteId === p.id), now);
       if (fontsReady) {
         drawLabel(
           [

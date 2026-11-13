@@ -13,10 +13,13 @@ const COLOUR_SITE_IDS = sites.filter((s) => !s.is_memorial).map((s) => s.id);
 
 function LivingMap({ demo }: { demo: boolean }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const { glowRef, connected } = useScreenSocket(COLOUR_SITE_IDS, demo);
+  const { glowRef, windowsRef, effectsRef, connected } = useScreenSocket(COLOUR_SITE_IDS, demo);
   const [reconnecting, setReconnecting] = useState(false);
 
-  useEffect(() => (canvasRef.current ? startCanvas(canvasRef.current, sites, MAP_LINES, glowRef) : undefined), [glowRef]);
+  useEffect(
+    () => (canvasRef.current ? startCanvas(canvasRef.current, sites, MAP_LINES, { glowRef, windowsRef, effectsRef }) : undefined),
+    [glowRef, windowsRef, effectsRef],
+  );
 
   useEffect(() => {
     if (connected) {
