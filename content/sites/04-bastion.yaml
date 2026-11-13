@@ -1,0 +1,22 @@
+# Approximate coordinates and empty content: the team replaces them on site.
+id: bastion
+city: timisoara
+name:
+  ro: "Bastionul Theresia"
+  en: "Theresia Bastion"
+location:
+  lat: 45.7573
+  lng: 21.234
+radius_m: 40
+interactions: [talk, colours, lamp, echo]
+is_memorial: false
+glow_k: 10
+persona:
+  voice: ""
+  traits: ""
+facts: []
+sound_bed: ""
+directions_hint: {}
+active:
+  from: null
+  until: null

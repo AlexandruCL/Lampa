@@ -1,5 +1,6 @@
 import cors from "cors";
 import express, { type Express } from "express";
+import { createAgentRouter } from "./agent/session.js";
 import { sessionRouter } from "./auth/session.js";
 
 export function createApp(): Express {
@@ -11,6 +12,7 @@ export function createApp(): Express {
   // Before express.json(): POST /session/anon reads no body, so a malformed one must not 400 it.
   app.use(sessionRouter);
   app.use(express.json());
+  app.use(createAgentRouter());
   app.get("/health", (_req, res) => {
     res.json({ ok: true });
   });
