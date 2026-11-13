@@ -317,7 +317,7 @@ Small, and only where a silent bug would break the demo.
 | ElevenLabs API differs from the PDF sketches | Patrick's Build 1 and 2 | docs check in Setup. Tap-to-ask needs only plain TTS, so it survives |
 | Credits run out during development | no live Talk at the demo | develop against the recorded clips. Live conversation only at checkpoints and rehearsals |
 | Render free tier sleeps and drops sockets | a dead `/screen` on stage | keep-alive tab. Socket.IO reconnect, then refetch state on reconnect |
-| Continuous aggregate lags behind new events | glow looks frozen | `materialized_only = false` in migration 001, verified at checkpoint 1 |
+| Continuous aggregate lags behind new events | glow looks frozen | `materialized_only = false` in migration 002, which creates the aggregate in Build 1; verified at checkpoint 1 |
 | Auth0 passkey and MFA setup takes longer than 2 h | Cristea falls behind on `/screen` | email code first, passkey only if the tenant accepts it quickly |
 | One lane blocks another | idle people | the contract from Setup, plus `simulate-crowd` so nobody waits for a phone |
 | Cristea is over budget: Build 1 holds about 9 h of tasks in an 8 h block | `/screen` v1 late for Checkpoint 1 | accepted by the team. Tokens ship first because everyone styles against them; if Cristea is still behind at Checkpoint 3, add-a-place falls back to the pre-filled form |
