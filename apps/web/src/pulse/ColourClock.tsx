@@ -4,16 +4,21 @@ import { count, segmentPath } from "./pulseCopy";
 
 const SIZE = 420;
 const C = SIZE / 2;
-const OUTER = C;
+// The four hour labels sit in this margin, inside the box, so they never reach the card title, its edges or the "Now" line.
+const MARGIN = 40;
+const OUTER = C - MARGIN;
 const INNER = OUTER * 0.82; // ring thickness 18% of the radius
 const DISK = OUTER * 0.3;
 const GAP = 2;
 
+/** Label centres, in % of the box: the middle of the margin. */
+const EDGE = (MARGIN / 2 / SIZE) * 100;
+
 const LABELS = [
-  { hour: 0, left: "50%", top: "calc(0% - var(--space-m))" },
-  { hour: 6, left: "calc(100% + var(--space-m))", top: "50%" },
-  { hour: 12, left: "50%", top: "calc(100% + var(--space-m))" },
-  { hour: 18, left: "calc(0% - var(--space-m))", top: "50%" },
+  { hour: 0, left: "50%", top: `${EDGE}%` },
+  { hour: 6, left: `${100 - EDGE}%`, top: "50%" },
+  { hour: 12, left: "50%", top: `${100 - EDGE}%` },
+  { hour: 18, left: `${EDGE}%`, top: "50%" },
 ];
 
 /** DESIGN 6.19. The hidden table in the card carries the same data. */

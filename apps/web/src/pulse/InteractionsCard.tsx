@@ -31,7 +31,7 @@ export function InteractionsCard({ data }: { data: PulseInteractions }) {
             >
               <CartesianGrid vertical={false} stroke="var(--line)" strokeWidth={1} />
               <XAxis dataKey="t" tick={TICK} tickFormatter={hhmm} axisLine={false} tickLine={false} minTickGap={24} />
-              <YAxis tick={TICK} domain={[0, max]} allowDecimals={false} axisLine={false} tickLine={false} width={32} />
+              <YAxis tick={TICK} domain={[0, max]} allowDecimals={false} axisLine={false} tickLine={false} width="auto" />
               <Tooltip
                 contentStyle={tooltipStyle}
                 labelStyle={{ color: "var(--text)" }}

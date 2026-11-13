@@ -30,7 +30,8 @@
 .multiples { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-m); }
 /* Two rows of a site name and a 160px chart. */
 .multiplesBody { min-height: calc(2 * (1.375rem + var(--space-2xs) + 160px) + var(--space-m)); }
-.multiple { display: flex; flex-direction: column; gap: var(--space-2xs); min-width: 0; }
+/* space-between: a name that wraps to two lines does not push its chart below its neighbour in the row. */
+.multiple { display: flex; flex-direction: column; justify-content: space-between; gap: var(--space-2xs); min-width: 0; }
 .multipleName { margin: 0; font: var(--type-meta); color: var(--text-2); }
 .multipleChart { height: 160px; }
 /* Four rows of bars (the four colour sites). */

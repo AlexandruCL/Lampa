@@ -228,5 +228,6 @@ it("headerLine shows Not updating 30 s after the page opens with no response", (
 
 it("the centre disk is an outline when the current hour has no colour", () => {
   const out = html(<ColourClock data={clock({ 3: 5 }, 14)} />);
-  expect(out).toMatch(/<circle[^>]*r="63"[^>]*fill="none"[^>]*stroke="var\(--line-strong\)"/);
+  expect(out).toMatch(/<circle[^>]*fill="none"[^>]*stroke="var\(--line-strong\)"/);
+  expect(out).not.toMatch(/<circle[^>]*fill="#/);
 });
