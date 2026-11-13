@@ -25,6 +25,7 @@ Anything that differs from the plan, `DESIGN.md` or the contract, and any file o
 | 0 | S-1.c.1 | Render named the host `lampa-api-b45i.onrender.com`, not `lampa-api.onrender.com` | none | Render added the suffix |
 | 0 | S-1.c.1 | The first Vercel deploy built at the repo root and failed, because `vercel git connect` triggered it before the root directory was set. A CLI redeploy replaced it | none | Order of CLI steps |
 | 0 | S-1.c.1 | Git Bash rewrites leading-slash arguments such as `/health` into Windows paths. Prefix CLI calls with `MSYS_NO_PATHCONV=1` | none | Hit while creating the Render service |
+| 0 | B1 prompt | Added a test to plan section 8: `/screen` projection and the 2.4R spacing rule, owner Cristea | `IMPLEMENTATION_PLAN.md` | Cristea's pre-0 decision; the team needs to see it |
 
 ## Decisions
 The owner's answers only.
@@ -56,6 +57,14 @@ The owner's answers only.
 | 0 | Setup: approved dev dependencies `@vitejs/plugin-react` 6.3.0, `@types/react` 19.3.0, `@types/react-dom` 19.3.0, `@types/express` 5.0.6, `@types/cors` 2.8.19, `@types/node` 26.6.6 | Standard companions of Vite, React and Express in TypeScript; none ships in the bundle |
 | 0 | Setup: the team agrees the contract as it stands in `packages/shared` (`EventKind` and `SocketMessage` names, no payload schemas yet). It may change later | Cristea's answer after the contract session |
 | 0 | Setup: phone checks pass on iPhone and Android (`LAMPA` over HTTPS, `/screen` after a reload) | Cristea's report |
+| 0 | Build 1: `GlowMessage` = `{ sites: [{ siteId, glow 0 to 1 }] }` and `Site` = `{ id, name, lat, lng, is_memorial }` go into `packages/shared/src/contract.ts` as the first commit of `cristea/b1-foundation`, with no fourth branch. Cristea takes both to Fabi | `/screen` needs a payload to code against, and the contract had none |
+| 0 | Build 1: until `packages/shared/sites.json` lands, `/screen` uses `apps/web/src/screen/sites.fixture.ts` with ids `mx`, `unirii`, `victoriei`, `bastion`, `cathedral` and approximate coordinates. The ids are proposed to Fabi | Fabi's `db:reset` has not landed |
+| 0 | Build 1: `ScreenPage.tsx` is built in `apps/web/src/screen/`. If `main` has no router when `cristea/b1-screen` is ready, `App.tsx` gets one `location.pathname === "/screen"` line, replaced later by Ionut's route. No router library from Cristea | Ionut's routes have not landed |
+| 0 | Build 1: approved `vitest` 5.1.0 (MIT, released 2026-11-02) in `apps/api` and `apps/web` with `"test": "vitest run --passWithNoTests"`, unless Ionut lands his first. No `supertest`: API tests use `fetch` against the app on port 0, so `apps/api/src` splits into `app.ts` and `index.ts` | The plan names Vitest and nobody had installed it |
+| 0 | Build 1: approved `socket.io-client` 4.8.4 (MIT, released 2026-09-25). `/screen` connects to `VITE_API_URL` + `/live` with `query: { room: "screen" }` and no token, listens for `glow`, keeps the last state on reconnect. No stub server; the live check is Cristea's once Fabi's socket lands | Fabi's socket has not landed; the join rule goes to Fabi |
+| 0 | Build 1: `requireVisitor` sets `req.visitor = { sub, kind: "anon" or "auth0", permissions }`; `visitorLimiter` is mounted after it. `POST /session/anon` answers `{ token, expiresAt }`. HS256 is checked with `SESSION_SECRET`, RS256 against the Auth0 JWKS; Auth0 tokens get 401 while `AUTH0_DOMAIN` is unset; every failure is 401 `{"error":"unauthorized"}`; `trust proxy` 1; the API refuses to start without `SESSION_SECRET`; the session sets a generated 32-byte `SESSION_SECRET` on Render through the CLI | Fabi builds on this seam by hour 6 |
+| 0 | Build 1: `cristea-api` ships `apps/web/src/session.ts` with `getToken()` and `authFetch()` on the session branch | Ionut's typed API client has not landed and can wrap these |
+| 0 | Build 1: `/screen` v1 draws colour sites as circles of R = 96 x u filled `--lamp` at alpha 0.25 + 0.75 x glow (0.25 under 0.15) with the 4.3 halo, easing over 1200 ms, with the name and the glow line under each. The Cathedral is a 1px `--line` outline with its name in `--text-2`. Glow is 0 before the first message. The start button, the under-1024px message and "Reconnecting to the city…" are in v1; counters, ticker, QR and map lines stay in Build 2 | `DESIGN.md` gives no fill for the plain circles |
 
 ## Blocked
 | Since hour | ID | Question | Recommendation | Waiting on |

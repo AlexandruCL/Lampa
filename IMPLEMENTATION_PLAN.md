@@ -305,6 +305,7 @@ Small, and only where a silent bug would break the demo.
 | Pane slot assignment and window completion at 48 | Fabi |
 | Moderation endpoint returns 403 without `moderate:echo` | Cristea |
 | Anonymous token: expired or tampered tokens are rejected | Cristea |
+| `/screen` projection: the five sites land inside the map area, and no two are closer than 2.4R after the spacing rule | Cristea |
 
 `npm test` runs before every checkpoint. Everything else is verified by the checkpoint lists on real phones.
 
