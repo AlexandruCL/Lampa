@@ -1,0 +1,24 @@
+/* DESIGN 7.14 layout. Phone (under 1024px): one column in the 7.14 phone order, 16px side gutter. */
+.page { display: flex; flex-direction: column; gap: var(--space-l); padding: var(--space-m); box-sizing: border-box; max-width: 100%; overflow-x: clip; }
+.header { display: flex; flex-direction: column; gap: var(--space-2xs); }
+.title { margin: 0; font: var(--type-title); letter-spacing: var(--type-title-tracking); color: var(--text); }
+.line { margin: 0; font: var(--type-meta); color: var(--text-2); }
+.columns { display: flex; flex-direction: column; gap: var(--space-l); }
+.column { display: contents; }
+.clockCard { order: 1; }
+.glowCard { order: 2; }
+.lampsCard { order: 3; }
+.glowBarsCard { order: 4; }
+.coloursCard { order: 5; }
+.visitorsCard { order: 6; }
+.interactionsCard { order: 7; }
+.candlesCard { order: 8; }
+.languagesCard { order: 9; }
+
+/* Desk: two columns 7fr / 5fr, each a stack in the 7.14 desk order. */
+@media (min-width: 1024px) {
+  .page { padding: var(--space-xl); }
+  .columns { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); align-items: start; }
+  .column { display: flex; flex-direction: column; gap: var(--space-l); min-width: 0; }
+  .column > * { order: 0; }
+}
