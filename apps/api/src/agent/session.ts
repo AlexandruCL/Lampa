@@ -86,6 +86,7 @@ export function createAgentRouter(deps: AgentDeps = {}): Router {
           },
         }),
         dynamicVariables: {
+          site_id: site,
           visitor_name: "traveller",
           local_time: bucharestTime.format(new Date()),
           site_glow: Math.round(stats.glow * 100),

@@ -77,13 +77,14 @@ describe("GET /agent/session answers", () => {
     expect(getPersona).not.toHaveBeenCalled();
   });
 
-  it("a persona site answers signedUrl and the seven dynamic variables", async () => {
+  it("a persona site answers signedUrl and the eight dynamic variables", async () => {
     const res = await (await start({ fetch: upstreamOk() }))("?site=mx");
     expect(res.status).toBe(200);
     expect(res.headers.get("cache-control")).toBe("no-store");
     expect(await res.json()).toEqual({
       signedUrl: SIGNED,
       dynamicVariables: {
+        site_id: "mx",
         visitor_name: "traveller",
         local_time: expect.any(String),
         site_glow: 0,

@@ -49,6 +49,7 @@ Anything that differs from the plan, `DESIGN.md` or the contract, and any file o
 | 8 | B1-4.b.1 | Three wiring lines in Ionut's files, with his agreement | `apps/web/src/phone/SiteView.tsx`, `MemorialStub.tsx`, `Join.tsx` | Checkpoint 1 line 1; the prompt allows these lines |
 | 8 | B1-2.a | The five `sound_bed` lines were drafted by this session, not written by Patrick by hand; Patrick accepted them. Only the `sound_bed` line of each file changed | `content/sites/01-mx.yaml` … `05-cathedral.yaml` | Patrick's request |
 | 8 | B1-0 | The API key also has User **Access** and Voices **Read**, so this session reads the credit meter (`GET /v1/user/subscription`) and voice details by API, printing only tier, credit numbers, names and booleans. Before any Build 1 generation: tier `creator`, 11,831 of 131,000 credits used, reset 2026-12-03. The findings assumed Starter | ElevenLabs dashboard | Patrick asked this session to do the dashboard checks itself |
+| 9 | Agent tools | `site_id` added to `AgentSession.dynamicVariables` (contract) and sent by `GET /agent/session` as the requested site id; the session test now expects eight variables | `packages/shared/src/contract.ts`, `apps/api/src/agent/session.ts`, `session.test.ts` | Fabi's webhook tools need the site; a dynamic variable means the LLM never picks it. Contract and Cristea's route: the PR asks Cristea to review |
 
 ## Decisions
 The owner's answers only.
@@ -115,6 +116,7 @@ The owner's answers only.
 | 9 | Vercel: the deploy limit cleared and `main` `750ff4f` deployed; the beds are served as `audio/wave` (a WAV type, not `text/html`) | Checked by `curl` at 22:41 |
 | 8 | B1-2.a: Patrick asked this session to draft the five `sound_bed` lines and accepted them as drafted; go for the first paid run (unirii, 1,200 credits; meter 11,887 of 131,000 before) | Patrick's answer |
 | 8 | B1-0: Patrick updated the API key in `.env` for Text to Speech, Sound Effects, Music and Agents Write. `npm run agent:check` → `agent 200`, four overrides `true`, `signed_url 200 true`, exit 0. TTS, Sound Effects and Music are proven by the first `--run` of each | Patrick's answer |
+| 9 | Agent tools: `site_id` reaches `get_site_stats` and `get_recent_echo` as a dynamic variable (option A), not filled by the LLM. The tools are added in the dashboard only after the contract change is deployed. The secret `X-Agent-Secret` is stored as an ElevenLabs workspace secret, never in chat or git | Patrick's choice; option B (the LLM maps the site name to an id) can pick the wrong site |
 
 ## Blocked
 | Since hour | ID | Question | Recommendation | Waiting on |
@@ -136,3 +138,4 @@ What other lanes can use now: endpoints, hooks, socket messages, scripts, env va
 | 8 | `npm run publish:site -- --site <id>\|all [--project] [--run] [--max-credits <n>]`: a dry run by default; `--run` makes only missing files and rewrites `clips.json`; default cap 6,000 credits | root `package.json`, `scripts/publish-site.ts` (branch `patrick/b1-publish`) | all |
 | 8 | `publishSite(site, opts)`, `publishProject(opts)`, `toClips(sites, exists)` with injected `fetch`, `exists`, `put`, for add-a-place. Site ids, `tap_to_ask` ids and language keys go into file names unchecked: validate them before user input reaches these | `apps/api/src/publish/publish.ts` (branch `patrick/b1-publish`) | Cristea |
 | 8 | `getPersona` wired in `app.ts`: `GET /agent/session` sends overrides for a site whose `persona` has `name.en`, `voice`, `traits`, `first_message.en`, `cathedral_line.en`; none otherwise and never for the Cathedral. Answers Cristea's B2-1 for Patrick's part | `apps/api/src/agent/persona.ts`, `apps/api/src/app.ts` (branch `patrick/b1-persona`) | Cristea |
+| 9 | `site_id` in `AgentSession.dynamicVariables` (the site the session was opened for); ElevenLabs webhook tools read it as `{{site_id}}` | `packages/shared/src/contract.ts`, `apps/api/src/agent/session.ts` (branch `patrick/agent-site-id`) | Cristea, Fabi |
