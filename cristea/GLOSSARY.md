@@ -25,6 +25,8 @@ Hours below marked "pre-0" were recorded on 2026-11-13, before the start.
 | B1-4.a.1 | `sites.fixture.ts` (five sites), `projection.ts` (`project`, `spread`, `labelSides`, `layout` returning `{ id, x, y, label }`), nine projection tests | `npm run typecheck -w @lampa/web && npm test -w @lampa/web` → exit 0, `Tests 22 passed (22)`; `MIN_SPACING = 0` fails the three spacing cases (`3 failed \| 19 passed`), restored | this commit | 7 |
 | B1-4.b.1 | `glow.ts` (`applyGlow`, `glowWord`, `glowLine`, `glowAlpha`, `haloAlpha`), `useGlowSocket.ts` (`/live`, `room: "screen"`, no token, glow into a ref), eight glow tests | `npm run typecheck -w @lampa/web && npm test -w @lampa/web` → exit 0, `Tests 30 passed (30)`; the 0.15 threshold moved to 0.1 fails three cases (`3 failed \| 27 passed`), restored; live socket not checked (Fabi's `/live` not on `main`) | 41509c8 | 7 |
 | B1-4.c.1 | `/screen` v1: start screen, map canvas with five sites from `sites.fixture.ts`, glow eased over 1200 ms, side panel with the wordmark and "Reconnecting to the city…" after 3 s, under-1024px message; `routes/Screen.tsx` re-exports `ScreenPage`. Labels avoid other circles and are nudged inside the map; spacing 2.95R | `npm run typecheck -w @lampa/web && npm run build -w @lampa/web && npm test -w @lampa/web && grep … \| wc -l` → exit 0, `Tests 38 passed (38)` on the branch, hex count `0`; `MIN_SPACING = 0` fails three spacing cases; screenshots at 1920×1080 and 1280×720 show five circles and five names with no overlap or clipping. Console: socket errors only (`VITE_API_URL` unset locally, `/live` not landed) and a `/favicon.ico` 404 | c01a467, 238b18e, 4feafee | 8 |
+| B1-last | PRs #4, #5 and #11 merged into `main` with merge commits; each branch verified with `main` merged in before its PR; deployed API answers a token; lane branches deleted after the merges | `main` at `2f1e250`: `npm ci && npm run typecheck && npm run build && npm test` → exit 0, API `Tests 11 passed (11)`, web `Tests 76 passed (76)`; `curl -X POST https://lampa-api-b45i.onrender.com/session/anon` → 200 with a token; `/health` → `{"ok":true}` | 2f1e250 | 9 |
+| B1-last checks | Laptop: deployed `/screen` renders the start screen and, after the click, all five sites. iPhone: the deployed page works | Reported by Cristea | none | 9 |
 
 ## Changes
 Anything that differs from the plan, `DESIGN.md` or the contract, and any file outside this lane that was touched.
@@ -91,6 +93,11 @@ The owner's answers only.
 ## Blocked
 | Since hour | ID | Question | Recommendation | Waiting on |
 |---|---|---|---|---|
+| 9 | B1-last | Live socket: a `wake` brightens its site on `/screen` within 5 s, and "Reconnecting to the city…" shows and clears when the network drops | Run it with Fabi once `/live` is on `main` | Fabi |
+| 9 | B1-0 | The team agrees `GlowMessage`, `Site` and the site ids `mx`, `unirii`, `victoriei`, `bastion`, `cathedral` | Keep them as they are on `main`; Fabi's seed uses the same ids | Fabi |
+| 9 | B1-4 | `MIN_SPACING` 2.95 was tuned on the fixture's approximate coordinates | Re-run the screenshot check when `packages/shared/sites.json` lands and swap the import in `ScreenPage.tsx` | Fabi |
+| 9 | B1-last | Laptop: the five names readable from across the room. Not reported yet | If a line is hard to read, use a larger size or `--text`, never a second theme | Cristea |
+| 9 | B1-last | Checkpoint 1 line 5, daylight readability of the dark theme | Run on Ionut's screens | Team |
 
 ## Hand-offs
 What other lanes can use now: endpoints, hooks, socket messages, scripts, env vars.
