@@ -5,6 +5,8 @@ Hour 0: 2026-11-13 13:21 (+0200).
 ## Done
 | ID | What | Verify summary | Commit | Hour |
 |---|---|---|---|---|
+| S-0 | Preflight: Node v26.13.1 and `gh` (account Skips26) already installed; `main` clean at `9649104`, no open PRs; docs commit pushed to `main`; branch `fabi/setup-db`; `npm ci`; no `patrick/GLOSSARY.md`, nothing moved in the other glossaries since section 1 | baseline `npm run typecheck` exit 0, `npm run build` exit 0, `npm test` → API `Tests 11 passed (11)`, web `Tests 76 passed (76)`; no failure already there | 7f8c736 | 4 |
+| S-1.a | `pg` 8.23.1, `yaml` 2.9.1, `zod` 4.6.7, `@types/pg` 8.23.1 (dev) in `apps/api`, exact; `db:reset` scripts in `apps/api` and root; `resolveJsonModule` | `npm run typecheck && npm run build && npm test` → exit 0, API `Tests 11 passed (11)`, web `Tests 76 passed (76)` | filled in the next commit | 4 |
 
 ## Changes
 Anything that differs from the plan, `DESIGN.md` or the contract, and any file outside this lane that was touched.
@@ -12,6 +14,11 @@ Anything that differs from the plan, `DESIGN.md` or the contract, and any file o
 |---|---|---|---|---|
 | 3 | Setup prompt | The risk row "Continuous aggregate lags behind new events" names migration 002, not 001 | `IMPLEMENTATION_PLAN.md` section 9 | Migration 001 holds only what the Setup row lists; the aggregate comes with its Build 1 row (Fabi's decision, hour 3). The team needs to see it |
 | 3 | Setup prompt | Fabi's Setup starts at hour 3, one hour after the block's end in plan section 5 | none | Nothing of the Setup row had landed at hour 3; Fabi keeps the full row |
+| 4 | S-0 | The block actually started at 18:08 (hour 4); the 2 h of S-1 run to about 20:10. Node 26.13.1 and `gh` were already installed, so the winget step was skipped | none | Found installed at preflight |
+| 4 | S-1.a | `yaml` 2.9.1 and `@types/pg` 8.23.1 added, which plan section 3 does not name (approved by Fabi, hour 3) | `apps/api/package.json`, `package-lock.json` | `yaml` reads the site files; `@types/pg` types the pool |
+| 4 | S-1.a | Root script `db:reset` runs the API workspace's script | `package.json` | The plan's command is `npm run db:reset` at the root |
+| 4 | S-1.a | `"resolveJsonModule": true` in `compilerOptions` | `tsconfig.base.json` | `packages/shared/src/sites.ts` imports `sites.json` |
+| 4 | S-1.a | Each Done line is committed with the work; its Commit cell is filled in the next commit, since a commit cannot hold its own sha | `fabi/GLOSSARY.md` | Repo style puts the sha in the Done table |
 
 ## Decisions
 The owner's answers only.
