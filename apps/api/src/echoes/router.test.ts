@@ -35,7 +35,7 @@ function fakeTx(fail?: Error) {
       throw err;
     }
   };
-  return { calls, log, tx };
+  return { calls, log, tx, db };
 }
 
 async function start(deps: Parameters<typeof createEchoesRouter>[0]) {
@@ -161,6 +161,19 @@ describe("POST /echoes", () => {
     const res = await post(echo());
     expect(res.headers.get("retry-after")).toBeTruthy();
     await expectError(res, 429, "rate_limited");
+  });
+
+  it("the upload answers before Scribe returns", async () => {
+    process.env.ELEVENLABS_API_KEY = "test-key";
+    try {
+      const f = fakeTx();
+      const never = vi.fn(() => new Promise<Response>(() => {})) as unknown as typeof fetch;
+      const res = await (await start({ tx: f.tx, db: f.db, fetch: never }))(echo());
+      expect(res.status).toBe(201);
+      await vi.waitFor(() => expect(never).toHaveBeenCalledTimes(1));
+    } finally {
+      delete process.env.ELEVENLABS_API_KEY;
+    }
   });
 
   it("no database is 503", async () => {

@@ -5,6 +5,7 @@ import { EchoAccepted, sites } from "@lampa/shared";
 import type { Db, Emit, Tx } from "../seam.js";
 import { requireVisitor } from "../auth/session.js";
 import { userSub } from "../events/router.js";
+import { transcribe } from "./scribe.js";
 
 export const ECHO_MAX_BYTES = 2 * 1024 * 1024;
 export const ECHO_LIMIT = 5;
@@ -70,6 +71,7 @@ export function createEchoesRouter(deps: EchoesDeps): Router {
         return result.rows[0].id as string;
       });
       res.status(201).json(EchoAccepted.parse({ id, status: "pending" }));
+      if (deps.db) void transcribe({ db: deps.db, fetch: deps.fetch ?? fetch }, id, audio);
     } catch (err) {
       console.error("echo insert failed: " + (err instanceof Error ? err.message : "unknown"));
       res.status(503).json({ error: "unavailable" });
