@@ -224,7 +224,7 @@ Three hours, so each person gets one main item. Anything not working at hour 40 
 | Who | Task | Hours | Fallback if cut |
 |---|---|---|---|
 | Ionut | Language dictionary for ro and en, picked from `navigator.language` | 1.5 | English only |
-| Ionut | Memorial candle: lights after 60 s of stillness measured by motion only (no microphone), 5 s with `?demo=1`, sends a `candle` event | 1 | a tap lights the candle; the memorial site itself is never cut |
+| Ionut | Memorial candle: lights after 10 s of stillness (60 s until Cristea's decision, hour 30) measured by motion only (no microphone), 5 s with `?demo=1`, sends a `candle` event | 1 | a tap lights the candle; the memorial site itself is never cut |
 | Patrick | 1884 finale cue on phones and `/screen`: crackle, silence, waltz, started at a shared server time | 1.5 | play the waltz on `/screen` only |
 | Patrick | One Radio Lampa episode, generated once from today's numbers (first to cut) | 1 | skip |
 | Fabi | Finale trigger at 731 lamps, using the clock offset from Build 3 | 0.5 | broadcast "start now" without sync |
@@ -270,7 +270,7 @@ No new features. Work the bug list from the three checkpoints, in the order the 
 The Metropolitan Cathedral follows the concept's memorial rules (sections 1.12 and "A minute of stillness"): no persona character, no game, no counter.
 
 - Visitors can listen to the narrations and light a candle. Talk, the colour lens, the lamp and visitor echoes are not offered there.
-- The candle lights after 60 s of stillness, measured by motion only, so no microphone prompt appears at a memorial. Demo mode shortens it to 5 s.
+- The candle lights after 10 s of stillness (shortened from 60 s by Cristea, hour 30), measured by motion only, so no microphone prompt appears at a memorial. Demo mode shortens it to 5 s.
 - `/screen` shows candles as small points that fade like glow, with a quiet ticker line. No rose window, no number, no room sound.
 - `/pulse` shows candles as marks without numbers.
 - In navigation it is treated like any site: sites list, arrow, Maps links, sound compass, next-site score. Personas mention it only with their one pre-written sentence.

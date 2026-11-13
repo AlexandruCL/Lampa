@@ -102,6 +102,7 @@ Anything that differs from the plan, `DESIGN.md` or the contract, and any file o
 | 29 | B3-4.b.1 | `/curate` names sites from `sites` in `@lampa/shared` (id as fallback); adds a load-error Notice (copy not in `DESIGN.md` 7.15) and treats `missing_refresh_token` and `invalid_grant` as an ended session | `apps/web/src/curate/` | Decisions, hour 29 |
 | 29 | B3-5.b.1 | `lampa.signInReturnTo` stored before `loginWithRedirect` so a cancelled sign-in returns to the page; `KeepMyColours.module.css` holds one `.root` wrapper | `apps/web/src/auth/` | `DESIGN.md` 7.10 "back where they were" (Decisions, hour 29) |
 | 29 | B1-2.a.1 (fixed) | `/authorize` with `audience=https://lampa-api-b45i.onrender.com` answered "Service not found". Cause: the API's Identifier had a leading space (` https://…`, invisible in the dashboard; probing with `%20` in front gave "Client … is not authorized to access resource server \" https://…\""). Cristea deleted it and created `LAMPA API` again: identifier typed by hand, RS256, RBAC, permissions in the token, offline access, `moderate:echo` and `write:site`, `LAMPA` authorized for user-delegated access with both permissions, roles given their permissions again | none (Auth0 dashboard) | No access token for the API could be issued, so `/curate` could not load the queue. After the fix `/authorize` with the audience goes to `/u/login/identifier` |
+| 30 | Candle hold | The candle's hold changed from 60 s to 10 s in `IMPLEMENTATION_PLAN.md` (lines 227, 273) and `DESIGN.md` (motion table, CandleRing purpose and states, demo note, section 9 item list) | `IMPLEMENTATION_PLAN.md`, `DESIGN.md` | Cristea's decision, hour 30; the team needs to see it |
 
 ## Decisions
 The owner's answers only.
@@ -212,6 +213,8 @@ The owner's answers only.
 | 29 | B3-7.a.1: at Piața Unirii the subtitle covers most of the Victoriei and Bastion windows for 8 s; accepted for Build 3 | Cristea took the recommendation; revisit in Build 4 |
 | 29 | B3-3.a.1: Universal Login primary `#FFB547` renders a dark label (checked by Cristea); the wordmark logo is added later | "We will add the logo later" |
 | 30 | Vercel git deploys are off for every branch (`git.deploymentEnabled` `main` and `*` false in `apps/web/vercel.json`); the web app deploys only by hand from the Vercel dashboard (Redeploy) or `vercel --prod`. A merge to `main` no longer reaches the site by itself. Render still deploys the API from `main` | Cristea's decision |
+| 30 | The memorial candle lights after 10 s of stillness in real use (5 s with `?demo=1`), not 60 s; Ionut builds it as planned (Build 4 row), with the CandleRing of `DESIGN.md` 6.x as the progress indicator (Ring filling linearly, flame 0.4 to 1.0, reset on movement) | Cristea's decision; 60 s was too long |
+| 30 | `/screen` runs full screen (F11) at the checkpoint and the demo; the layout is not changed to fit shorter windows in Build 3 | Cristea's decision; headless Chromium at 1920×950 cut the Cathedral's name and at 2560×1080 most of it, while every 16:9 and 16:10 size showed it whole |
 
 ## Blocked
 | Since hour | ID | Question | Recommendation | Waiting on |
@@ -263,3 +266,4 @@ What other lanes can use now: endpoints, hooks, socket messages, scripts, env va
 | 29 | `VITE_AUTH0_AUDIENCE` (Vercel production, `.env.example`): the API audience the web app asks Auth0 for | Vercel, `.env.example` | all web |
 | 29 | Auth0 tokens carry the custom claim `https://lampa.city/roles` (array of role names) in both the ID and access token, set by the Post-login Action | `cristea/build_3/post-login.js` | all |
 | 29 | `Live.emit(room, message, payload)` and `AppDeps.emit`: send any `SocketMessage` to one room of `/live` | `apps/api/src/seam.ts`, `live/socket.ts` | Fabi, all API work |
+| 30 | Memorial candle hold is 10 s (5 s with `?demo=1`), not 60 s; build the progress as the CandleRing in `DESIGN.md` 6.x; `/screen` already draws the candle from Fabi's broadcast | `IMPLEMENTATION_PLAN.md` line 227, `DESIGN.md` | Ionut |

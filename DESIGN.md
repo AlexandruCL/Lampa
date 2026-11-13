@@ -294,7 +294,7 @@ Exits are about 75% of their enter. `ease-in` is never used.
 | Sheet | open / close | `translateY(100%)` to 0, `--dur-sheet` `--ease-drawer`; close `--dur-base` `--ease-out`; backdrop opacity same durations | spatial continuity |
 | Notice | appears / clears | opacity and `translateY(-8px)`, `--dur-fast` `--ease-out` | state change |
 | GlowMark, rose-window brightness, halo | glow message (every 5 s) | opacity and colour mix over `--dur-glow` `--ease-in-out` | state change without jumps |
-| Hold rings (lens 2 s, lamp 1.5 s, candle 60 s) | holding | stroke fills `linear` over the hold time; on break, empties in 200ms `--ease-out` | slow while the user commits, fast when the system resets |
+| Hold rings (lens 2 s, lamp 1.5 s, candle 10 s) | holding | stroke fills `linear` over the hold time; on break, empties in 200ms `--ease-out` | slow while the user commits, fast when the system resets |
 | Recording ring (echo, 20 s) | recording | fills `linear` over 20 s | time left |
 | Lens colour disk | 10 readings per second | `background-color` transition 100ms linear | follows the camera without flicker |
 | Caught pane | caught | disk scales to fill the lens, 300ms `--ease-out`; then shrinks to `scale(0.12)` and translates to the mini window's slot, `--dur-flight` `--ease-in-out`; the slot then fades from `--surface-2` to the colour over 240ms | shows where the colour went |
@@ -548,12 +548,12 @@ Purpose: tell judges the position is simulated. Shown on every phone view when `
 
 ### 6.22 Candle (memorial)
 
-Purpose: the minute of stillness. Anatomy: a Ring 200px; inside it a candle drawn in SVG: a 12 × 48px stem in `--text-2` with 2px radius, centred, its base 40px above the ring's bottom inner edge; a teardrop flame 18 × 30px in `--lamp-white` above the stem, scaled from its base from 0.4 (unlit) to 1.0 (lit) with the Ring's progress; under the Ring one instruction line (`--type-body` `--text`).
+Purpose: a moment of stillness (10 s; the concept's minute was shortened by Cristea at hour 30). Anatomy: a Ring 200px; inside it a candle drawn in SVG: a 12 × 48px stem in `--text-2` with 2px radius, centred, its base 40px above the ring's bottom inner edge; a teardrop flame 18 × 30px in `--lamp-white` above the stem, scaled from its base from 0.4 (unlit) to 1.0 (lit) with the Ring's progress; under the Ring one instruction line (`--type-body` `--text`).
 
 | State | Look | Text (en / ro) |
 |---|---|---|
 | ready | Ring empty, flame 0.4 at 40% opacity | "Hold your phone still to light a candle." / "Ține telefonul nemișcat ca să aprinzi o lumânare." |
-| filling | Ring fills linearly over 60 s (5 s with `?demo=1`) while the phone is still; flame grows | same line |
+| filling | Ring fills linearly over 10 s (5 s with `?demo=1`) while the phone is still; flame grows | same line |
 | moved | Ring empties in 200ms; flame back to 0.4; no other message | same line |
 | lit | Ring full, flame 1.0 at 100% opacity, stays | "Your candle is lit." / "Lumânarea ta e aprinsă." |
 | no motion sensor, permission denied, or stillness check not shipped | Ring hidden; flame 0.4; a secondary L button under it | "Light a candle" / "Aprinde o lumânare"; tapping lights it at once (lit state) |
@@ -765,7 +765,7 @@ The site's sound bed plays at 50% of its normal level while no testimony plays a
 |---|---|
 | first open | testimonies ready, candle ready; nothing plays until tapped |
 | testimony playing | 6.23 playing state; the narration text is on screen with its source |
-| candle filling | Ring fills over 60 s (5 s with `?demo=1`) while still, by motion only; moving resets it without a message |
+| candle filling | Ring fills over 10 s (5 s with `?demo=1`) while still, by motion only; moving resets it without a message |
 | candle lit | "Your candle is lit." Its point appears on the Living Map (7.13) and as a mark on Pulse (7.14). No vibration, no sound, no count |
 | leaving and coming back the same day | the candle shows lit again; a second candle can be lit (the Ring is ready again under "Your candle is lit.") |
 | no motion sensor, motion permission denied, or the stillness check did not ship | the tap fallback in 6.22: "Light a candle" lights it at once |
@@ -861,7 +861,7 @@ Add a place (tab "Add a place"): one column, max 640px, works on a phone (the cu
 
 ### 7.16 Demo mode (`?demo=1`)
 
-Every phone view shows the DemoBadge. Injected position and heading drive the same states as real sensors. One timing changes: the memorial candle needs 5 s of stillness instead of 60 s. Demo mode never shows a fake permission prompt.
+Every phone view shows the DemoBadge. Injected position and heading drive the same states as real sensors. One timing changes: the memorial candle needs 5 s of stillness instead of 10 s. Demo mode never shows a fake permission prompt.
 
 ### 7.17 Plan coverage
 
@@ -884,7 +884,7 @@ Every screen, route and view the implementation plan names, and where it is spec
 | Between sites (arrow, distance, Maps links) | 7.8 |
 | Sites list (distance, glow, next-site suggestion) | 7.9 |
 | Keep my colours (sign-in and claim) | 7.10 |
-| Memorial view: testimonies and the candle after 60 s of stillness (5 s in demo mode), tap fallback | 7.11, 6.22, 6.23 |
+| Memorial view: testimonies and the candle after 10 s of stillness (5 s in demo mode), tap fallback | 7.11, 6.22, 6.23 |
 | Memorial on the Living Map and on Pulse | 7.13, 7.14 |
 | 1884 finale on phones and `/screen` | 7.12, 7.13 |
 | Radio Lampa episode | 7.13 |
