@@ -1,5 +1,6 @@
 import { AgentLang, AgentSession } from "@lampa/shared";
 import { Router } from "express";
+import { rateLimit } from "express-rate-limit";
 import { requireVisitor } from "../auth/session.js";
 
 export type Persona = { prompt: string; firstMessage: string; voiceId: string };
@@ -46,8 +47,14 @@ async function signedUrl(doFetch: typeof fetch): Promise<string | null> {
 
 export function createAgentRouter(deps: AgentDeps = {}): Router {
   const router = Router();
+  // shortcut: memory store, counts reset on restart and are per instance; move to a shared store if the API runs on more than one instance
+  const sessionLimiter = rateLimit({
+    windowMs: 600_000,
+    limit: 6,
+    keyGenerator: (req) => req.visitor!.sub,
+  });
 
-  router.get("/agent/session", requireVisitor, async (req, res) => {
+  router.get("/agent/session", requireVisitor, sessionLimiter, async (req, res) => {
     const site = typeof req.query.site === "string" ? req.query.site : "";
     if (MEMORIAL_SITE_IDS.includes(site)) {
       res.status(404).json({ error: "no_persona" });
