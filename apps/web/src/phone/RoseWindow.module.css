@@ -1,0 +1,7 @@
+.window { display: block; flex: none; overflow: visible; }
+.l { width: min(64vw, 280px); height: min(64vw, 280px); }
+.s { width: 72px; height: 72px; }
+.frame { fill: none; stroke: var(--line-strong); stroke-width: var(--border-control); vector-effect: non-scaling-stroke; }
+/* the leading: a --bg stroke around every pane */
+.pane { fill: var(--surface-2); stroke: var(--bg); stroke-width: 1.5px; vector-effect: non-scaling-stroke; }
+.halo { stop-color: var(--lamp); }
