@@ -78,6 +78,14 @@ export const INSERT_SITE = `INSERT INTO sites (id, city, slug, name, geom, radiu
 VALUES ($1, $2, $3, $4, ST_SetSRID(ST_MakePoint($5, $6), 4326)::geography, $7, $8, $9, $10,
         $11, $12, $13, $14, $15, 'published')`;
 
+const INSERTED = INSERT_SITE.slice(INSERT_SITE.indexOf("(") + 1, INSERT_SITE.indexOf(")"))
+  .split(",")
+  .map((c) => c.trim())
+  .filter((c) => c !== "id");
+
+export const UPSERT_SITE = `${INSERT_SITE}
+ON CONFLICT (id) DO UPDATE SET ${INSERTED.map((c) => `${c} = EXCLUDED.${c}`).join(", ")}`;
+
 export function siteParams(row: SiteRow): unknown[] {
   return [
     row.id,

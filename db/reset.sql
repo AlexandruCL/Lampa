@@ -2,4 +2,4 @@
 DROP MATERIALIZED VIEW IF EXISTS site_activity_1m CASCADE;
 DROP MATERIALIZED VIEW IF EXISTS colour_1h CASCADE;
 -- Every table a later migration adds is appended to this list in the same commit.
-DROP TABLE IF EXISTS panes, windows, echoes, blobs, interaction_events, sites, colour_readings CASCADE;
+DROP TABLE IF EXISTS panes, windows, echoes, blobs, interaction_events, sites, colour_readings, conversations, schema_migrations CASCADE;

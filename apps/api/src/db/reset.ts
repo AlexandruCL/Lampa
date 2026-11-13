@@ -1,5 +1,6 @@
 import { readdir, readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
+import { MIGRATIONS_TABLE_SQL } from "./migrations.js";
 import { createPool } from "./pool.js";
 import { INSERT_SITE, parseSiteFile, siteParams, toSiteRow, toSitesJson } from "./seed.js";
 
@@ -20,10 +21,13 @@ async function main(): Promise<void> {
       await client.query(await readFile(join(root, "db", "reset.sql"), "utf8"));
 
       const migDir = join(root, "db", "migrations");
-      for (const f of await filesWith(migDir, ".sql")) {
+      const applied = await filesWith(migDir, ".sql");
+      for (const f of applied) {
         await client.query(await readFile(join(migDir, f), "utf8"));
         console.log(`applied ${f}`);
       }
+      await client.query(MIGRATIONS_TABLE_SQL);
+      for (const f of applied) await client.query("INSERT INTO schema_migrations (name) VALUES ($1)", [f]);
 
       const siteDir = join(root, "content", "sites");
       const files = [];
@@ -48,11 +52,11 @@ async function main(): Promise<void> {
       const t = await client.query(
         `SELECT count(*)::int AS n FROM information_schema.tables
          WHERE table_schema = 'public' AND table_name = ANY($1)`,
-        [["sites", "windows", "panes", "echoes", "blobs", "interaction_events", "colour_readings"]],
+        [["sites", "windows", "panes", "echoes", "blobs", "interaction_events", "colour_readings", "conversations"]],
       );
       const h = await client.query(
         `SELECT count(*)::int AS n FROM timescaledb_information.hypertables
-         WHERE hypertable_name IN ('interaction_events', 'colour_readings')`,
+         WHERE hypertable_name IN ('interaction_events', 'colour_readings', 'conversations')`,
       );
       const s = await client.query("SELECT count(*)::int AS n FROM sites");
       console.log(`db:reset done: ${t.rows[0].n} tables, ${h.rows[0].n} hypertables, ${s.rows[0].n} sites`);
