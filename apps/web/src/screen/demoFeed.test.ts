@@ -1,8 +1,17 @@
-import { PaneMessage } from "@lampa/shared";
+import { CandleMessage, PaneMessage } from "@lampa/shared";
 import { expect, it } from "vitest";
-import { nextDemoMessage } from "./demoFeed";
+import { applyCandle } from "./candles";
+import { nextDemoCandle, nextDemoMessage } from "./demoFeed";
 import { sites } from "./sites.fixture";
 import { applyPane, applyWindowComplete, emptyWindows, type WindowsState } from "./windows";
+
+it("a demo candle is for the cathedral and passes CandleMessage", () => {
+  const now = Date.parse("2026-11-13T20:00:00Z");
+  const candle = nextDemoCandle(2, now);
+  expect(CandleMessage.safeParse(candle).success).toBe(true);
+  expect(candle).toEqual({ id: "demo-candle-2", siteId: "cathedral", litAt: "2026-11-13T20:00:00.000Z" });
+  expect(applyCandle([], candle, now)).toEqual([{ id: "demo-candle-2", litAt: now }]);
+});
 
 const COLOUR_SITES = sites.filter((s) => !s.is_memorial).map((s) => s.id);
 
