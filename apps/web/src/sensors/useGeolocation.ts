@@ -2,6 +2,9 @@ import { useEffect, useMemo, useState } from "react";
 import type { Fix } from "../geo/geofence";
 import type { Demo } from "./demo";
 
+/** Browsers give null, or NaN while standing still, when they have no course or speed. */
+const orNull = (v: number | null): number | null => (v === null || Number.isNaN(v) ? null : v);
+
 export type GeoStatus = "idle" | "watching" | "denied" | "unavailable";
 
 /** Mount after the primer tap, or the location prompt appears outside it. With `demo` it reads no sensor. */
@@ -24,7 +27,14 @@ export function useGeolocation(demo?: Demo | null): { position: Fix | null; stat
     }
     setStatus("watching");
     const id = geo.watchPosition(
-      (p) => setPosition({ lat: p.coords.latitude, lng: p.coords.longitude, accuracy: p.coords.accuracy }),
+      (p) =>
+        setPosition({
+          lat: p.coords.latitude,
+          lng: p.coords.longitude,
+          accuracy: p.coords.accuracy,
+          course: orNull(p.coords.heading),
+          speed: orNull(p.coords.speed),
+        }),
       (e) => {
         if (e.code === 1 /* PERMISSION_DENIED */) setStatus("denied"); // other errors: the watch goes on
       },
