@@ -1,11 +1,10 @@
-import { MAP_LINES } from "@lampa/shared";
+import { MAP_LINES, sites } from "@lampa/shared";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "../components";
 import { DemoBadge } from "../phone/DemoBadge";
 import { isDemo } from "../sensors/demo";
 import { startCanvas } from "./canvas";
 import styles from "./ScreenPage.module.css";
-import { sites } from "./sites.fixture";
 import { useScreenSocket } from "./useScreenSocket";
 
 const RECONNECT_NOTICE_MS = 3000;
