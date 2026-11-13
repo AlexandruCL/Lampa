@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import styles from "./RoseWindow.module.css";
 
 type Props = {
@@ -7,6 +8,8 @@ type Props = {
   filled: (string | null)[];
   /** 0 to 1. Given: backlight (2.3) and halo (4.3). Absent: no halo, asleep brightness. */
   glow?: number;
+  /** Window complete (5.5): halo flare and every pane at full brightness while true. */
+  flare?: boolean;
 };
 
 // DESIGN.md 6.6: slots per ring and the radius band of each, as fractions of R.
@@ -27,10 +30,24 @@ const SLOTS = RINGS.flatMap(({ count, from, to }) =>
   }),
 );
 
-export function RoseWindow({ name, size, filled, glow }: Props) {
+/** Centre of slot `i` in the SVG's own units (origin at the window centre, window is 2R + 8 wide). */
+export function slotCentre(i: number): { x: number; y: number; unit: number } {
+  let k = i;
+  for (const { count, from, to } of RINGS) {
+    if (k < count) {
+      const a = ((k + 0.5) / count) * 2 * Math.PI;
+      const r = ((from + to) / 2) * R;
+      return { x: r * Math.sin(a), y: -r * Math.cos(a), unit: 2 * R + 8 };
+    }
+    k -= count;
+  }
+  return { x: 0, y: 0, unit: 2 * R + 8 };
+}
+
+export function RoseWindow({ name, size, filled, glow, flare }: Props) {
   const g = Math.min(1, Math.max(0, glow ?? 0));
   const count = filled.filter(Boolean).length;
-  const light = Math.round((0.45 + 0.55 * g) * 100);
+  const light = flare ? 100 : Math.round((0.45 + 0.55 * g) * 100);
   return (
     <svg
       className={`${styles.window} ${size === "l" ? styles.l : styles.s}`}
@@ -38,15 +55,20 @@ export function RoseWindow({ name, size, filled, glow }: Props) {
       role="img"
       aria-label={`${name} window, ${count} of 48 panes`}
     >
-      {glow !== undefined && g > 0 && (
+      {(flare || (glow !== undefined && g > 0)) && (
         <>
           <defs>
             <radialGradient id={`halo-${size}`}>
-              <stop offset="0" className={styles.halo} stopOpacity={0.35 * g} />
+              <stop offset="0" className={styles.halo} stopOpacity={0.35} />
               <stop offset="1" className={styles.halo} stopOpacity={0} />
             </radialGradient>
           </defs>
-          <circle r={1.6 * R} fill={`url(#halo-${size})`} />
+          <circle
+            r={1.6 * R}
+            fill={`url(#halo-${size})`}
+            className={flare ? styles.flare : undefined}
+            style={{ opacity: g, "--rest": g } as CSSProperties}
+          />
         </>
       )}
       <circle r={R + 2} className={styles.frame} />
