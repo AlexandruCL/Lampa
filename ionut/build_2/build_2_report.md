@@ -12,12 +12,12 @@ Written at hour 5 (2026-11-13, about 19:10 +0200). Prompt: `ionut/build_2/build_
 | B2-3.a.1 | `Tests  5 passed (5)`; a null bin named as bin 0 fails its case | 3cf60c6 |
 | B2-2.a.1 | Full verify exit 0, web `Tests  119 passed (119)`; breaking at distance ≥ 48 and catching at 1999 ms each fail their cases | 3f3d53e |
 | (rebase) | `bins.ts`, `names.ts` re-export from `@lampa/shared` after PR #15 (Ionut's decision); web 119, api 31, exit 0 | 4a86675 |
-| B2-1.b.1 | `npm run test -w @lampa/web -- src/sensors` → `Tests  22 passed (22)`; centring the square at half height fails "… starts at 608, 270" | a0a9425 |
-| B2-1.c.1 | `✓ built in 410ms`, `Tests  127 passed (127)`, hex grep `0`; fake-camera run of reading, night glass, denied with retry, no camera, both back controls | e24cca4 |
-| B2-2.c.1 | `✓ built in 499ms`, `Tests  131 passed (131)`, hex grep `0`; a reducer that keeps old panes fails "a pane of a new window clears the old panes"; every `PaneStatus` state seen with a mocked API (below) | a6a3c55 |
+| B2-1.b.1 | `npm run test -w @lampa/web -- src/sensors` → `Tests  22 passed (22)`; centring the square at half height fails "… starts at 608, 270" | 2e01e10 |
+| B2-1.c.1 | `✓ built in 410ms`, `Tests  127 passed (127)`, hex grep `0`; fake-camera run of reading, night glass, denied with retry, no camera, both back controls | 40a02ac |
+| B2-2.c.1 | `✓ built in 499ms`, `Tests  131 passed (131)`, hex grep `0`; a reducer that keeps old panes fails "a pane of a new window clears the old panes"; every `PaneStatus` state seen with a mocked API (below) | 36e0f4e |
 | B2-last | PR #17 merged (`f9d271c`); `ionut/b2-lens` rebased on `main`; this report | this commit |
 
-Review rounds on agent work, all fixed before the commit: the Ring sat 20px off the lens centre; a `role="status"` around the live colour name would have announced 10 readings a second; the catch sent the latest reading instead of the hold's first; the offline Notice's 3 s timer restarted on every 2 s retry and never showed; "Try again" after a hidden page kept a stale hold and caught 230 ms after the tap (fixed in `dcfe65f`: now 2283 ms). Also in `dcfe65f`, by Ionut's decision: a caught view survives a hidden page.
+Review rounds on agent work, all fixed before the commit: the Ring sat 20px off the lens centre; a `role="status"` around the live colour name would have announced 10 readings a second; the catch sent the latest reading instead of the hold's first; the offline Notice's 3 s timer restarted on every 2 s retry and never showed; "Try again" after a hidden page kept a stale hold and caught 230 ms after the tap (fixed in `36ff405`: now 2283 ms). Also in `36ff405`, by Ionut's decision: a caught view survives a hidden page.
 
 What `POST /panes` sent in the mocked run (canvas camera `#3a7bd5`): `{"siteId":"unirii","hue":214.8387096774194,"saturation":0.6485355648535565,"lightness":0.5313725490196078,"hex":"#3a7bd5","bin":7,"at":"2026-11-13T17:00:58.334Z"}`, one request per catch. It comes out of `toPaneIn`, which runs `PaneIn.parse`.
 
@@ -33,7 +33,7 @@ States seen with Playwright mocks (not a real API): 201 → "Your colour is in t
 
 ## Not finished at hour 18
 
-Nothing cut. All IDs are done. One check is open: the full root `npm run typecheck && npm test` on `ionut/b2-lens` fails only in `apps/api`, because `pg` and `yaml` (added by Fabi's PR #16) are not installed here. Ionut runs `! npm ci`, then the session re-runs the verify before the PR is marked ready.
+Nothing cut, nothing carried over. All IDs are done. After Ionut's `npm ci` (needed for `pg` and `yaml` from Fabi's PR #16), `ionut/b2-lens` on `main` `387c717`: `npm run typecheck && npm run build && npm test` → exit 0, `✓ built in 435ms`, web `Tests  131 passed (131)`, api `Tests  37 passed (37)`.
 
 ## Phone checks for Ionut
 
