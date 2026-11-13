@@ -12,6 +12,7 @@ Hour 0: 2026-11-13 13:21 (+0200).
 | S-last | Integrated: branch already on `origin/main` (`9603702`, nothing to rebase); PR #3 open; both verify commands re-run; both rule-break checks fail as expected; dev `/screen` reload → `Screen`; `getHealth()` from the dev page console → `{ ok: true }` against the local API started with `WEB_ORIGIN=http://localhost:5173` | `npm run typecheck && npm run build && npm test` → `✓ built in 129ms`; `Test Files  2 passed (2)`, `Tests  7 passed (7)`; exit 0. `npm ci` not run (see Changes) | cc0b795 | 0 |
 | S-last (iPhone) | Ionut's check on the iPhone after PR #3 merged and Vercel deployed `main`: `https://lampa-timisoara.vercel.app` over HTTPS shows `Landing`; `/s/abc` → `Site abc`; `/screen`, `/pulse`, `/curate` show their names after a reload; `/nope` → `/` | Ionut's report: "the iPhone check passed, all routes work" | 4991605 (deployed) | 0 |
 | S-last (Android, contract) | Setup close-out: a teammate's Android route check passed (reported by Ionut, hour 1); the team agreed the contract as it stands in `packages/shared`, enum names and no payloads (`cristea/GLOSSARY.md`, Decisions, hour 0). Setup is closed; the clean `npm ci` run is still listed under Changes | Ionut's report; Cristea's glossary | this commit | 1 |
+| B1-2.a.1 | `apps/web/src/events/queue.ts` (`createEventQueue`), `index.ts` (`track`), 9 queue tests (agent `ionut-api`) | `npm run test -w @lampa/web -- src/events && npm run typecheck -w @lampa/web` → `Tests  9 passed (9)`; exit 0. Never retrying an `ApiError` fails "a 503 keeps the batch for the next tick" | this commit | 1 |
 
 ## Changes
 Anything that differs from the plan, `DESIGN.md` or the contract, and any file outside this lane that was touched.
@@ -22,6 +23,7 @@ Anything that differs from the plan, `DESIGN.md` or the contract, and any file o
 | 0 | S-1.c.1 | An empty string under `lampa.session` sends no `Authorization` header; a failed response throws `ApiError(status)` without reading the body | `apps/web/src/api/client.ts` | An empty token is no session; error bodies come with the first endpoint that defines one |
 | 0 | S-last | `npm ci` before the final checks was not run: the session's auto mode refused it because it deletes `node_modules`. The checks ran on the install from S-0 and S-1.a, whose lockfile is unchanged | none | Ionut can run `npm ci` once to close the fresh-install check |
 | 0 | S-last | Fact for Cristea: with `WEB_ORIGIN` unset, the local API sends no `Access-Control-Allow-Origin`, so the dev page at `http://localhost:5173` is refused by CORS. Setting `WEB_ORIGIN=http://localhost:5173` for the local process fixes it. `apps/api` was not changed | none | Recorded per the setup prompt |
+| 1 | B1-2.a.1 | A batch that fails `EventBatch.parse` before sending is dropped; any error that is not an `ApiError` or `ZodError` counts as a network error and is retried | `apps/web/src/events/queue.ts` | A batch that cannot parse would block the queue forever; the task names only network errors |
 
 ## Decisions
 The owner's answers only.
