@@ -11,6 +11,7 @@ Hours below marked "pre-0" were recorded on 2026-11-13, before the start.
 | S-1.a.1 | Workspace scaffold with a health endpoint | fresh clone: `npm ci && npm run typecheck && npm run build && npm test` → exit 0, `✓ built in 131ms`; `GET /health` → `200 {"ok":true}` | `chore(setup) added the npm workspaces for web, api and shared` | 0 |
 | S-1.b.1 | `.env.example` with the twelve names | `git check-ignore -q .env && git check-ignore -q .env.local && ! git check-ignore -q .env.example && grep -c "=" .env.example` → `12`, exit 0; no `.env` path in `git log --all --name-only` | ffc18b2 | 0 |
 | S-2.a.1 | `EventKind` (8) and `SocketMessage` (7) as Zod enums | `npm run typecheck && npx tsx -e ...` → `8 7`; both apps typecheck and build with an `EventKind` import; typecheck rejects an unknown kind | `feat(shared) added EventKind and SocketMessage enums to the contract` | 0 |
+| S-1.c.1 | Vercel `lampa-timisoara` (root `apps/web`, Vite, Node 26.x, Git `AlexandruCL/Lampa` on `main`, `VITE_API_URL` in production) and Render `lampa-api` (free, Frankfurt, `main`, auto-deploy on, `npm ci`, `npm run start -w @lampa/api`, health `/health`, `NODE_VERSION=26`, `WEB_ORIGIN`) | `curl .../screen && curl .../health` → `200 {"ok":true}`; `OPTIONS` from the web origin → 204 with that origin in `Access-Control-Allow-Origin`; Render live deploy on `91d7046`. Waiting: a push-triggered deploy on both hosts, checked when PR #1 merges | no repo files | 0 |
 
 ## Changes
 Anything that differs from the plan, `DESIGN.md` or the contract, and any file outside this lane that was touched.
@@ -19,6 +20,9 @@ Anything that differs from the plan, `DESIGN.md` or the contract, and any file o
 | 0 | S-1.a.1 | Added `@vitejs/plugin-react` and `@types/*` dev dependencies, which plan section 3 does not name | `apps/web/package.json`, `apps/api/package.json`, `package-lock.json` | Vite needs the plugin for JSX, and typecheck needs the types. Approved by Cristea |
 | 0 | S-1.a.1 | npm blocks the `esbuild` postinstall script (`allowScripts`); build and API work without it. No `.gitattributes`, so git converts LF to CRLF on Windows | none | Noted for the team; nothing changed |
 | 0 | S-2.a.1 | `index.ts` re-exports with `./contract.js`, not `./contract.ts` | `packages/shared/src/index.ts` | `tsconfig.base.json` has no `allowImportingTsExtensions`, so tsc rejects `.ts` (TS5097). tsc, tsx and Vite all resolve `.js` to the `.ts` source |
+| 0 | S-1.c.1 | Render named the host `lampa-api-b45i.onrender.com`, not `lampa-api.onrender.com` | none | Render added the suffix |
+| 0 | S-1.c.1 | The first Vercel deploy built at the repo root and failed, because `vercel git connect` triggered it before the root directory was set. A CLI redeploy replaced it | none | Order of CLI steps |
+| 0 | S-1.c.1 | Git Bash rewrites leading-slash arguments such as `/health` into Windows paths. Prefix CLI calls with `MSYS_NO_PATHCONV=1` | none | Hit while creating the Render service |
 
 ## Decisions
 The owner's answers only.
@@ -61,3 +65,5 @@ What other lanes can use now: endpoints, hooks, socket messages, scripts, env va
 | 0 | `GET /health` → `{"ok":true}`, local API on port 3000 (`PORT` overrides), CORS from `WEB_ORIGIN` | `apps/api/src/index.ts` | all |
 | 0 | Env names: `PORT`, `DATABASE_URL`, `WEB_ORIGIN`, `SESSION_SECRET`, `AUTH0_DOMAIN`, `AUTH0_AUDIENCE`, `ELEVENLABS_API_KEY`, `ELEVENLABS_WEBHOOK_SECRET`, `AGENT_TOOL_SECRET`, `VITE_API_URL`, `VITE_AUTH0_DOMAIN`, `VITE_AUTH0_CLIENT_ID` | `.env.example` (branch `cristea/setup-contract-env`) | all |
 | 0 | `EventKind`, `SocketMessage` (Zod enums and types); import from `@lampa/shared` | `packages/shared/src/contract.ts` (branch `cristea/setup-contract-env`) | all |
+| 0 | Web: https://lampa-timisoara.vercel.app (every path rewrites to `/index.html`) | Vercel `lampa-timisoara` | all, phone tests |
+| 0 | API: https://lampa-api-b45i.onrender.com, `GET /health` → `{"ok":true}`. Free plan sleeps after about 15 min idle, so the first call can take about 50 s. CORS allows only `WEB_ORIGIN` (the production web URL), so Vercel preview URLs are blocked | Render `lampa-api` | all |
