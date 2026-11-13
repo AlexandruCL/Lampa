@@ -10,8 +10,10 @@ import { createPanesRouter } from "./panes/router.js";
 import { createScreenStateRouter } from "./panes/state.js";
 import { createSitesRouter } from "./sites/router.js";
 import { createGetSiteStats } from "./stats/stats.js";
+import { createPulseRouter } from "./pulse/router.js";
 import { createTimeRouter } from "./time/router.js";
 import { createToolsRouter } from "./tools/router.js";
+import { createElevenLabsWebhookRouter } from "./webhooks/elevenlabs.js";
 import type { AppDeps } from "./seam.js";
 
 export function createApp(deps: AppDeps = {}): Express {
@@ -22,6 +24,8 @@ export function createApp(deps: AppDeps = {}): Express {
   app.use(cors({ origin: process.env.WEB_ORIGIN }));
   // Before express.json(): POST /session/anon reads no body, so a malformed one must not 400 it.
   app.use(sessionRouter);
+  // The webhook reads its raw body, so it goes before express.json().
+  app.use(createElevenLabsWebhookRouter({ db: deps.db }));
   app.use(express.json());
   const getSiteStats = deps.db ? createGetSiteStats({ db: deps.db, latestGlow: deps.latestGlow ?? (() => null) }) : undefined;
   app.use(createAgentRouter({ getPersona: deps.db && makeGetPersona(deps.db), getSiteStats }));
@@ -33,6 +37,7 @@ export function createApp(deps: AppDeps = {}): Express {
   app.use(createEchoesRouter({ db: deps.db, tx: deps.tx, onStored: deps.onEventsStored, emit: deps.emit }));
   app.use(createClaimRouter({ tx: deps.tx }));
   app.use(createTimeRouter());
+  app.use(createPulseRouter({ db: deps.db, latestGlow: deps.latestGlow ?? (() => null) }));
   app.get("/health", (_req, res) => {
     res.json({ ok: true });
   });

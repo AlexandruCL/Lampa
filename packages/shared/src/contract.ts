@@ -211,3 +211,42 @@ export type LampsMessage = z.infer<typeof LampsMessage>;
 /** GET /time, public: the server clock in epoch milliseconds. */
 export const TimeNow = z.object({ now: z.number().int() });
 export type TimeNow = z.infer<typeof TimeNow>;
+
+const SiteGlow = z.object({ siteId: z.string(), glow: z.number().min(0).max(1) });
+
+/** GET /pulse/summary. Glow and colours leave the Cathedral out; visitors are city-wide. */
+export const PulseSummary = z.object({
+  cityGlow: z.number().min(0).max(1),
+  glow: z.array(SiteGlow),
+  lampsToday: z.number().int().min(0),
+  coloursToday: z.number().int().min(0),
+  visitorsToday: z.number().int().min(0),
+});
+export type PulseSummary = z.infer<typeof PulseSummary>;
+
+/** GET /pulse/colour-clock: the 24 hours of the day (local time) over the last 30 days. */
+export const PulseColourClock = z.object({
+  hours: z
+    .array(z.object({ hour: z.number().int().min(0).max(23), hex: Hex.nullable(), panes: z.number().int().min(0) }))
+    .length(24),
+  currentHour: z.number().int().min(0).max(23),
+});
+export type PulseColourClock = z.infer<typeof PulseColourClock>;
+
+/** GET /pulse/interactions: per colour site, interactions per 5 minutes over the last 3 hours, gap-filled. */
+export const PulseInteractions = z.object({
+  sites: z.array(
+    z.object({ siteId: z.string(), points: z.array(z.object({ t: z.string().datetime(), n: z.number().int().min(0) })) }),
+  ),
+});
+export type PulseInteractions = z.infer<typeof PulseInteractions>;
+
+/** GET /pulse/languages: conversations since local midnight, by language. */
+export const PulseLanguages = z.object({
+  languages: z.array(z.object({ lang: z.string(), conversations: z.number().int().min(1) })),
+});
+export type PulseLanguages = z.infer<typeof PulseLanguages>;
+
+/** GET /pulse/candles: candles at the memorial in the last 24 hours. No count is ever shown. */
+export const PulseCandles = z.object({ candles: z.array(z.object({ id: z.string().min(1), at: z.string().datetime() })) });
+export type PulseCandles = z.infer<typeof PulseCandles>;
