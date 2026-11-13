@@ -1,6 +1,7 @@
 import type { Server as HttpServer } from "node:http";
-import { GlowMessage, SocketMessage, sites } from "@lampa/shared";
+import { GlowMessage, PaneMessage, SocketMessage, sites, WindowCompleteMessage } from "@lampa/shared";
 import { Server } from "socket.io";
+import { GALLERY_SITE_ID } from "../panes/slots.js";
 import type { LatestGlow, Live } from "../seam.js";
 
 /** Always "city"; plus "screen" or "site:<id>" for a known id. Anything else, an array included, adds nothing. */
@@ -8,6 +9,11 @@ export function roomsFor(room: unknown, siteIds: string[]): string[] {
   if (room === "screen") return ["city", "screen"];
   if (typeof room === "string" && room.startsWith("site:") && siteIds.includes(room.slice(5))) return ["city", room];
   return ["city"];
+}
+
+/** The rooms a pane or window_complete of this site goes to: the Gallery has no site room (Fabi's decision, hour 7). */
+export function paneRooms(siteId: string): string[] {
+  return siteId === GALLERY_SITE_ID ? ["screen"] : ["site:" + siteId, "screen"];
 }
 
 export function attachLive(server: HttpServer, { origin, latestGlow }: { origin: string | undefined; latestGlow: LatestGlow }): Live {
@@ -22,11 +28,14 @@ export function attachLive(server: HttpServer, { origin, latestGlow }: { origin:
   return {
     // Both clients drop a bad message silently, so parse throws before anything is sent.
     emitGlow: (message) => void live.emit(SocketMessage.enum.glow, GlowMessage.parse(message)),
-    emitPane: () => {
-      throw new Error("emitPane is not implemented");
+    // to() with several rooms sends once per socket, even to a socket in two of them.
+    emitPane: (message) => {
+      const parsed = PaneMessage.parse(message);
+      live.to(paneRooms(parsed.siteId)).emit(SocketMessage.enum.pane, parsed);
     },
-    emitWindowComplete: () => {
-      throw new Error("emitWindowComplete is not implemented");
+    emitWindowComplete: (message) => {
+      const parsed = WindowCompleteMessage.parse(message);
+      live.to(paneRooms(parsed.siteId)).emit(SocketMessage.enum.window_complete, parsed);
     },
     close: () => io.close(),
   };
