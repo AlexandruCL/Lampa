@@ -3,10 +3,27 @@ import type { AddressInfo } from "node:net";
 import express from "express";
 import { SignJWT } from "jose";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { PendingEchoes } from "@lampa/shared";
 import type { Tx } from "../seam.js";
-import { ECHO_LIMIT, ECHO_MAX_BYTES, INSERT_BLOB, INSERT_ECHO, createEchoesRouter } from "./router.js";
+import { ECHO_LIMIT, ECHO_MAX_BYTES, INSERT_BLOB, INSERT_ECHO, SELECT_BLOB, SELECT_PENDING, createEchoesRouter } from "./router.js";
+
+const keys = vi.hoisted(() => import("jose").then((jose) => jose.generateKeyPair("RS256")));
+// The production requireVisitor with a local key resolver in place of the Auth0 JWKS, as in auth/session.test.ts.
+vi.mock("../auth/session.js", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../auth/session.js")>();
+  const { publicKey } = await keys;
+  return { ...actual, requireVisitor: actual.makeRequireVisitor(async () => publicKey) };
+});
 
 process.env.SESSION_SECRET = "test-secret";
+process.env.AUTH0_DOMAIN = "lampa.test";
+process.env.AUTH0_AUDIENCE = "https://api.lampa.test";
+
+const anonToken = () => new SignJWT().setProtectedHeader({ alg: "HS256" }).setSubject("anon:test")
+  .setIssuedAt().setExpirationTime("1h").sign(new TextEncoder().encode("test-secret"));
+const auth0Token = async (permissions: string[]) => new SignJWT({ permissions }).setProtectedHeader({ alg: "RS256" })
+  .setSubject("auth0|curator").setIssuer("https://lampa.test/").setAudience("https://api.lampa.test")
+  .setIssuedAt().setExpirationTime("1h").sign((await keys).privateKey);
 
 const ECHO_ID = "6f1c2a3b-0000-4000-8000-000000000001";
 let servers: Server[] = [];
@@ -46,9 +63,8 @@ async function start(deps: Parameters<typeof createEchoesRouter>[0]) {
   servers.push(server);
   await new Promise((resolve) => server.once("listening", resolve));
   const base = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
-  const token = await new SignJWT().setProtectedHeader({ alg: "HS256" }).setSubject("anon:test")
-    .setIssuedAt().setExpirationTime("1h").sign(new TextEncoder().encode("test-secret"));
-  return (body: FormData | string, auth = true) =>
+  const token = await anonToken();
+  const post = (body: FormData | string, auth = true) =>
     fetch(`${base}/echoes`, {
       method: "POST",
       headers: {
@@ -57,6 +73,18 @@ async function start(deps: Parameters<typeof createEchoesRouter>[0]) {
       },
       body,
     });
+  const get = (path: string, bearer?: string) =>
+    fetch(base + path, bearer ? { headers: { Authorization: `Bearer ${bearer}` } } : {});
+  return Object.assign(post, { get });
+}
+
+function readDb(rows: any[]) {
+  const calls: Call[] = [];
+  const query = async (text: string, params?: unknown[]) => {
+    calls.push({ text, params: params as any[] });
+    return { rows, rowCount: rows.length };
+  };
+  return { calls, db: { query } };
 }
 
 const AUDIO = new Uint8Array([0x1a, 0x45, 0xdf, 0xa3, 1, 2, 3]);
@@ -186,5 +214,80 @@ describe("POST /echoes", () => {
     await expectError(await (await start({ tx: f.tx }))(echo()), 503, "unavailable");
     expect(f.log.rolledBack).toBe(true);
     expect(spy).toHaveBeenCalledWith("echo insert failed: boom");
+  });
+});
+
+const blobRow = (status: string | null, type = "audio/webm") => ({ content_type: type, data: Buffer.from(AUDIO), status });
+
+describe("GET /blob/:key", () => {
+  it("approved audio is served without a token", async () => {
+    const r = readDb([blobRow("approved", "audio/mp4;codecs=mp4a.40.2")]);
+    const res = await (await start({ db: r.db })).get("/blob/echo-abc");
+    expect(res.status).toBe(200);
+    expect(res.headers.get("content-type")).toBe("audio/mp4;codecs=mp4a.40.2");
+    expect(res.headers.get("cache-control")).toBe("public, max-age=3600");
+    expect(new Uint8Array(await res.arrayBuffer())).toEqual(AUDIO);
+    expect(r.calls).toEqual([{ text: SELECT_BLOB, params: ["echo-abc"] }]);
+  });
+
+  it("pending audio without a token is 401", async () => {
+    await expectError(await (await start({ db: readDb([blobRow("pending")]).db })).get("/blob/echo-abc"), 401, "unauthorized");
+  });
+
+  it("pending audio with an anonymous token is 403", async () => {
+    const get = (await start({ db: readDb([blobRow("pending")]).db })).get;
+    await expectError(await get("/blob/echo-abc", await anonToken()), 403, "forbidden");
+  });
+
+  it("pending audio with moderate:echo is served with no-store", async () => {
+    const get = (await start({ db: readDb([blobRow("pending")]).db })).get;
+    await expectError(await get("/blob/echo-abc", await auth0Token(["moderate"])), 403, "forbidden");
+    const res = await get("/blob/echo-abc", await auth0Token(["moderate:echo"]));
+    expect(res.status).toBe(200);
+    expect(res.headers.get("cache-control")).toBe("no-store");
+    expect(new Uint8Array(await res.arrayBuffer())).toEqual(AUDIO);
+  });
+
+  it("an unknown blob key is 404", async () => {
+    await expectError(await (await start({ db: readDb([]).db })).get("/blob/echo-none"), 404, "unknown_blob");
+    await expectError(await (await start({ db: readDb([blobRow(null)]).db })).get("/blob/place-x"), 404, "unknown_blob");
+  });
+});
+
+describe("GET /echoes?status=pending", () => {
+  const rows = [
+    { id: "e1", site_id: "mx", created_at: new Date("2026-11-13T20:00:00Z"), lang: null, transcript: null, audio_url: "/blob/echo-1" },
+    { id: "e2", site_id: "unirii", created_at: new Date("2026-11-13T21:00:00Z"), lang: "ron", transcript: "Aici.", audio_url: "/blob/echo-2" },
+  ];
+
+  it("the pending list needs moderate:echo", async () => {
+    const r = readDb(rows);
+    const get = (await start({ db: r.db })).get;
+    expect((await get("/echoes?status=pending")).status).toBe(401);
+    await expectError(await get("/echoes?status=pending", await anonToken()), 403, "forbidden");
+    await expectError(await get("/echoes?status=pending", await auth0Token([])), 403, "forbidden");
+    expect(r.calls).toHaveLength(0);
+  });
+
+  it("the pending list is oldest first and passes PendingEchoes", async () => {
+    const r = readDb(rows);
+    const res = await (await start({ db: r.db })).get("/echoes?status=pending", await auth0Token(["moderate:echo"]));
+    expect(res.status).toBe(200);
+    expect(res.headers.get("cache-control")).toBe("no-store");
+    const body = await res.json();
+    expect(PendingEchoes.parse(body)).toEqual(body);
+    expect(body.echoes).toEqual([
+      { id: "e1", siteId: "mx", createdAt: "2026-11-13T20:00:00.000Z", lang: null, transcript: null, audioUrl: "/blob/echo-1" },
+      { id: "e2", siteId: "unirii", createdAt: "2026-11-13T21:00:00.000Z", lang: "ron", transcript: "Aici.", audioUrl: "/blob/echo-2" },
+    ]);
+    expect(r.calls[0]!.text).toBe(SELECT_PENDING);
+    expect(SELECT_PENDING).toMatch(/WHERE status = 'pending' ORDER BY created_at ASC/);
+  });
+
+  it("status=approved is 400", async () => {
+    const r = readDb(rows);
+    const get = (await start({ db: r.db })).get;
+    await expectError(await get("/echoes?status=approved", await auth0Token(["moderate:echo"])), 400, "invalid_status");
+    expect(r.calls).toHaveLength(0);
   });
 });
