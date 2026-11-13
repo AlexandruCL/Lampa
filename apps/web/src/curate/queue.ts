@@ -25,6 +25,18 @@ export function removeEcho(
   return { echoes: rest, selected: rest[Math.min(index, rest.length - 1)]?.id ?? null };
 }
 
+/** getAccessTokenSilently error codes that mean the curator has to sign in again. */
+export const SESSION_ENDED_CODES: readonly unknown[] = [
+  "login_required",
+  "consent_required",
+  "missing_refresh_token",
+  "invalid_grant",
+];
+
+export function sessionEnded(err: unknown): boolean {
+  return SESSION_ENDED_CODES.includes((err as { error?: unknown } | null)?.error);
+}
+
 export function languageName(lang: string): string {
   try {
     return new Intl.DisplayNames(["en"], { type: "language" }).of(lang) ?? lang;

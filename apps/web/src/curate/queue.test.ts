@@ -1,6 +1,6 @@
 import type { PendingEcho } from "@lampa/shared";
 import { describe, expect, it } from "vitest";
-import { formatDuration, keepSelection, metaLine, removeEcho } from "./queue";
+import { formatDuration, keepSelection, metaLine, removeEcho, sessionEnded } from "./queue";
 
 const NOW = Date.parse("2026-11-14T12:00:00.000Z");
 
@@ -45,6 +45,12 @@ describe("queue", () => {
   it("the meta line leaves out a null language", () => {
     expect(metaLine(echo("a", null), NOW)).toBe("4 min ago");
     expect(metaLine({ ...echo("a", null), createdAt: "2026-11-14T11:59:30.000Z" }, NOW)).toBe("now");
+  });
+
+  it("missing_refresh_token counts as a session that ended", () => {
+    expect(sessionEnded({ error: "missing_refresh_token" })).toBe(true);
+    expect(sessionEnded({ error: "timeout" })).toBe(false);
+    expect(sessionEnded(new Error("offline"))).toBe(false);
   });
 
   it("the duration 19.4 s reads 0:19", () => {

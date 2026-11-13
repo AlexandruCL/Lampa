@@ -5,7 +5,7 @@ import { ApiError } from "../api/client";
 import { authApi } from "../auth/authApi";
 import { Button, Notice } from "../components";
 import { EchoDetail } from "./EchoDetail";
-import { keepSelection, metaLine, QUEUE_REFRESH_MS, removeEcho, siteName } from "./queue";
+import { keepSelection, metaLine, QUEUE_REFRESH_MS, removeEcho, sessionEnded, siteName } from "./queue";
 import styles from "./CuratePage.module.css";
 
 type Queue = { echoes: PendingEcho[]; selected: string | null };
@@ -13,11 +13,6 @@ type Action = "approve" | "reject";
 
 const LOADING_ROWS = 3;
 const narrow = () => window.matchMedia("(max-width: 1023px)").matches;
-
-function sessionEnded(err: unknown): boolean {
-  const code = (err as { error?: unknown } | null)?.error;
-  return code === "login_required" || code === "consent_required";
-}
 
 export function CuratePage() {
   const { isLoading, isAuthenticated, loginWithRedirect, logout, getAccessTokenSilently } = useAuth0();
@@ -30,7 +25,7 @@ export function CuratePage() {
 
   const [queue, setQueue] = useState<Queue | null>(null);
   const [access, setAccess] = useState<"ok" | "forbidden" | "ended">("ok");
-  const [notice, setNotice] = useState<{ variant: "info" | "error"; text: string } | null>(null);
+  const [notice, setNotice] = useState<{ variant: "info" | "error"; text: string; retry?: boolean } | null>(null);
   const [busy, setBusy] = useState<Action | null>(null);
   const [open, setOpen] = useState(false);
   const [focusRow, setFocusRow] = useState(false);
@@ -47,26 +42,31 @@ export function CuratePage() {
       appState: { returnTo: "/curate" },
     });
 
-  const load = useCallback(async () => {
-    // Only the newest request lands, so a poll sent before an approve cannot bring its row back.
-    const request = ++latest.current;
-    try {
-      const body = await authApi("/echoes?status=pending", await getToken(), PendingEchoes);
-      if (request !== latest.current || !body) return;
-      setQueue((q) => ({ echoes: body.echoes, selected: keepSelection(body.echoes, q?.selected ?? null) }));
-      setNow(Date.now());
-    } catch (err) {
-      if (request !== latest.current) return;
-      if (sessionEnded(err)) setAccess("ended");
-      else if (err instanceof ApiError && err.status === 403) setAccess("forbidden");
-      // shortcut: any other failure keeps the last list (or the loading rows) until the next poll; DESIGN.md 7.15 has no copy for a failed load yet.
-    }
-  }, [getToken]);
+  /** A background refresh (`quiet`) that fails keeps the last list without a Notice. */
+  const load = useCallback(
+    async (quiet = false) => {
+      // Only the newest request lands, so a poll sent before an approve cannot bring its row back.
+      const request = ++latest.current;
+      try {
+        const body = await authApi("/echoes?status=pending", await getToken(), PendingEchoes);
+        if (request !== latest.current || !body) return;
+        setQueue((q) => ({ echoes: body.echoes, selected: keepSelection(body.echoes, q?.selected ?? null) }));
+        setNotice((n) => (n?.retry ? null : n));
+        setNow(Date.now());
+      } catch (err) {
+        if (request !== latest.current) return;
+        if (sessionEnded(err)) setAccess("ended");
+        else if (err instanceof ApiError && err.status === 403) setAccess("forbidden");
+        else if (!quiet) setNotice({ variant: "error", text: "Could not load the queue. Try again.", retry: true });
+      }
+    },
+    [getToken],
+  );
 
   useEffect(() => {
     if (!isAuthenticated) return;
     void load();
-    const timer = setInterval(() => void load(), QUEUE_REFRESH_MS);
+    const timer = setInterval(() => void load(true), QUEUE_REFRESH_MS);
     return () => clearInterval(timer);
   }, [isAuthenticated, load]);
 
@@ -85,7 +85,7 @@ export function CuratePage() {
     setQueue((q) => q && removeEcho(q.echoes, id, q.selected));
     setOpen(false);
     setFocusRow(true);
-    void load();
+    void load(true);
   };
 
   const moderate = async (action: Action) => {
@@ -160,12 +160,17 @@ export function CuratePage() {
       </h1>
       {notice && (
         <div className={styles.consoleNotice}>
-          <Notice variant={notice.variant}>{notice.text}</Notice>
+          <Notice
+            variant={notice.variant}
+            action={notice.retry ? { label: "Try again", onClick: () => void load() } : undefined}
+          >
+            {notice.text}
+          </Notice>
         </div>
       )}
       <div className={`${styles.consolePanes} ${open && selected ? styles.open : ""}`}>
         {!queue ? (
-          <ul className={styles.consoleList} aria-busy="true">
+          !notice?.retry && <ul className={styles.consoleList} aria-busy="true">
             {Array.from({ length: LOADING_ROWS }, (_, i) => (
               <li key={i}>
                 <div className={`${styles.queueRow} ${styles.queueRowLoading}`}>
