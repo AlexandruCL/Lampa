@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@auth0/auth0-react": "2.30.0",
+    "@elevenlabs/react": "1.22.0",
     "@fontsource/atkinson-hyperlegible-next": "5.3.0",
     "@fontsource/piazzolla": "5.3.0",
     "@lampa/shared": "*",
