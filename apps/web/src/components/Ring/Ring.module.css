@@ -1,0 +1,9 @@
+.ring { display: block; flex: none; overflow: visible; }
+.track { fill: none; stroke: var(--line-strong); }
+.progress {
+  fill: none;
+  stroke: var(--text);
+  stroke-linecap: round;
+  transition: stroke-dashoffset 200ms var(--ease-out); /* reset: empties fast */
+}
+.filling .progress { transition: stroke-dashoffset var(--hold, 2000ms) linear; }
