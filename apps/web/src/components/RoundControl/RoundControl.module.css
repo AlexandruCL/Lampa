@@ -1,0 +1,64 @@
+.root { display: inline-flex; flex-direction: column; align-items: center; gap: var(--space-s); }
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  min-height: 20px;
+  font: var(--type-label);
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+.dot { width: 10px; height: 10px; flex: none; border-radius: var(--radius-round); background: var(--danger); }
+.dial { position: relative; width: 112px; height: 112px; display: grid; place-items: center; }
+.dial > svg,
+.level { position: absolute; inset: 0; }
+.level {
+  box-sizing: border-box;
+  border: var(--border-control) solid var(--line-strong);
+  border-radius: var(--radius-round);
+  opacity: 0;
+}
+.button {
+  position: relative;
+  width: var(--tap-round);
+  height: var(--tap-round);
+  padding: 0;
+  display: grid;
+  place-items: center;
+  box-sizing: border-box;
+  border: var(--border-control) solid var(--line-strong);
+  border-radius: var(--radius-round);
+  background: var(--surface-2);
+  color: var(--text);
+  cursor: pointer;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+  transition:
+    background-color var(--dur-press) var(--ease-out),
+    color var(--dur-press) var(--ease-out),
+    transform var(--dur-press) var(--ease-out);
+}
+.button:active { transform: scale(var(--press-scale)); }
+.listening .button { background: var(--lamp); border-color: var(--lamp); color: var(--on-lamp); }
+.listening .level { opacity: 1; }
+.speaking .level { opacity: 0.4; border-width: 6px; border-color: var(--lamp); }
+.button:disabled { color: var(--text-3); cursor: default; transform: none; }
+.label { font: var(--type-label); color: var(--text); text-align: center; max-width: 16rem; }
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  box-sizing: border-box;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: var(--radius-round);
+  animation: lampa-spin 800ms linear infinite;
+}
+@keyframes lampa-spin { to { transform: rotate(360deg); } }
+
+/* DESIGN.md 5.6: no scale; the word "Listening" carries the state */
+@media (prefers-reduced-motion: reduce) {
+  .button:active { transform: none; }
+  .listening .level { transform: none !important; }
+}
