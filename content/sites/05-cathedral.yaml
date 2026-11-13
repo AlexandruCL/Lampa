@@ -1,0 +1,22 @@
+# Approximate coordinates and empty content: the team replaces them on site.
+id: cathedral
+city: timisoara
+name:
+  ro: "Catedrala Mitropolitană"
+  en: "Metropolitan Cathedral"
+location:
+  lat: 45.7507
+  lng: 21.2243
+radius_m: 40
+interactions: [listen, candle]
+is_memorial: true
+glow_k: 10
+persona:
+  voice: ""
+  traits: ""
+facts: []
+sound_bed: ""
+directions_hint: {}
+active:
+  from: null
+  until: null

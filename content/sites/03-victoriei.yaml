@@ -1,0 +1,22 @@
+# Approximate coordinates and empty content: the team replaces them on site.
+id: victoriei
+city: timisoara
+name:
+  ro: "Piața Victoriei"
+  en: "Piața Victoriei"
+location:
+  lat: 45.7537
+  lng: 21.2253
+radius_m: 40
+interactions: [talk, colours, lamp, echo]
+is_memorial: false
+glow_k: 10
+persona:
+  voice: ""
+  traits: ""
+facts: []
+sound_bed: ""
+directions_hint: {}
+active:
+  from: null
+  until: null
