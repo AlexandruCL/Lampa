@@ -167,10 +167,15 @@ export function ColourLens({ site, remote, demo, camera, onBack, onReading, onCa
     setResult(null);
     setStopped(false);
     setHasData(false);
+    setHold(initialHold); // a hold from before the camera stopped must not carry over
+    setEverHeld(false);
+    setSpinning(false);
     setCam(openRearCamera());
   };
   const failed = result?.status === "denied" || result?.status === "unavailable";
   const shown = caught ?? reading;
+  // once caught, the caught view stays whether or not the camera is live
+  const showCaught = inReading || !!caught;
 
   return (
     <div className={styles.view}>
@@ -184,7 +189,7 @@ export function ColourLens({ site, remote, demo, camera, onBack, onReading, onCa
         ref={lensRef}
         className={`${styles.lens} ${inReading ? "" : styles.empty} ${status?.state === "rate_limited" ? styles.limited : ""}`}
       >
-        {inReading && !landed && (
+        {showCaught && !landed && (
           <div
             className={`${styles.disk} ${caught ? styles.caught : ""}`}
             style={{ backgroundColor: shown?.hex, ...flight }}
@@ -193,8 +198,8 @@ export function ColourLens({ site, remote, demo, camera, onBack, onReading, onCa
             }}
           />
         )}
-        {!inReading && !failed && <span className={styles.spinner} aria-hidden="true" />}
-        {inReading && status?.state !== "rate_limited" && (
+        {!showCaught && !failed && <span className={styles.spinner} aria-hidden="true" />}
+        {showCaught && status?.state !== "rate_limited" && (
           <div className={styles.ring}>
             {caught ? (
               <Ring progress={1} size={ring} label="Colour caught" />
@@ -207,7 +212,7 @@ export function ColourLens({ site, remote, demo, camera, onBack, onReading, onCa
         )}
       </div>
       <div className={styles.below}>
-        {inReading ? (
+        {showCaught ? (
           <>
             {caught ? (
               <CaughtLines status={status} where={where} offlineShown={offlineShown} />
@@ -234,7 +239,7 @@ export function ColourLens({ site, remote, demo, camera, onBack, onReading, onCa
         {status?.state === "sent" && `Colour caught. ${status.accepted.count} of 48 in the ${where} window.`}
       </div>
       <div className={styles.bottom}>
-        {(result?.status === "denied" || stopped) && (
+        {!caught && (result?.status === "denied" || stopped) && (
           <Button variant="secondary" size="l" block onClick={retry}>
             Try again
           </Button>
