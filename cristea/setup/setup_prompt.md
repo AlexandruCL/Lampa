@@ -1,6 +1,6 @@
 # Prompt: Cristea's Setup (Cristea, LAMPA)
 
-**Status: prompt completed and checked against `IMPLEMENTATION_PLAN.md` before hour 0 (2026-11-13 13:14 +0200). Implemented from hour 0 (13:21). Open: the S-1.c.1 push-triggered deploy check (waits on PR #1's merge) and Cristea's checks in S-last.**
+**Status: prompt completed and checked against `IMPLEMENTATION_PLAN.md` before hour 0 (2026-11-13 13:14 +0200). Implemented from hour 0 (13:21). Setup closed at hour 0 for Cristea's lane: PR #1 merged as `7e97de0`, both hosts auto-deployed it, Cristea's checks reported done. Open outside this lane: Fabi's `npm run db:reset`.**
 
 You are implementing Cristea's part of Setup (hours 0 to 2) in this repository. Follow the checklist in section 3 in order, except where it says agent tasks run in parallel. Tick a box only after its verify command has run and passed.
 
@@ -153,7 +153,7 @@ Values from S-0 (Cristea's decision, recorded at preflight): package names: `@la
 - [x] Render: create the web service `lampa-api` on the free plan in the Frankfurt region, from this repository's `main` branch with auto-deploy on. Build command `npm ci`. Start command: `npm run start` in the API workspace. Health check path: the health path from S-0. Env: `WEB_ORIGIN` set to the Vercel production URL, and the Node major from S-0.
 - [x] If the Render CLI has no command that creates a service, stop this box and report it as Blocked with the CLI's help output. Recommendation to put to Cristea: a `render.yaml` blueprint in the repo, which Cristea applies once in the Render dashboard. (Not needed: `render services create` exists.)
 - [x] If either name is taken, stop that box and report it as Blocked. Cristea gives the new name. (Not needed: both names were free.)
-- [ ] Confirm auto-deploy: after the next push to `main`, both hosts list a deployment for that commit's SHA.
+- [x] Confirm auto-deploy: after the next push to `main`, both hosts list a deployment for that commit's SHA. (Render `dep-dbrffhu1egvs73fota1g` and Vercel production both on `7e97de0`, triggered by Git.)
 - [x] Record the two URLs in the glossary's Hand-offs.
 - Verify: `curl -sS -o /dev/null -w "%{http_code} " https://<web URL>/screen && curl -sS https://<api URL><health path>`. Paste the output, which is `200 {"ok":true}`.
 - Done when: the verify command prints `200 {"ok":true}`, both hosts show a deployment for the current `main` SHA, and the response to an `OPTIONS` call from the web origin carries that origin in `Access-Control-Allow-Origin`.
@@ -178,9 +178,9 @@ Values from S-0 (Cristea's decision, recorded at preflight): package names: `@la
 - [x] `cristea/setup-contract-env` rebased on the current `main`, and `npm ci && npm run typecheck && npm run build && npm test` green on it.
 - [x] Push the branch and open its PR. The PR lists what was verified and what is waiting for a phone.
 - [x] Glossary complete: every ID of this prompt is under Done or Blocked, and Hand-offs lists the web URL, the API URL, the health path, the four root scripts, the twelve env names, and `EventKind` and `SocketMessage` in `packages/shared`.
-- [ ] Cristea's check with the team. Do not mark it done: the 30-minute contract session. The four members agree the payload of each of the eight event kinds and seven socket messages and write them into `packages/shared` as Zod schemas. Cristea records in the glossary who writes the file and the commit.
-- [ ] Cristea's check on the iPhone. Do not mark it done: the web URL opens over HTTPS and shows `LAMPA`; `/screen` opens after a reload.
-- [ ] Cristea's check through a teammate. Do not mark it done: the same two steps on the team's Android phone. Cristea has no Android.
+- [x] Cristea's check with the team. Do not mark it done: the 30-minute contract session. The four members agree the payload of each of the eight event kinds and seven socket messages and write them into `packages/shared` as Zod schemas. Cristea records in the glossary who writes the file and the commit. (Cristea, hour 0: the team agrees the contract as it stands in `packages/shared`; it may change later.)
+- [x] Cristea's check on the iPhone. Do not mark it done: the web URL opens over HTTPS and shows `LAMPA`; `/screen` opens after a reload. (Cristea reported it works.)
+- [x] Cristea's check through a teammate. Do not mark it done: the same two steps on the team's Android phone. Cristea has no Android. (Cristea reported it works.)
 - [ ] Not this lane, listed so the "Done when" line is whole: `npm run db:reset` works from a clean database. That is Fabi's Setup row.
 - Done when: every box is ticked or listed as Cristea's, and the report below is posted.
 

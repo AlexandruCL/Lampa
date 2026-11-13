@@ -11,8 +11,9 @@ Hours below marked "pre-0" were recorded on 2026-11-13, before the start.
 | S-1.a.1 | Workspace scaffold with a health endpoint | fresh clone: `npm ci && npm run typecheck && npm run build && npm test` → exit 0, `✓ built in 131ms`; `GET /health` → `200 {"ok":true}` | 91d7046 | 0 |
 | S-1.b.1 | `.env.example` with the twelve names | `git check-ignore -q .env && git check-ignore -q .env.local && ! git check-ignore -q .env.example && grep -c "=" .env.example` → `12`, exit 0; no `.env` path in `git log --all --name-only` | ffc18b2 | 0 |
 | S-2.a.1 | `EventKind` (8) and `SocketMessage` (7) as Zod enums | `npm run typecheck && npx tsx -e ...` → `8 7`; both apps typecheck and build with an `EventKind` import; typecheck rejects an unknown kind | 018ae5e | 0 |
-| S-1.c.1 | Vercel `lampa-timisoara` (root `apps/web`, Vite, Node 26.x, Git `AlexandruCL/Lampa` on `main`, `VITE_API_URL` in production) and Render `lampa-api` (free, Frankfurt, `main`, auto-deploy on, `npm ci`, `npm run start -w @lampa/api`, health `/health`, `NODE_VERSION=26`, `WEB_ORIGIN`) | `curl .../screen && curl .../health` → `200 {"ok":true}`; `OPTIONS` from the web origin → 204 with that origin in `Access-Control-Allow-Origin`; Render live deploy on `91d7046`; Vercel production came from a CLI upload of the branch at `018ae5e` (same page), and a Git push to the branch built a Ready preview at `6288882`. Waiting: a push-triggered deploy on both hosts, checked when PR #1 merges | no repo files | 0 |
+| S-1.c.1 | Vercel `lampa-timisoara` (root `apps/web`, Vite, Node 26.x, Git `AlexandruCL/Lampa` on `main`, `VITE_API_URL` in production) and Render `lampa-api` (free, Frankfurt, `main`, auto-deploy on, `npm ci`, `npm run start -w @lampa/api`, health `/health`, `NODE_VERSION=26`, `WEB_ORIGIN`) | `curl .../screen && curl .../health` → `200 {"ok":true}`; `OPTIONS` from the web origin → 204 with that origin in `Access-Control-Allow-Origin`; Render live deploy on `91d7046`; Vercel production came from a CLI upload of the branch at `018ae5e` (same page), and a Git push to the branch built a Ready preview at `6288882`. After PR #1 merged, both hosts deployed `7e97de0` from Git (Render `new_commit`, Vercel `source: git`, ref `main`) | no repo files | 0 |
 | S-last | Branch on top of `main`; fresh-clone verify green; PR #1 open; glossary complete for this block | fresh clone of the branch: `npm ci && npm run typecheck && npm run build && npm test` → exit 0 | this commit | 0 |
+| S-last checks | Phone checks on iPhone and Android; contract session | Reported by Cristea: phone checks work; the team agrees the contract | none | 0 |
 
 ## Changes
 Anything that differs from the plan, `DESIGN.md` or the contract, and any file outside this lane that was touched.
@@ -53,6 +54,8 @@ The owner's answers only.
 | 0 | Setup: approved `concurrently` 10.0.7 (MIT, released 2026-11-07) as a root dev dependency. Root `dev` = `concurrently "npm run dev -w @lampa/api" "npm run dev -w @lampa/web"` | npm runs scripts in cmd.exe on Windows, where `&` runs them one after the other |
 | 0 | Setup: `cristea/` goes into git as a separate docs commit on `main` before the scaffold. Later glossary lines go on the lane's branches | Cristea's answer |
 | 0 | Setup: approved dev dependencies `@vitejs/plugin-react` 6.3.0, `@types/react` 19.3.0, `@types/react-dom` 19.3.0, `@types/express` 5.0.6, `@types/cors` 2.8.19, `@types/node` 26.6.6 | Standard companions of Vite, React and Express in TypeScript; none ships in the bundle |
+| 0 | Setup: the team agrees the contract as it stands in `packages/shared` (`EventKind` and `SocketMessage` names, no payload schemas yet). It may change later | Cristea's answer after the contract session |
+| 0 | Setup: phone checks pass on iPhone and Android (`LAMPA` over HTTPS, `/screen` after a reload) | Cristea's report |
 
 ## Blocked
 | Since hour | ID | Question | Recommendation | Waiting on |
