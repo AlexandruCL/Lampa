@@ -1,5 +1,6 @@
 import type { MapLine, Site } from "@lampa/shared";
 import type { RefObject } from "react";
+import { candleAlpha, candleDecay, candlePosition, CANDLE_HALO, CANDLE_RADIUS_U, type Candle } from "./candles";
 import { glowLine, haloAlpha } from "./glow";
 import { layout, MAP_WIDTH, projectLines, SITE_RADIUS } from "./projection";
 import { mixHex, paneShare, slotShape, SLOTS } from "./rose";
@@ -23,12 +24,14 @@ export const FLARE_OUT_MS = 1600;
 export const FLARE_EMPTY_MS = 800;
 const FLARE_REACH = 2.6;
 const REDUCED_MS = 600;
+const CANDLE_HALO_ALPHA = 0.25;
 
 type Ease = { from: number; to: number; start: number };
 type Refs = {
   glowRef: RefObject<Record<string, number>>;
   windowsRef: RefObject<WindowsState>;
   effectsRef: RefObject<ScreenEffect[]>;
+  candlesRef: RefObject<Candle[]>;
 };
 
 const easeOut = (t: number) => 1 - (1 - t) ** 3;
@@ -41,12 +44,17 @@ function hexOf(ctx: CanvasRenderingContext2D, color: string): string {
 }
 
 // Canvas gradients interpolate without premultiplying, so fading to "transparent" would darken the halo edge.
-function clearOf(hex: string): string {
+function rgbaOf(hex: string, alpha: number): string {
   const n = parseInt(hex.slice(1), 16);
-  return `rgba(${n >> 16}, ${(n >> 8) & 255}, ${n & 255}, 0)`;
+  return `rgba(${n >> 16}, ${(n >> 8) & 255}, ${n & 255}, ${alpha})`;
 }
 
-export function startCanvas(canvas: HTMLCanvasElement, sites: Site[], lines: MapLine[], { glowRef, windowsRef, effectsRef }: Refs): () => void {
+export function startCanvas(
+  canvas: HTMLCanvasElement,
+  sites: Site[],
+  lines: MapLine[],
+  { glowRef, windowsRef, effectsRef, candlesRef }: Refs,
+): () => void {
   const ctx = canvas.getContext("2d");
   const art = document.createElement("canvas");
   const artCtx = art.getContext("2d");
@@ -63,7 +71,9 @@ export function startCanvas(canvas: HTMLCanvasElement, sites: Site[], lines: Map
     "--font-display",
   ].map(token);
   const [bg, lamp, lampWhite, surface2] = ["--bg", "--lamp", "--lamp-white", "--surface-2"].map((n) => hexOf(ctx, token(n)));
-  const lampClear = clearOf(lamp);
+  const lampClear = rgbaOf(lamp, 0);
+  const candleHaloIn = rgbaOf(lampWhite, CANDLE_HALO_ALPHA);
+  const candleHaloOut = rgbaOf(lampWhite, 0);
   const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const paneMs = reduced ? REDUCED_MS : Math.max(PANE_FLASH_MS, PANE_RING_MS);
   const completeMs = reduced ? REDUCED_MS : FLARE_IN_MS + FLARE_HOLD_MS + FLARE_OUT_MS;
@@ -111,6 +121,8 @@ export function startCanvas(canvas: HTMLCanvasElement, sites: Site[], lines: Map
     }
   };
   const eases = new Map<string, Ease>(placed.map((p) => [p.id, { from: 0, to: 0, start: 0 }]));
+  const candleEases = new Map<string, Ease>();
+  let candleGlow: Record<string, number> | null = null;
 
   const fit = () => {
     dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -153,6 +165,39 @@ export function startCanvas(canvas: HTMLCanvasElement, sites: Site[], lines: Map
     ctx.fillStyle = fill;
     ctx.fill();
     ctx.stroke();
+  };
+
+  // DESIGN.md 5.5: a new point fades in from 0, and every alpha is recomputed and eased on each glow update.
+  // Reduced motion keeps these fades (5.6).
+  const drawCandles = (x: number, y: number, r: number, s: number, now: number) => {
+    const candles = candlesRef.current;
+    const recompute = glowRef.current !== candleGlow;
+    candleGlow = glowRef.current;
+    const ids = new Set(candles.map((c) => c.id));
+    for (const id of candleEases.keys()) if (!ids.has(id)) candleEases.delete(id);
+    const point = CANDLE_RADIUS_U * s;
+    const reach = CANDLE_HALO * point;
+    for (const c of candles) {
+      let e = candleEases.get(c.id);
+      if (!e) candleEases.set(c.id, (e = { from: 0, to: candleAlpha(candleDecay(c.litAt, Date.now())), start: now }));
+      const shown = e.from + (e.to - e.from) * easeOut(progress(now - e.start, EASE_MS));
+      if (recompute) Object.assign(e, { from: shown, to: candleAlpha(candleDecay(c.litAt, Date.now())), start: now });
+      const { dx, dy } = candlePosition(c.id);
+      const [cx, cy] = [x + dx * r, y + dy * r];
+      ctx.globalAlpha = shown;
+      const halo = ctx.createRadialGradient(cx, cy, point, cx, cy, reach);
+      halo.addColorStop(0, candleHaloIn);
+      halo.addColorStop(1, candleHaloOut);
+      ctx.fillStyle = halo;
+      ctx.beginPath();
+      ctx.arc(cx, cy, reach, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = lampWhite;
+      ctx.beginPath();
+      ctx.arc(cx, cy, point, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
   };
 
   /** 0 to 1: how far the complete flare is from rest (rise, hold, settle). */
@@ -244,6 +289,7 @@ export function startCanvas(canvas: HTMLCanvasElement, sites: Site[], lines: Map
         ctx.beginPath();
         ctx.arc(x, y, r, 0, Math.PI * 2);
         ctx.stroke();
+        drawCandles(x, y, r, s, now);
         if (fontsReady) drawLabel([[site.name, NAME, fontDisplay, text2]], x, y, r, p.label, s);
         continue;
       }

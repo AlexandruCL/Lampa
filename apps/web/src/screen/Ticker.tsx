@@ -19,18 +19,28 @@ export function Ticker({ events, siteNames }: { events: ScreenEvent[]; siteNames
 
   return (
     <ul className={styles.ticker} aria-live="off">
-      {events.map((e) => (
-        // Stable keys keep older lines from replaying the fade when they move down.
-        <li key={`${e.at}-${e.kind}-${e.siteId}-${e.kind === "pane" ? e.hex : ""}`} className={styles.line}>
-          {e.kind === "pane" && <span className={styles.swatch} style={{ background: e.hex }} />}
-          <span className={styles.body}>
-            <span className={styles.text}>
-              {tickerText(e, siteNames[e.siteId] ?? e.siteId, e.kind === "pane" ? colourName(e.hex).en : "")}
+      {events.map((e) =>
+        e.kind === "candle" ? (
+          // A replaced memorial line gets a new key, so it fades in again.
+          <li key={`${e.at}-candle`} className={`${styles.line} ${styles.memorial}`}>
+            <span className={styles.candle} />
+            <span className={styles.body}>
+              <span className={styles.text}>{tickerText(e, "", "")}</span>
             </span>
-            <span className={styles.ago}>{timeAgo(e.at, Math.max(now, e.at))}</span>
-          </span>
-        </li>
-      ))}
+          </li>
+        ) : (
+          // Stable keys keep older lines from replaying the fade when they move down.
+          <li key={`${e.at}-${e.kind}-${e.siteId}-${e.kind === "pane" ? e.hex : ""}`} className={styles.line}>
+            {e.kind === "pane" && <span className={styles.swatch} style={{ background: e.hex }} />}
+            <span className={styles.body}>
+              <span className={styles.text}>
+                {tickerText(e, siteNames[e.siteId] ?? e.siteId, e.kind === "pane" ? colourName(e.hex).en : "")}
+              </span>
+              <span className={styles.ago}>{timeAgo(e.at, Math.max(now, e.at))}</span>
+            </span>
+          </li>
+        ),
+      )}
     </ul>
   );
 }

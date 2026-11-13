@@ -1,8 +1,16 @@
-import type { PaneMessage, WindowCompleteMessage } from "@lampa/shared";
+import type { CandleMessage, PaneMessage, WindowCompleteMessage } from "@lampa/shared";
 import { SLOTS } from "./rose";
 import type { WindowsState } from "./windows";
 
 export const DEMO_PANE_MS = 500;
+export const DEMO_CANDLE_MS = 20_000;
+
+/** The n-th simulated candle at the memorial, lit now. */
+export const nextDemoCandle = (n: number, now: number): CandleMessage => ({
+  id: `demo-candle-${n}`,
+  siteId: "cathedral",
+  litAt: new Date(now).toISOString(),
+});
 export const DEMO_GLOW: Record<string, number> = { mx: 0.2, unirii: 0.45, victoriei: 0.7, bastion: 1 };
 
 const SATURATION = 0.7;
