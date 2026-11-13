@@ -10,7 +10,7 @@ location:
 radius_m: 40
 interactions: [listen, candle]
 is_memorial: true
-glow_k: 10
+glow_k: 5
 persona:
   voice: ""
   traits: ""

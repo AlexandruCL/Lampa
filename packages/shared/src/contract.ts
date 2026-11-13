@@ -122,3 +122,19 @@ export const PaneAccepted = z.object({
   completed: z.boolean(),
 });
 export type PaneAccepted = z.infer<typeof PaneAccepted>;
+
+/** GET /sites?near=<lat>,<lng>, public. Published, active sites within 2000 m, nearest first, at most 5. name is the English name. */
+export const NearbySites = z.object({
+  sites: z.array(Site.extend({ distance_m: z.number().min(0), glow: z.number().min(0).max(1) })),
+});
+export type NearbySites = z.infer<typeof NearbySites>;
+
+/** GET /sites/:id?lang=ro|en, public. Any other lang is en. persona is never sent. */
+export const SiteDetail = Site.extend({
+  radius_m: z.number(),
+  interactions: z.array(z.string()),
+  facts: z.array(z.unknown()),
+  directions_hint: z.string(),
+  glow: z.number().min(0).max(1),
+});
+export type SiteDetail = z.infer<typeof SiteDetail>;
