@@ -1,3 +1,5 @@
+import { CuratePage } from "../curate/CuratePage";
+
 export default function Curate() {
-  return <>Curate</>;
+  return <CuratePage />;
 }
