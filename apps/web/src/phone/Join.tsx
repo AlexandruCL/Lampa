@@ -7,7 +7,9 @@ import { primeDevice, type PrimerResult } from "../sensors/primer";
 import { findSite } from "../sites/sites";
 import { DemoBadge } from "./DemoBadge";
 import styles from "./Join.module.css";
+import { MemorialStub } from "./MemorialStub";
 import { RoseWindow } from "./RoseWindow";
+import { SiteView } from "./SiteView";
 
 // A reload clears this, so history state from before it is ignored: the AudioContext needs a new tap.
 let primedThisLoad = false;
@@ -28,7 +30,7 @@ function Candle() {
   );
 }
 
-/** Join and permission primer (DESIGN.md 7.1). The Site view and memorial view (B1-3.b) replace `Placeholder`. */
+/** Join and permission primer (DESIGN.md 7.1). */
 export default function Join({ siteId }: { siteId?: string }) {
   const { search, state } = useLocation();
   const navigate = useNavigate();
@@ -72,23 +74,22 @@ export default function Join({ siteId }: { siteId?: string }) {
   const memorial = !!site?.is_memorial;
 
   if (result) {
-    return (
-      <main className={styles.page}>
-        {top}
-        {audioBlocked ? (
-          <Notice variant="info" icon="headphones">
-            <Button variant="quiet" onClick={async () => setAudioBlocked((await unlockAudio()) === "blocked")}>
-              Tap to listen
-            </Button>
-          </Notice>
-        ) : (
-          result.location === "denied" && (
-            <Notice variant="info">Location is off. This site still works. To walk to the next one, use the list.</Notice>
-          )
-        )}
-        <h1 className={styles.name}>{name}</h1>
-        {memorial && <p className={styles.line}>A place of remembrance for December 1989.</p>}
-      </main>
+    const notice = audioBlocked ? (
+      <Notice variant="info" icon="headphones">
+        <Button variant="quiet" onClick={async () => setAudioBlocked((await unlockAudio()) === "blocked")}>
+          Tap to listen
+        </Button>
+      </Notice>
+    ) : (
+      result.location === "denied" && (
+        <Notice variant="info">Location is off. This site still works. To walk to the next one, use the list.</Notice>
+      )
+    );
+    const remote = new URLSearchParams(search).get("mode") === "remote";
+    return memorial ? (
+      <MemorialStub name={name!} demo={demo} notice={notice || undefined} />
+    ) : (
+      <SiteView site={site!} demo={demo} remote={remote} notice={notice || undefined} />
     );
   }
 
