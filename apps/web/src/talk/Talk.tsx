@@ -1,6 +1,7 @@
 import { ConversationProvider } from "@elevenlabs/react";
 import { useEffect, useRef, useState, type ComponentProps } from "react";
-import { Button, RoundControl } from "../components";
+import { playClip, stopClip } from "../audio/clip";
+import { Button, Notice, RoundControl } from "../components";
 import { ColourLens } from "../phone/ColourLens";
 import type { WindowPanes } from "../phone/panes";
 import { TopBar } from "../phone/TopBar";
@@ -8,6 +9,8 @@ import { openRearCamera, type CameraResult } from "../sensors/camera";
 import type { PhoneSite } from "../sites/sites";
 import { Captions } from "./Captions";
 import { visitorLang } from "./lang";
+import { questionsFor, type Question } from "./questions";
+import { speak, stopSpeaking } from "./speak";
 import styles from "./Talk.module.css";
 import { LENS_CLOSED, caughtLine } from "./tools";
 import { useLiveTalk } from "./useLiveTalk";
@@ -63,6 +66,37 @@ function TalkScreen({ site, demo, remote, mic, onBack, panes, addPane }: Props) 
     setCamera(null);
   };
 
+  // tap-to-ask: one answer at a time; `turn` drops results of a stopped answer (a cancel resolves speak "failed")
+  const [questions] = useState(() => questionsFor(site.id, lang));
+  const [playing, setPlaying] = useState<string | null>(null);
+  const [failed, setFailed] = useState(false);
+  const turn = useRef(0);
+  useEffect(
+    () => () => {
+      stopClip();
+      stopSpeaking();
+    },
+    [],
+  );
+  const ask = (q: Question) => {
+    const t = ++turn.current;
+    stopClip();
+    stopSpeaking();
+    setFailed(false);
+    if (playing === q.id) return setPlaying(null);
+    setPlaying(q.id);
+    talk.addAnswer(q.a);
+    const done = (end: "ended" | "stopped" | "failed") => {
+      if (turn.current !== t) return;
+      setPlaying(null);
+      setFailed(end === "failed");
+    };
+    // no file: speak inside the tap, iOS wants a gesture for the browser voice
+    const voice = () => speak(q.a, lang).then(done);
+    if (!q.file) return void voice();
+    void playClip(q.file).then((end) => (end === "failed" && turn.current === t ? voice() : done(end)));
+  };
+
   return (
     <>
       <div className={styles.tint} style={{ backgroundColor: talk.light?.hex, opacity: talk.light?.alpha ?? 0 }} aria-hidden="true" />
@@ -81,7 +115,15 @@ function TalkScreen({ site, demo, remote, mic, onBack, panes, addPane }: Props) 
                 Catch a colour
               </Button>
             )}
-            {/* TODO(B2-2.b): fallback and timeup show the tap-to-ask questions and talk.notice here */}
+            {(mode === "fallback" || mode === "timeup") && (
+              <TapToAsk
+                questions={questions}
+                notice={mode === "fallback" ? talk.notice : null}
+                playing={playing}
+                failed={failed}
+                onTap={ask}
+              />
+            )}
             {(mode === "connecting" || live) && (
               <>
                 <TalkControl
@@ -127,6 +169,42 @@ function TalkScreen({ site, demo, remote, mic, onBack, panes, addPane }: Props) 
         />
       )}
     </>
+  );
+}
+
+const NOTICE = {
+  resting: "Live conversation is resting. Tap a question.",
+  mic_off: "The microphone is off, so the monument cannot hear you. Tap a question instead, or allow the microphone in your browser settings.",
+};
+
+/** DESIGN 7.3 fallback and time-up: one button per question; `notice` is null at time-up. */
+export function TapToAsk({
+  questions,
+  notice,
+  playing,
+  failed,
+  onTap,
+}: {
+  questions: Question[];
+  notice: "resting" | "mic_off" | null;
+  playing: string | null;
+  failed: boolean;
+  onTap: (q: Question) => void;
+}) {
+  return (
+    <div className={styles.questions}>
+      {notice && questions.length === 0 ? (
+        <Notice variant="info">Live conversation is resting. Try again in a few minutes.</Notice>
+      ) : (
+        notice && <Notice variant={notice === "resting" ? "info" : "error"}>{NOTICE[notice]}</Notice>
+      )}
+      {failed && <Notice variant="error">Could not play the answer. Here it is as text.</Notice>}
+      {questions.map((q) => (
+        <Button key={q.id} variant="secondary" size="l" block icon={playing === q.id ? "pause" : undefined} onClick={() => onTap(q)}>
+          {playing === q.id ? "Playing" : q.q}
+        </Button>
+      ))}
+    </div>
   );
 }
 

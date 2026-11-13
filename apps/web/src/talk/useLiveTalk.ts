@@ -2,9 +2,11 @@ import { useConversation } from "@elevenlabs/react";
 import { AgentSession, type AgentLang } from "@lampa/shared";
 import { useEffect, useRef, useState } from "react";
 import { api } from "../api/client";
+import { playClip, stopClip } from "../audio/clip";
 import type { PhoneSite } from "../sites/sites";
 import type { Line } from "./Captions";
 import { TALK_CONNECT_MS, step, type TalkEvent, type TalkMode, type TalkStep } from "./machine";
+import { greetingFor } from "./questions";
 import { LENS_CLOSED, LIGHT_OK, LIGHT_UNKNOWN, parseLight } from "./tools";
 
 /** The live session of the Talk screen. Must be called inside a `ConversationProvider`. */
@@ -37,13 +39,16 @@ export function useLiveTalk(site: PhoneSite, lang: AgentLang, mic: Promise<"gran
       modeRef.current = s.mode;
       setMode(s.mode);
       // a "stay" step carries nulls: keep the last notice and caption
+      // only connecting -> live: a late connect in fallback must not stop a tapped answer
+      if (e.type === "connected" && s.mode === "live") stopClip();
       if (s.notice) setNotice(s.notice);
       if (s.caption === "timeup") setTimeUp(true);
       if (s.endSession) conv.current.endSession();
     };
 
     (async () => {
-      // TODO(B2-2.b.1): play greetingFor(site.id, lang) at once through playClip; stopClip() on "connected".
+      const greeting = greetingFor(site.id, lang);
+      if (greeting) void playClip(greeting);
       if ((await mic) === "denied") return dispatch({ type: "mic_denied" });
       if (cancelled) return;
       // the iOS microphone prompt does not count against the 8 s
@@ -92,5 +97,8 @@ export function useLiveTalk(site: PhoneSite, lang: AgentLang, mic: Promise<"gran
     };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps -- once on mount
 
-  return { conversation, mode, notice, timeUp, lines, light, catchWaiting, settleCatch };
+  /** A tapped question's answer, shown as a persona line. */
+  const addAnswer = (text: string) => setLines((ls) => [...ls, { key: `tap-${ls.length}`, role: "agent", text }]);
+
+  return { conversation, mode, notice, timeUp, lines, light, catchWaiting, settleCatch, addAnswer };
 }

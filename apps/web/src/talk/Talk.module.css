@@ -29,3 +29,6 @@
   padding: 0 var(--space-m) calc(var(--space-l) + env(safe-area-inset-bottom, 0px));
 }
 .actions { display: flex; flex-direction: column; align-items: center; gap: var(--space-s); padding-top: var(--space-m); }
+/* tap-to-ask (DESIGN 7.3): full width, left-aligned text; Button takes no className */
+.questions { display: flex; flex-direction: column; gap: var(--space-s); align-self: stretch; }
+.questions button { justify-content: flex-start; text-align: left; }
