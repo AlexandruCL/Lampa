@@ -9,7 +9,8 @@ Hour 0: 2026-11-13 13:21 (+0200).
 | S-1.a | `react-router` 8.5.1, `zod` 4.6.7, `vitest` 5.1.0 (dev) in `apps/web`, exact versions; `test` script; `vite-env.d.ts` | `npm run typecheck && npm run build && npm test` → `✓ built in 106ms`; `No test files found, exiting with code 0`; exit 0 | 93a2659 | 0 |
 | S-1.b.1 | `PATHS` and five placeholder pages in `apps/web/src/routes/`; one route table in `App.tsx` with `*` → `<Navigate to="/" replace />` (agent `ionut-routes`) | `npm run test -w @lampa/web -- src/routes && npm run typecheck -w @lampa/web && npm run build -w @lampa/web` → `Tests  1 passed (1)`; `✓ built in 146ms`; exit 0. Removing `pulse` from `PATHS` fails the test. Dev server: `/` → `Landing`, `/?mode=remote` → `Landing`, `/s/abc` → `Site abc`, `/screen`, `/pulse`, `/curate` → their names, `/nope` → `/` showing `Landing` | a643aae | 0 |
 | S-1.c.1 | `apps/web/src/api/client.ts`: `API_URL`, `SESSION_KEY`, `ApiError`, `api()`, `Health`, `getHealth()`; 6 client tests with `fetch` and `localStorage` stubbed (agent `ionut-api`) | `npm run test -w @lampa/web -- src/api && npm run typecheck -w @lampa/web` → `Tests  6 passed (6)`; exit 0. Returning the JSON without `schema.parse` fails `rejects a 200 body that fails the schema` | 15801e4 | 0 |
-| S-last | Integrated: branch already on `origin/main` (`9603702`, nothing to rebase); PR #3 open; both verify commands re-run; both rule-break checks fail as expected; dev `/screen` reload → `Screen`; `getHealth()` from the dev page console → `{ ok: true }` against the local API started with `WEB_ORIGIN=http://localhost:5173` | `npm run typecheck && npm run build && npm test` → `✓ built in 129ms`; `Test Files  2 passed (2)`, `Tests  7 passed (7)`; exit 0. `npm ci` not run (see Changes) | this commit | 0 |
+| S-last | Integrated: branch already on `origin/main` (`9603702`, nothing to rebase); PR #3 open; both verify commands re-run; both rule-break checks fail as expected; dev `/screen` reload → `Screen`; `getHealth()` from the dev page console → `{ ok: true }` against the local API started with `WEB_ORIGIN=http://localhost:5173` | `npm run typecheck && npm run build && npm test` → `✓ built in 129ms`; `Test Files  2 passed (2)`, `Tests  7 passed (7)`; exit 0. `npm ci` not run (see Changes) | cc0b795 | 0 |
+| S-last (iPhone) | Ionut's check on the iPhone after PR #3 merged and Vercel deployed `main`: `https://lampa-timisoara.vercel.app` over HTTPS shows `Landing`; `/s/abc` → `Site abc`; `/screen`, `/pulse`, `/curate` show their names after a reload; `/nope` → `/` | Ionut's report: "the iPhone check passed, all routes work" | 4991605 (deployed) | 0 |
 
 ## Changes
 Anything that differs from the plan, `DESIGN.md` or the contract, and any file outside this lane that was touched.
@@ -41,7 +42,6 @@ The owner's answers only.
 | Since hour | ID | Question | Recommendation | Waiting on |
 |---|---|---|---|---|
 | 0 | S-last | The team's 30-minute contract session: payloads of the 8 event kinds and 7 socket messages as Zod schemas in `packages/shared` | Hold it before Build 1 starts; Fabi's `POST /events` is due by hour 6 | Ionut and the team |
-| 0 | S-last | iPhone check after merge and Vercel deploy: `/` → `Landing`, `/s/abc` → `Site abc`, `/screen`, `/pulse`, `/curate` after a reload, `/nope` → `/` | Run it right after the merge | Ionut |
 | 0 | S-last | The same check on the team's Android phone | Ask the teammate with the Android to run it | A teammate |
 
 ## Hand-offs
