@@ -1,16 +1,20 @@
 import { MAP_LINES } from "@lampa/shared";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "../components";
+import { DemoBadge } from "../phone/DemoBadge";
+import { isDemo } from "../sensors/demo";
 import { startCanvas } from "./canvas";
 import styles from "./ScreenPage.module.css";
 import { sites } from "./sites.fixture";
-import { useGlowSocket } from "./useGlowSocket";
+import { useScreenSocket } from "./useScreenSocket";
 
 const RECONNECT_NOTICE_MS = 3000;
+// Module scope keeps one array identity, so renders never reconnect the socket.
+const COLOUR_SITE_IDS = sites.filter((s) => !s.is_memorial).map((s) => s.id);
 
-function LivingMap() {
+function LivingMap({ demo }: { demo: boolean }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const { glowRef, connected } = useGlowSocket();
+  const { glowRef, connected } = useScreenSocket(COLOUR_SITE_IDS, demo);
   const [reconnecting, setReconnecting] = useState(false);
 
   useEffect(() => (canvasRef.current ? startCanvas(canvasRef.current, sites, MAP_LINES, glowRef) : undefined), [glowRef]);
@@ -29,6 +33,11 @@ function LivingMap() {
       <div className={styles.map}>
         <canvas ref={canvasRef} className={styles.canvas} aria-hidden="true" />
         <p className={styles.credit}>© OpenStreetMap contributors</p>
+        {demo && (
+          <div style={{ position: "absolute", left: "calc(16 * var(--u))", top: "calc(16 * var(--u))", zIndex: "var(--z-demo)" }}>
+            <DemoBadge />
+          </div>
+        )}
       </div>
       <aside className={styles.panel}>
         <p className={styles.mark}>LAMPA</p>
@@ -42,11 +51,12 @@ function LivingMap() {
 
 export default function ScreenPage() {
   const [started, setStarted] = useState(false);
+  const demo = isDemo(location.search);
 
   return (
     <main className={styles.livingMap}>
       {started ? (
-        <LivingMap />
+        <LivingMap demo={demo} />
       ) : (
         <div className={styles.start}>
           <p className={styles.mark}>LAMPA</p>
