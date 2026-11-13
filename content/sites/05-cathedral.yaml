@@ -16,6 +16,7 @@ persona:
   traits: ""
 facts: []
 sound_bed: ""
+narrator_voice: "SXJapgMSAyIX0L4RMtRR"
 directions_hint: {}
 active:
   from: null
