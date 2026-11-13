@@ -202,7 +202,7 @@ Before sleeping, Patrick starts `publish-site.ts` for all five sites.
 | Fabi | `GET /pulse/*`, cached 5 s: glow, gap-filled interactions, unique visitors with hyperloglog, colour clock, languages | 2.5 |
 | Fabi | `/pulse` page: charts and the colour clock ring | 2 |
 | Fabi | Post-call webhook with HMAC check into `conversations` | 0.5 |
-| Cristea | `POST /echoes`: multipart upload, store in `blobs`, Scribe transcript, status `pending` | 2 |
+| Cristea | `POST /echoes`: multipart upload, store in `blobs`, Scribe transcript, status `pending`. Also `GET /blob/:key` (public once approved, `moderate:echo` before) and `GET /echoes?status=pending` for the curator queue (added by Cristea, hour 25) | 2 |
 | Cristea | Approve and reject endpoints behind `moderate:echo`, broadcast on approval. Test: the endpoint returns 403 without the permission | 1 |
 | Cristea | Post-login Action: roles claim, MFA forced for curator and admin | 0.5 |
 | Cristea | Curator console v1: queue with audio player, transcript, approve, reject | 2 |
@@ -419,7 +419,7 @@ Needs from others: `requireVisitor` middleware from Cristea by hour 6. Everyone 
 | Build 2 | `GET /agent/session` | 1.5 |
 | Build 2 | `/screen` v2: windows, panes, ticker, counters | 3.5 |
 | Build 2 | Map lines from OpenStreetMap | 0.75 |
-| Build 3 | `POST /echoes` with storage and transcript | 2 |
+| Build 3 | `POST /echoes` with storage and transcript; `GET /blob/:key` and the pending queue (added hour 25) | 2 |
 | Build 3 | Approve and reject behind `moderate:echo`, 403 test | 1 |
 | Build 3 | Post-login Action with MFA for staff | 0.5 |
 | Build 3 | Curator console: echo queue | 2 |
