@@ -1,6 +1,6 @@
 import { createServer, type Server as HttpServer } from "node:http";
 import type { AddressInfo } from "node:net";
-import { GlowMessage, type PaneMessage, SocketMessage, sites, type WindowCompleteMessage } from "@lampa/shared";
+import { type CandleMessage, GlowMessage, type LampsMessage, type PaneMessage, SocketMessage, sites, type WindowCompleteMessage } from "@lampa/shared";
 import { Server, type Namespace } from "socket.io";
 import { io, type Socket } from "socket.io-client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -14,21 +14,25 @@ const other = ids.find((id) => id !== "mx")!;
 const paneMx: PaneMessage = { siteId: "mx", windowId: "w-mx", slot: 3, hex: "#a1b2c3" };
 const paneGallery: PaneMessage = { siteId: "gallery", windowId: "w-gallery", slot: 0, hex: "#102030" };
 const completeMx: WindowCompleteMessage = { siteId: "mx", windowId: "w-mx" };
+const candle: CandleMessage = { id: "0123456789abcdef", siteId: "cathedral", litAt: "2026-11-14T18:00:00.000Z" };
+const lampsA: LampsMessage = { litToday: 7, target: 731, sites: [{ siteId: "mx", lightingNow: 2 }, { siteId: "unirii", lightingNow: 0 }] };
 
 let http: HttpServer;
 let live: Live;
 let nsp: Namespace;
 let latest: GlowMessage | null;
+let latestLamps: LampsMessage | null;
 let base: string;
 let clients: Socket[];
 
 beforeEach(async () => {
   latest = null;
+  latestLamps = null;
   clients = [];
   // The /live namespace attachLive makes, so a test can look at the server sockets.
   const of = vi.spyOn(Server.prototype, "of");
   http = createServer();
-  live = attachLive(http, { origin: undefined, latestGlow: () => latest });
+  live = attachLive(http, { origin: undefined, latestGlow: () => latest, latestLamps: () => latestLamps });
   // The Server constructor calls of("/") itself, so pick the call by its name.
   nsp = of.mock.results[of.mock.calls.findIndex(([name]) => name === "/live")].value as Namespace;
   of.mockRestore();
@@ -194,5 +198,71 @@ describe("pane and window_complete", () => {
       [SocketMessage.enum.pane, paneMx],
       [SocketMessage.enum.window_complete, completeMx],
     ]);
+  });
+});
+
+describe("lamps", () => {
+  it("lamps reaches a city-only socket and a screen socket", async () => {
+    const city = await connect();
+    const screen = await connect("screen");
+    live.emitLamps(lampsA);
+    await barrier(city, screen);
+    expect(kinds(city.all, SocketMessage.enum.lamps)).toEqual([lampsA]);
+    expect(kinds(screen.all, SocketMessage.enum.lamps)).toEqual([lampsA]);
+  });
+
+  it("a new socket gets the latest lamps after the latest glow", async () => {
+    latest = glowA;
+    latestLamps = lampsA;
+    const { all } = await connect();
+    await vi.waitFor(() => expect(all).toHaveLength(2));
+    expect(all).toEqual([
+      [SocketMessage.enum.glow, glowA],
+      [SocketMessage.enum.lamps, lampsA],
+    ]);
+  });
+
+  it("an invalid lamps message throws and nothing is sent", async () => {
+    const city = await connect();
+    expect(() => live.emitLamps({ ...lampsA, litToday: -1 })).toThrow();
+    live.emitLamps(lampsA);
+    // Messages arrive in order: had the invalid message gone out, it would be first.
+    await vi.waitFor(() => expect(kinds(city.all, SocketMessage.enum.lamps)).toHaveLength(1));
+    expect(kinds(city.all, SocketMessage.enum.lamps)).toEqual([lampsA]);
+  });
+});
+
+describe("candle", () => {
+  it("a candle reaches the screen room and its site room", async () => {
+    const screen = await connect("screen");
+    const site = await connect("site:cathedral");
+    // A socket in both rooms still gets the candle once.
+    const both = await connect("screen");
+    const server = (await nsp.fetchSockets()).find((s) => s.id === both.socket.id)!;
+    server.join("site:cathedral");
+    live.emitCandle(candle);
+    await barrier(screen, site, both);
+    expect(kinds(screen.all, SocketMessage.enum.candle)).toEqual([candle]);
+    expect(kinds(site.all, SocketMessage.enum.candle)).toEqual([candle]);
+    expect(kinds(both.all, SocketMessage.enum.candle)).toEqual([candle]);
+  });
+
+  it("a candle does not reach a city-only socket or another site's room", async () => {
+    const city = await connect();
+    const elsewhere = await connect("site:mx");
+    live.emitCandle(candle);
+    await barrier(city, elsewhere);
+    expect(kinds(city.all, SocketMessage.enum.candle)).toEqual([]);
+    expect(kinds(elsewhere.all, SocketMessage.enum.candle)).toEqual([]);
+  });
+
+  it("an invalid candle throws and nothing is sent", async () => {
+    const screen = await connect("screen");
+    const { id: _, ...noId } = candle;
+    expect(() => live.emitCandle(noId as CandleMessage)).toThrow();
+    live.emitCandle(candle);
+    // Messages arrive in order: had the invalid candle gone out, it would be first.
+    await vi.waitFor(() => expect(kinds(screen.all, SocketMessage.enum.candle)).toHaveLength(1));
+    expect(kinds(screen.all, SocketMessage.enum.candle)).toEqual([candle]);
   });
 });

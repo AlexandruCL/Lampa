@@ -1,5 +1,5 @@
 import type { Server as HttpServer } from "node:http";
-import { GlowMessage, PaneMessage, SocketMessage, sites, WindowCompleteMessage } from "@lampa/shared";
+import { CandleMessage, GlowMessage, LampsMessage, PaneMessage, SocketMessage, sites, WindowCompleteMessage } from "@lampa/shared";
 import { Server } from "socket.io";
 import { GALLERY_SITE_ID } from "../panes/slots.js";
 import type { LatestGlow, LatestLamps, Live } from "../seam.js";
@@ -25,6 +25,8 @@ export function attachLive(server: HttpServer, { origin, latestGlow, latestLamps
     socket.join(roomsFor(socket.handshake.query.room, ids));
     const latest = latestGlow();
     if (latest !== null) socket.emit(SocketMessage.enum.glow, latest);
+    const lamps = latestLamps?.() ?? null;
+    if (lamps !== null) socket.emit(SocketMessage.enum.lamps, lamps);
   });
   return {
     // Both clients drop a bad message silently, so parse throws before anything is sent.
@@ -38,11 +40,10 @@ export function attachLive(server: HttpServer, { origin, latestGlow, latestLamps
       const parsed = WindowCompleteMessage.parse(message);
       live.to(paneRooms(parsed.siteId)).emit(SocketMessage.enum.window_complete, parsed);
     },
-    emitLamps: () => {
-      throw new Error("emitLamps is not implemented");
-    },
-    emitCandle: () => {
-      throw new Error("emitCandle is not implemented");
+    emitLamps: (message) => void live.emit(SocketMessage.enum.lamps, LampsMessage.parse(message)),
+    emitCandle: (message) => {
+      const parsed = CandleMessage.parse(message);
+      live.to(["site:" + parsed.siteId, "screen"]).emit(SocketMessage.enum.candle, parsed);
     },
     close: () => io.close(),
   };

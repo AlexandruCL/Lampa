@@ -1,6 +1,7 @@
 import { GlowMessage, type LampsMessage } from "@lampa/shared";
 import type { Db, GlowLoop } from "../seam.js";
 import { glowSql } from "./glow.js";
+import { LAMPS_SQL, toLampsMessage } from "./lamps.js";
 
 export const GLOW_INTERVAL_MS = 5000;
 export const NUDGE_MIN_GAP_MS = 1000;
@@ -8,6 +9,7 @@ export const NUDGE_MIN_GAP_MS = 1000;
 export function startGlowLoop(deps: { db: Db; emit: (message: GlowMessage) => void; emitLamps?: (message: LampsMessage) => void; intervalMs?: number; now?: () => Date }): GlowLoop {
   const now = deps.now ?? (() => new Date());
   let latest: GlowMessage | null = null;
+  let latestLamps: LampsMessage | null = null;
   let running: Promise<void> | null = null;
   let lastStart = -Infinity; // system clock, the one setTimeout runs on
   let nudgeTimer: ReturnType<typeof setTimeout> | null = null;
@@ -22,6 +24,15 @@ export function startGlowLoop(deps: { db: Db; emit: (message: GlowMessage) => vo
     } catch (err) {
       // A failed tick is normal: db:reset drops the view under a running API.
       console.error(`glow tick failed: ${err instanceof Error ? err.message : String(err)}`);
+    }
+    if (!deps.emitLamps) return;
+    try {
+      const { rows } = await deps.db.query(LAMPS_SQL);
+      const message = toLampsMessage(rows);
+      deps.emitLamps(message);
+      latestLamps = message;
+    } catch (err) {
+      console.error(`lamps tick failed: ${err instanceof Error ? err.message : String(err)}`);
     }
   };
 
@@ -51,7 +62,7 @@ export function startGlowLoop(deps: { db: Db; emit: (message: GlowMessage) => vo
     tick,
     nudge,
     latest: () => latest,
-    latestLamps: () => null,
+    latestLamps: () => latestLamps,
     stop: () => {
       stopped = true;
       clearInterval(interval);
