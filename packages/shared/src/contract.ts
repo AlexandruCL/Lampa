@@ -67,12 +67,17 @@ export type PaneMessage = z.infer<typeof PaneMessage>;
 export const WindowCompleteMessage = z.object({ siteId: z.string(), windowId: z.string() });
 export type WindowCompleteMessage = z.infer<typeof WindowCompleteMessage>;
 
+// candle on /live (Fabi's Build 3 row), and the candles in GET /screen/state
+export const CandleMessage = z.object({ id: z.string(), siteId: z.string(), litAt: z.string() });
+export type CandleMessage = z.infer<typeof CandleMessage>;
+
 // GET /screen/state, public, fetched by /screen on every socket connect
 export const ScreenState = z.object({
   windows: z.array(
     z.object({ siteId: z.string(), windowId: z.string(), panes: z.array(Hex.nullable()).length(48) }),
   ),
   coloursToday: z.number().int().min(0),
+  candles: z.array(CandleMessage).default([]),
 });
 export type ScreenState = z.infer<typeof ScreenState>;
 
