@@ -15,6 +15,7 @@ Hours below marked "pre-0" were recorded on 2026-11-13, before the start.
 | S-last | Branch on top of `main`; fresh-clone verify green; PR #1 open; glossary complete for this block | fresh clone of the branch: `npm ci && npm run typecheck && npm run build && npm test` → exit 0 | this commit | 0 |
 | S-last checks | Phone checks on iPhone and Android; contract session | Reported by Cristea: phone checks work; the team agrees the contract | none | 0 |
 | B1-3.a.1 | `createApp()`/`index.ts` split, `POST /session/anon` (HS256, 24 h), `requireVisitor` (HS256 anon, RS256 Auth0 via `makeRequireVisitor(getKey)`), `visitorLimiter` (120/min per `sub`); `dev` and `start` load `../../.env` | `npm run typecheck -w @lampa/api` → exit 0; POST → `{"token":"eyJ…","expiresAt":"…"}`, `/health` → `200`; start without `SESSION_SECRET` → `Error: SESSION_SECRET is not set`, exit 1 | this commit | 4 |
+| B1-3.b.1 | `POST /session/anon` limited to 10/min per IP, `visitorLimiter` 120/min per `sub`, both memory store; eleven token and limit tests in `apps/api/src/auth/session.test.ts` | `npm run typecheck -w @lampa/api && npm test -w @lampa/api` → exit 0, `Tests 11 passed (11)`; HS256 check swapped for `decodeJwt` → expired, tampered and other-secret fail (`3 failed \| 8 passed`), restored | this commit | 4 |
 
 ## Changes
 Anything that differs from the plan, `DESIGN.md` or the contract, and any file outside this lane that was touched.

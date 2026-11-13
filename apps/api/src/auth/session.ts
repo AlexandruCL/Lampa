@@ -58,9 +58,12 @@ export const visitorLimiter: RequestHandler = rateLimit({
   keyGenerator: (req) => req.visitor!.sub,
 });
 
+// shortcut: memory store, counts reset on restart and are per instance; move to a shared store if the API runs on more than one instance
+const anonLimiter = rateLimit({ windowMs: 60_000, limit: 10 });
+
 export const sessionRouter: Router = Router();
 
-sessionRouter.post("/session/anon", async (_req, res) => {
+sessionRouter.post("/session/anon", anonLimiter, async (_req, res) => {
   const iat = Math.floor(Date.now() / 1000);
   const exp = iat + TTL_SECONDS;
   const token = await new SignJWT()
