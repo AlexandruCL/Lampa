@@ -5,6 +5,8 @@ Hour 0: 2026-11-13 13:21 (+0200).
 ## Done
 | ID | What | Verify summary | Commit | Hour |
 |---|---|---|---|---|
+| S-0 | Preflight: Node v26.13.1, git identity set, `.env` and PDF ignored, `npm ci` with `tsx` present, baseline recorded. `main` moved `f2df14a` → `f9d271c` since the prompt (Fabi's `db:reset` and `sites.json` in PR #16, Ionut's colour work in PR #17); Cristea's Blocked and Hand-offs unchanged | `npm run typecheck` exit 0; `npm run build` exit 0; `npm test` 37 passed (37), 119 passed (119). No failures already there | 387c717 | 6 |
+| S-1.b.1 | `scripts/agent-check.ts` and root script `agent:check`: env check, `GET /agents/{id}` with the four override flags, `GET /conversation/get-signed-url`, 10 s timeout, statuses and booleans only. No top-level await (root is CJS under tsx); agent id URL-encoded; a 200 with a non-JSON body prints `error` | `ELEVENLABS_API_KEY= ELEVENLABS_AGENT_ID= npm run agent:check` → `missing ELEVENLABS_API_KEY`, `missing ELEVENLABS_AGENT_ID`, exit 1. Broken on purpose: fake key and id → `agent 401`, `signed_url 401 false`, exit 1 | pending | 6 |
 
 ## Changes
 Anything that differs from the plan, `DESIGN.md` or the contract, and any file outside this lane that was touched.
@@ -12,6 +14,7 @@ Anything that differs from the plan, `DESIGN.md` or the contract, and any file o
 |---|---|---|---|---|
 | 5 | Setup prompt | Patrick's Setup starts at hour 5, three hours after the block's end in plan section 5 | none | Nothing of the Setup row had landed at hour 5; Patrick keeps the full row |
 | 5 | Setup prompt | The agent template is verified by a zero-conversation script (`npm run agent:check`) that also fetches the signed URL; the plan row names only "a signed URL from a script" | `patrick/setup/setup_prompt.md` | One script covers the row's last two parts and gives "overrides enabled" a command to check |
+| 6 | S-1.b.1 | Added one root script, `agent:check`, next to Fabi's `db:reset` | root `package.json` | Outside `patrick/`; the prompt allows this one line |
 
 ## Decisions
 The owner's answers only.
@@ -33,6 +36,7 @@ The owner's answers only.
 | 5 | Setup: if late, the price check shrinks first to the numbers on the official pricing page with no budget table; then sketch 3 moves to the start of Build 1. Never cut: the agent with its overrides, and `agent:check` passing | Cristea's Talk route waits on them |
 | 5 | Setup: the agent is named `LAMPA monument`; the block ends at hour 7; Appendix A goes into the dashboard as written, tool names included, though the tools arrive in Build 2; dashboard test values for the dynamic variables are `traveller`, `12:00`, `0`, `0`, `0`, `none yet`, `no`; `agent:check` prints `missing <NAME>` for an unset value and `error` in place of a status on a timeout or network failure, and always makes both calls | Patrick confirmed each value the prompt had filled in |
 | 5 | Devices for Patrick's checks: an iPhone. No Android phone | Patrick's answer |
+| 6 | Git identity for this repo (local config): name `petrix0` with Patrick's own address | S-0 found both empty; Patrick gave the values |
 
 ## Blocked
 | Since hour | ID | Question | Recommendation | Waiting on |
