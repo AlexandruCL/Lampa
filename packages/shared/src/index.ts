@@ -1,1 +1,3 @@
 export * from "./contract.js";
+export * from "./colours.js";
+export * from "./mapLines.js";
