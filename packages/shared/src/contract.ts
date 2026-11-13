@@ -93,6 +93,8 @@ export const AgentSession = z.object({
     })
     .optional(),
   dynamicVariables: z.object({
+    /** Fills the `site_id` body field of the agent's webhook tools (`get_site_stats`, `get_recent_echo`). */
+    site_id: z.string(),
     visitor_name: z.string(),
     local_time: z.string(),
     site_glow: z.number(),
