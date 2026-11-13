@@ -44,11 +44,20 @@
   right: var(--space-l);
   top: calc(56px + env(safe-area-inset-top, 0px) + var(--space-s));
 }
-.below {
+/* text and buttons share one column from under the lens to the screen bottom; it scrolls when short */
+.column {
   position: absolute;
-  left: var(--space-l);
-  right: var(--space-l);
+  left: 0;
+  right: 0;
+  bottom: 0;
   top: calc(42% + var(--lens) / 2 + var(--space-xl));
+  padding: 0 var(--space-l);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+.below {
+  padding-bottom: var(--space-l);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -60,10 +69,7 @@
 .reading { display: inline-flex; align-items: center; gap: var(--space-xs); font: var(--type-label); color: var(--text); }
 .swatch { width: 24px; height: 24px; flex: none; box-sizing: border-box; border: var(--border-control) solid var(--line-strong); border-radius: 4px; }
 .bottom {
-  position: absolute;
-  left: var(--space-l);
-  right: var(--space-l);
-  bottom: 0;
+  margin-top: auto;
   padding-bottom: calc(var(--space-l) + env(safe-area-inset-bottom, 0px));
   display: flex;
   flex-direction: column;
