@@ -46,6 +46,10 @@ Anything that differs from the plan, `DESIGN.md` or the contract, and any file o
 | 8 | B1-4.c.1 | Drawing scale is `canvas.width / 1380` (`MAP_WIDTH`), not `/ 1920` | `apps/web/src/screen/canvas.ts` | The canvas fills only the 1380-wide map area; `/ 1920` drew everything at 72% |
 | 8 | B1-4.c.1 | `MIN_SPACING` is 2.95, not `DESIGN.md`'s 2.4; tests keep the 2.4R floor of plan section 8 | `apps/web/src/screen/projection.ts` | The smallest value on the fixture where every label clears the other circles; re-check when `sites.json` lands |
 | 8 | B1-4.c.1 | Labels also avoid other sites' circles, and a label line near the map edge is shifted inside, so it is off-centre there | `apps/web/src/screen/projection.ts`, `canvas.ts` | Victoriei's label crossed the Cathedral circle and the MX name was clipped |
+| 12 | B2 prompt | Map lines are two polylines (the Bega and the Cetate ring), clipped to the sites' bounding box grown by 30%, with no other street and no district name; the plan and `DESIGN.md` 7.13 say about five and name districts | `cristea/build_2/build_2_prompt.md` | Cristea's hour 12 decision; 0.75 h for the task |
+| 12 | B2 prompt | The Gallery window of `DESIGN.md` 7.13 is not in Build 2; decided again at Checkpoint 2 | `cristea/build_2/build_2_prompt.md` | Item 6's smallest version does not list it |
+| 12 | B2 prompt | `/screen?demo=1` is added, which no plan row names | `cristea/build_2/build_2_prompt.md` | Fabi's socket and `simulate-crowd` are not on `main`; it doubles as a stage fallback |
+| 12 | B2 prompt | `GET /screen/state` (`ScreenState`) is proposed for Fabi's lane, which the plan does not list; the agent limit is 6 per 10 minutes, where the concept says 6 per hour | `cristea/build_2/build_2_prompt.md` | `/screen` needs the panes that exist on load and reconnect; one rehearsal phone would hit 6 per hour. The team needs to see both |
 
 ## Decisions
 The owner's answers only.
@@ -89,12 +93,27 @@ The owner's answers only.
 | 7 | B1-4: `layout()` returns `{ id, x, y, label: "below" \| "above" }`; when two overlapping labels sit at the same height, the site listed later goes above | Neither the plan nor `DESIGN.md` names the field or covers the tie; Cristea took the recommendation |
 | 7 | B1-4: `useGlowSocket` keeps `${import.meta.env.VITE_API_URL}/live` as the prompt wrote it, not `API_URL` from `api/client.ts` | Cristea's answer; local `/screen` needs `VITE_API_URL` in an env file Vite reads |
 | 8 | B1-4: labels treat other circles as obstacles; edge labels are nudged inside the map; scale `canvas.width / 1380`; `MIN_SPACING` 2.95 | Cristea took the recommendation on each, after the browser check showed an overlap and a clipped name |
+| 12 | Build 2: prompt and glossary lines are stamped hour 12, the plan's start of the block, with the real time next to it (the prompt was written from 17:56 to 18:40) | Cristea's answer; the glossary already ran to hour 9 |
+| 12 | Build 2: `GET /agent/session?site=<id>&lang=<code>` behind `requireVisitor` answers `AgentSession` = `{ signedUrl, overrides?, dynamicVariables }` (the concept's sketch 1), added to the contract. `lang` is `ro`, `en`, `hu`, `de` or `sr`, else `en`. A missing or unknown site is 404 `unknown_site`; the Cathedral is 404 `no_persona` with no ElevenLabs call | Patrick's Talk reads it |
+| 12 | Build 2: the route takes an injected `getPersona(siteId, lang)` from Patrick and sends no `overrides` until it exists; it always sends the seven dynamic variables, with stats from an injected `getSiteStats(siteId)` from Fabi and, until then, `"traveller"`, Europe/Bucharest `HH:mm`, `0`, `0`, `0`, `"none yet"`, `"no"` | Neither lane has landed; the docs do not say what a missing variable does |
+| 12 | Build 2: agent limit 6 per 10 minutes per `req.visitor.sub`, 429 with `Retry-After`. ElevenLabs gets a 5 s timeout; a timeout, a non-200, or a missing key or agent id is 503 `agent_unavailable`; the API starts without the key | Rehearsals on one phone; Checkpoint 2 line 4 |
+| 12 | Build 2: env name `ELEVENLABS_AGENT_ID` in `.env.example`; Cristea pastes it and `ELEVENLABS_API_KEY` into the Render dashboard | The Render CLI cannot set env vars |
+| 12 | Build 2: `PaneMessage` = `{ siteId, windowId, slot 0 to 47, hex }`, `WindowCompleteMessage` = `{ siteId, windowId }`, and `GET /screen/state` → `ScreenState` = `{ windows: [{ siteId, windowId, panes x 48 }], coloursToday }`, public, fetched on every connect. Windows start empty until it lands. Cristea takes all three to Fabi | The contract had no pane payload |
+| 12 | Build 2: "Colours caught today" is the state value plus one per pane; "Lamps lit today" shows `...` until Build 3. Ticker lines: "New colour at {Site}: {colour name}" and "The {Site} window is complete." only. Time ago: "now" under 60 s, then "{n} min", refreshed every 30 s | `DESIGN.md` gives no time-ago wording |
+| 12 | Build 2: the 2.4 bin formula and the twelve colour names live once in `packages/shared/src/colours.ts`; Cristea tells Ionut, whose colour names row becomes an import | One table for the lens and the ticker |
+| 12 | Build 2: approved `qrcode` 1.5.4 (MIT, published 2025-11-13) and `@types/qrcode` 1.5.6 (MIT, published 2026-10-04). The code encodes the page's origin plus `/?mode=remote`, caption "Scan to join from here" | The plan names `qrcode` |
+| 12 | Build 2: the pane flash with its one ring and the window-complete flare are built; echo ripples are skipped | `DESIGN.md` section 9 item 6 |
+| 12 | Build 2: map lines are the Bega and the Cetate ring from the Overpass API, at most 60 points each, clipped to the sites' box grown by 30%, in `packages/shared/src/mapLines.ts`. The agent proposes the ring's street list and Cristea approves it before it is traced | `DESIGN.md` names no street |
+| 12 | Build 2: `/screen?demo=1`: one fake pane every 500 ms at a random colour site, next free slot, random hue; a window completes at 48 and a new one starts; glow `mx` 0.2, `unirii` 0.45, `victoriei` 0.7, `bastion` 1.0; no socket and no state fetch; Ionut's `DemoBadge` | Develop and demo without Fabi's socket |
+| 12 | Build 2 cut order: the QR code, then the window-complete flare, then the pane ring, then the map lines. Never cut: `GET /agent/session`, windows with panes, the ticker, the colours counter | Cristea's answer |
+| 12 | Build 2: `cristea-api` and `cristea-canvas` reused on `opus`, no new subagent. The seam commit is first on `cristea/b2-screen`; `cristea/b2-agent` branches from it; the two run in parallel. Screen order: map lines, windows, side panel | Cristea's answer |
+| 12 | Build 2 checks for Cristea: `/screen` on the laptop with HDMI; one live Talk session with Patrick; a real pane within one second with Fabi | Cristea's answer |
+| 12 | B2-0: the Build 2 prompt and the hour-12 glossary lines go to `main` as a docs commit before the seam, as in Build 1 | Cristea's answer; the subagent worktrees are built from commits |
 
 ## Blocked
 | Since hour | ID | Question | Recommendation | Waiting on |
 |---|---|---|---|---|
 | 9 | B1-last | Live socket: a `wake` brightens its site on `/screen` within 5 s, and "Reconnecting to the city…" shows and clears when the network drops | Run it with Fabi once `/live` is on `main` | Fabi |
-| 9 | B1-0 | The team agrees `GlowMessage`, `Site` and the site ids `mx`, `unirii`, `victoriei`, `bastion`, `cathedral` | Keep them as they are on `main`; Fabi's seed uses the same ids | Fabi |
 | 9 | B1-4 | `MIN_SPACING` 2.95 was tuned on the fixture's approximate coordinates | Re-run the screenshot check when `packages/shared/sites.json` lands and swap the import in `ScreenPage.tsx` | Fabi |
 | 9 | B1-last | Laptop: the five names readable from across the room. Not reported yet | If a line is hard to read, use a larger size or `--text`, never a second theme | Cristea |
 | 9 | B1-last | Checkpoint 1 line 5, daylight readability of the dark theme | Run on Ionut's screens | Team |
