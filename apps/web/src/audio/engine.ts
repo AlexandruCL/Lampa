@@ -13,6 +13,8 @@ type Bed = {
   siteId: string;
   memorial: boolean;
   glow: number | null;
+  /** The level the gain is ramping to; compared instead of gain.gain.value, which lags a ramp. */
+  target?: number;
   promise: Promise<BedState>;
   source?: AudioBufferSourceNode;
   gain?: GainNode;
@@ -71,8 +73,9 @@ async function start(bed: Bed, url: string): Promise<BedState> {
   source.buffer = buffer;
   source.loop = true;
   const gain = ctx.createGain();
+  bed.target = bedGain(bed.glow, bed.memorial);
   gain.gain.setValueAtTime(0, ctx.currentTime);
-  gain.gain.linearRampToValueAtTime(bedGain(bed.glow, bed.memorial), ctx.currentTime + FADE_IN_S);
+  gain.gain.linearRampToValueAtTime(bed.target, ctx.currentTime + FADE_IN_S);
   source.connect(gain).connect(ctx.destination);
   source.start();
   bed.source = source;
@@ -90,14 +93,21 @@ export function playBed(siteId: string, glow: number | null): Promise<BedState> 
   const bed = { siteId, glow, memorial: sites.find((s) => s.id === siteId)?.is_memorial ?? false } as Bed;
   current = bed;
   const url = bedUrl(siteId);
-  bed.promise = url ? start(bed, url) : Promise.resolve("failed");
+  bed.promise = (url ? start(bed, url) : Promise.resolve<BedState>("failed")).then((state) => {
+    // A failed bed is dropped so the next playBed for the site loads afresh.
+    if (state === "failed" && current === bed) current = null;
+    return state;
+  });
   return bed.promise;
 }
 
 export function setBedGlow(glow: number | null): void {
   if (!current) return;
   current.glow = glow;
-  if (current.gain) rampTo(current.gain, bedGain(glow, current.memorial), RAMP_S);
+  const level = bedGain(glow, current.memorial);
+  if (!current.gain || level === current.target) return;
+  current.target = level;
+  rampTo(current.gain, level, RAMP_S);
 }
 
 export function stopBed(): void {
