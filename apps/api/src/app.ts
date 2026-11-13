@@ -3,6 +3,7 @@ import express, { type Express } from "express";
 import { makeGetPersona } from "./agent/persona.js";
 import { createAgentRouter } from "./agent/session.js";
 import { sessionRouter } from "./auth/session.js";
+import { createEchoesRouter } from "./echoes/router.js";
 import { createEventsRouter } from "./events/router.js";
 import { createPanesRouter } from "./panes/router.js";
 import { createScreenStateRouter } from "./panes/state.js";
@@ -27,6 +28,7 @@ export function createApp(deps: AppDeps = {}): Express {
   app.use(createPanesRouter({ tx: deps.tx, onPane: deps.onPane }));
   app.use(createScreenStateRouter({ db: deps.db }));
   app.use(createToolsRouter({ db: deps.db, getSiteStats }));
+  app.use(createEchoesRouter({ db: deps.db, tx: deps.tx, onStored: deps.onEventsStored, emit: deps.emit }));
   app.get("/health", (_req, res) => {
     res.json({ ok: true });
   });
