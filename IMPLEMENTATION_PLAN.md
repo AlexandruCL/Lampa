@@ -163,9 +163,9 @@ Goal: the two stations the demo is built around.
 | Ionut | Colour lens: rear camera, 64x64 centre sample 10 times a second, 12 hue bins weighted by saturation x brightness, night-glass fallback. Test for the bin picker with fixed pixel arrays | 3.5 |
 | Ionut | Hold steady for 2 s (colour distance plus rotation rate), `POST /panes`, vibration where supported, caught-pane feedback | 1.5 |
 | Ionut | Colour names: one ro and en name per hue bin, shown under the caught swatch | 0.25 |
-| Patrick | Talk, live: `GET /agent/session`, `useConversation`, client tools (`show_archive_image`, `set_light`, `start_colour_catch`, `start_echo_recording`, `suggest_next_site`), captions | 3 |
+| Patrick | Talk, live: `GET /agent/session`, `useConversation`, client tools (`show_archive_image`, `set_light`, `start_colour_catch`, `start_echo_recording`, `suggest_next_site`), captions. `show_archive_image`, `start_echo_recording` and `suggest_next_site` move to Build 3, where their screens are built (Patrick, hour 10) | 3 |
 | Patrick | Talk fallback: tap-to-ask with pre-generated clips, browser speech synthesis as last resort, automatic switch on agent error | 1.5 |
-| Patrick | Colour to note: hue to pentatonic step, lightness to octave, via `playbackRate` on the glass sample | 0.5 |
+| Patrick | Colour to note: hue to pentatonic step, lightness to octave, via `playbackRate` on the glass sample, plus the clink on a catch and the chord of a completed window from the same sample (Patrick, hour 10) | 0.5 |
 | Fabi | `POST /panes`: rate limit, slot assignment, window completes at 48, archive and open a new one, broadcast. Test for slot and completion logic. `GET /screen/state` for `/screen` on reconnect | 2.5 |
 | Fabi | `colour_readings` hypertable and the `colour_1h` aggregate | 0.5 |
 | Fabi | Agent server tools `get_site_stats` and `get_recent_echo`, behind a shared-secret header. The same site stats passed to `GET /agent/session` | 1 |
@@ -367,9 +367,9 @@ Needs from others: `POST /events` and `GET /sites` from Fabi by hour 6, `POST /p
 | Build 1 | `scripts/publish-site.ts`, including the memorial narrator | 3.5 |
 | Build 1 | Glass tone, crackle, chime, waltz | 0.5 |
 | Build 1 | Audio engine v1: unlock, loop a bed, gain from glow | 1.5 |
-| Build 2 | Talk, live, with the five client tools and captions | 3 |
+| Build 2 | Talk, live, with the five client tools and captions. `show_archive_image`, `start_echo_recording` and `suggest_next_site` move to Build 3, where their screens are built (Patrick, hour 10) | 3 |
 | Build 2 | Talk fallback: tap-to-ask clips, browser voice last | 1.5 |
-| Build 2 | Colour to note mapping | 0.5 |
+| Build 2 | Colour to note mapping, clink and window chord | 0.5 |
 | Before sleep | Start batch generation for all five sites | |
 | Build 3 | Lamp: raise gesture, Wake Lock, `lamp` events, city counter, people lighting now | 2 |
 | Build 3 | Lamp pulse on the shared clock | 0.5 |
