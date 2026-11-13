@@ -17,7 +17,7 @@ Written at hour 5 (2026-11-13, about 19:10 +0200). Prompt: `ionut/build_2/build_
 | B2-2.c.1 | `✓ built in 499ms`, `Tests  131 passed (131)`, hex grep `0`; a reducer that keeps old panes fails "a pane of a new window clears the old panes"; every `PaneStatus` state seen with a mocked API (below) | a6a3c55 |
 | B2-last | PR #17 merged (`f9d271c`); `ionut/b2-lens` rebased on `main`; this report | this commit |
 
-Review rounds on agent work, all fixed before the commit: the Ring sat 20px off the lens centre; a `role="status"` around the live colour name would have announced 10 readings a second; the catch sent the latest reading instead of the hold's first; the offline Notice's 3 s timer restarted on every 2 s retry and never showed.
+Review rounds on agent work, all fixed before the commit: the Ring sat 20px off the lens centre; a `role="status"` around the live colour name would have announced 10 readings a second; the catch sent the latest reading instead of the hold's first; the offline Notice's 3 s timer restarted on every 2 s retry and never showed; "Try again" after a hidden page kept a stale hold and caught 230 ms after the tap (fixed in `dcfe65f`: now 2283 ms). Also in `dcfe65f`, by Ionut's decision: a caught view survives a hidden page.
 
 What `POST /panes` sent in the mocked run (canvas camera `#3a7bd5`): `{"siteId":"unirii","hue":214.8387096774194,"saturation":0.6485355648535565,"lightness":0.5313725490196078,"hex":"#3a7bd5","bin":7,"at":"2026-11-13T17:00:58.334Z"}`, one request per catch. It comes out of `toPaneIn`, which runs `PaneIn.parse`.
 
