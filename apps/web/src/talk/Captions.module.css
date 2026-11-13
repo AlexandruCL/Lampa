@@ -1,0 +1,18 @@
+.captions {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-m);
+  padding: var(--space-m) 0;
+  text-align: left;
+}
+.head { margin: 0; }
+.name { font: var(--type-label); color: var(--text-2); }
+.ai { font: var(--type-meta); color: var(--text-3); }
+.empty { margin: 0; font: var(--type-body); color: var(--text-2); }
+.agent { margin: 0; font: var(--type-lead); color: var(--text); }
+.visitor { display: flex; flex-direction: column; gap: var(--space-2xs); }
+.visitor p { margin: 0; font: var(--type-body); color: var(--text-2); }
+.you { font: var(--type-meta); color: var(--text-2); }

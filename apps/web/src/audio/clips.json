@@ -7,16 +7,68 @@
       ],
       "greeting": {},
       "answers": {},
-      "narrations": {}
+      "narrations": {},
+      "tapToAsk": []
     },
     "unirii": {
       "beds": [
         "unirii/bed-1-c6609b0a9504.wav",
         "unirii/bed-2-2d3dd1d1aeaf.wav"
       ],
-      "greeting": {},
-      "answers": {},
-      "narrations": {}
+      "greeting": {
+        "ro": "unirii/greeting-ro-238fb7f3e45a.mp3",
+        "en": "unirii/greeting-en-3e6e00945f6f.mp3"
+      },
+      "answers": {
+        "column": {
+          "ro": "unirii/answer-column-ro-1c979a7731b5.mp3",
+          "en": "unirii/answer-column-en-2cc76360a23c.mp3"
+        },
+        "cathedrals": {
+          "ro": "unirii/answer-cathedrals-ro-0361d1f8097f.mp3",
+          "en": "unirii/answer-cathedrals-en-79f7ed42d5b1.mp3"
+        },
+        "languages": {
+          "ro": "unirii/answer-languages-ro-c032e32736db.mp3",
+          "en": "unirii/answer-languages-en-9fa898a8d189.mp3"
+        }
+      },
+      "narrations": {},
+      "tapToAsk": [
+        {
+          "id": "column",
+          "q": {
+            "ro": "Ce este coloana din mijlocul pieței?",
+            "en": "What is the column in the middle of the square?"
+          },
+          "a": {
+            "ro": "Este Coloana Sfintei Treimi, ridicată aici în 1740. I se spune și coloana ciumei: mulțumește pentru sfârșitul unei epidemii.",
+            "en": "That is the Holy Trinity column, raised here in 1740. People call it the plague column: it gives thanks for the end of an epidemic."
+          }
+        },
+        {
+          "id": "cathedrals",
+          "q": {
+            "ro": "De ce sunt două catedrale aici?",
+            "en": "Why are there two cathedrals here?"
+          },
+          "a": {
+            "ro": "Una este romano-catolică, cealaltă sârbă ortodoxă, și stau față în față peste piață. Vecini de credințe diferite împart piața aceasta de secole.",
+            "en": "One is Roman Catholic, the other Serbian Orthodox, and they face each other across the square. Neighbours of different faiths have shared it for centuries."
+          }
+        },
+        {
+          "id": "languages",
+          "q": {
+            "ro": "De ce vorbiți atâtea limbi?",
+            "en": "Why do you speak so many languages?"
+          },
+          "a": {
+            "ro": "Pentru că Timișoara le-a vorbit mereu. Români, maghiari, germani, sârbi, evrei și mulți alții au vorbit peste piața aceasta, adesea toți deodată.",
+            "en": "Because Timișoara always has. Romanians, Hungarians, Germans, Serbs, Jews and many others have talked across this square, often all at once."
+          }
+        }
+      ]
     },
     "victoriei": {
       "beds": [
@@ -25,7 +77,8 @@
       ],
       "greeting": {},
       "answers": {},
-      "narrations": {}
+      "narrations": {},
+      "tapToAsk": []
     },
     "bastion": {
       "beds": [
@@ -34,7 +87,8 @@
       ],
       "greeting": {},
       "answers": {},
-      "narrations": {}
+      "narrations": {},
+      "tapToAsk": []
     },
     "cathedral": {
       "beds": [
@@ -43,7 +97,8 @@
       ],
       "greeting": {},
       "answers": {},
-      "narrations": {}
+      "narrations": {},
+      "tapToAsk": []
     }
   },
   "project": {

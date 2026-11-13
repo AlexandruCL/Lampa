@@ -15,6 +15,7 @@ import { applyPane, emptyWindow } from "./panes";
 import { RoseWindow } from "./RoseWindow";
 import styles from "./SiteView.module.css";
 import { useSiteGlow } from "./useSiteGlow";
+import { Talk } from "../talk/Talk";
 
 const CONNECT_WAIT_MS = 8000;
 export const ARRIVED_LINE_MS = 4000;
@@ -29,7 +30,8 @@ export function SiteView({ site, demo, remote, notice, compass, primer, arrived 
   const [local, setLocal] = useState(emptyWindow);
   const [waited, setWaited] = useState(false);
   const [camera, setCamera] = useState<Promise<CameraResult> | null>(null);
-  const [view, setView] = useState<"site" | "lens" | "echo" | "between">("site");
+  const [mic, setMic] = useState<Promise<"granted" | "denied"> | null>(null);
+  const [view, setView] = useState<"site" | "lens" | "echo" | "between" | "talk">("site");
   const [echoPrompt, setEchoPrompt] = useState<string | undefined>();
 
   useEffect(() => {
@@ -76,6 +78,20 @@ export function SiteView({ site, demo, remote, notice, compass, primer, arrived 
     return <Between from={site} primer={primer} demo={demo} remote={remote} onBack={() => setView("site")} />;
   }
 
+  if (view === "talk" && mic) {
+    return (
+      <Talk
+        site={site}
+        demo={demo}
+        remote={remote}
+        mic={mic}
+        onBack={() => setView("site")}
+        panes={remote ? local : live.panes}
+        addPane={remote ? (p) => setLocal((s) => applyPane(s, p)) : live.addPane}
+      />
+    );
+  }
+
   return (
     <main className={styles.page}>
       <div className={styles.top}>{demo && <DemoBadge />}</div>
@@ -90,7 +106,29 @@ export function SiteView({ site, demo, remote, notice, compass, primer, arrived 
         <RoseWindow name={site.name} size="l" filled={live.panes.filled} glow={glow !== null && glow >= 0.15 ? glow : undefined} />
       </div>
       <div className={styles.actions}>
-        <Button variant="primary" size="l" block>Talk</Button>
+        <Button
+          variant="primary"
+          size="l"
+          block
+          onClick={() => {
+            // inside the tap, before any await (iOS); the SDK opens its own stream, so ours stops at once
+            const md = navigator.mediaDevices;
+            setMic(
+              md?.getUserMedia
+                ? md.getUserMedia({ audio: true }).then(
+                    (s) => {
+                      s.getTracks().forEach((t) => t.stop());
+                      return "granted" as const;
+                    },
+                    () => "denied" as const,
+                  )
+                : Promise.resolve("denied" as const),
+            );
+            setView("talk");
+          }}
+        >
+          Talk
+        </Button>
         <div className={styles.grid}>
           <Button
             variant="secondary"
