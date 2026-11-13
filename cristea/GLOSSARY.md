@@ -26,6 +26,7 @@ Anything that differs from the plan, `DESIGN.md` or the contract, and any file o
 | 0 | S-1.c.1 | The first Vercel deploy built at the repo root and failed, because `vercel git connect` triggered it before the root directory was set. A CLI redeploy replaced it | none | Order of CLI steps |
 | 0 | S-1.c.1 | Git Bash rewrites leading-slash arguments such as `/health` into Windows paths. Prefix CLI calls with `MSYS_NO_PATHCONV=1` | none | Hit while creating the Render service |
 | 0 | B1 prompt | Added a test to plan section 8: `/screen` projection and the 2.4R spacing rule, owner Cristea | `IMPLEMENTATION_PLAN.md` | Cristea's pre-0 decision; the team needs to see it |
+| 1 | B1 prompt | After Ionut's PR #3: `/screen` mounts through `apps/web/src/routes/Screen.tsx` (no `App.tsx` line); the web session helper stores the raw token under `lampa.session` with no client expiry check, because Ionut's `api()` reads the key as a raw string; Vitest for `apps/web` comes from Ionut | `cristea/build_1/build_1_prompt.md` | The hour 0 decisions on the mount and on Vitest each named this case; the key format follows the code on `main` |
 
 ## Decisions
 The owner's answers only.

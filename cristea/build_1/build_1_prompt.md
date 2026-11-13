@@ -1,6 +1,6 @@
 # Prompt: Cristea's Build 1, the spine (Identity, infra, Living Map, LAMPA)
 
-**Status: prompt completed and checked against `IMPLEMENTATION_PLAN.md` at hour 0 (2026-11-13 14:10 +0200). Implementation not started.**
+**Status: prompt completed and checked against `IMPLEMENTATION_PLAN.md` at hour 1 (2026-11-13 14:45 +0200), after Ionut's PR #3 was merged. Implementation not started.**
 
 You are implementing Cristea's part of Build 1 (hours 2 to 10) in this repository. Follow the checklist in section 3 in order, except where it says agent tasks run in parallel. Tick a box only after its verify command has run and passed.
 
@@ -35,17 +35,20 @@ Checkpoint this block must pass (Checkpoint 1, the lines this lane affects):
 - For a failing test, find the cause first, then fix. Do not patch around a symptom.
 - In Git Bash, prefix CLI calls that carry a leading-slash argument with `MSYS_NO_PATHCONV=1` (glossary, Changes, S-1.c.1).
 
-## 1. Current state (checked at hour 0, 2026-11-13 13:49 +0200)
+## 1. Current state (checked at hour 1, 2026-11-13 14:45 +0200)
 
-- Setup is closed: every S ID is under Done in the glossary, nothing carried over, nothing cut. `main` is clean at `747945b`. No open PRs. Remote branches: `main` and the two merged Setup branches.
-- Web: `https://lampa-timisoara.vercel.app/screen` → 200. `apps/web/src/App.tsx` renders the text `LAMPA` on every path. There is no router.
+- Setup is closed: every S ID is under Done in the glossary, nothing carried over, nothing cut. `main` is clean at `4991605` (Ionut's PR #3 merged). No open PRs.
+- Web: `https://lampa-timisoara.vercel.app/screen` → 200. Ionut's Setup has landed: `apps/web/src/App.tsx` holds a `react-router` 8.5.1 route table, and `apps/web/src/routes/Screen.tsx` is a placeholder (renders the text `Screen`) that Ionut's Hand-offs give to Cristea to fill.
+- `apps/web/src/api/client.ts` (Ionut's) exports `api()`, `ApiError`, `API_URL` (falls back to `http://localhost:3000`) and `SESSION_KEY` (`"lampa.session"`). It reads the value under that key as the raw token string and sends it as `Authorization: Bearer`. It does no 401 refresh: Ionut's glossary leaves that to Cristea's lane.
 - API: `https://lampa-api-b45i.onrender.com/health` → 200 `{"ok":true}`. `apps/api/src/index.ts` holds the whole app (CORS from `WEB_ORIGIN`, `/health`, `listen`).
 - Contract: `packages/shared/src/contract.ts` exports `EventKind` (8) and `SocketMessage` (7) as Zod enums. No payload schema exists. `GlowMessage` and `Site` are added by B1-0.
 - `packages/shared/sites.json` does not exist (Fabi's Setup row). B1-4 uses a fixture until it lands.
 - Design reference: `design/css/tokens.css` (169 lines, holds 2.1, 3, 4, 5.1, the 4.5 baseline and the 6.1 focus rule), `design/css/components.css` (Button, Ring, RoundControl, Notice and the rest), `design/css/livingmap.css`. Nothing of it is in `apps/web` yet: B1-1 adds it.
-- Scripts: root `dev`, `build`, `typecheck`, `test`. No workspace has a `test` script, so `npm test` runs zero tests and exits 0. Vitest is not installed. B1-0 adds it.
+- Scripts: root `dev`, `build`, `typecheck`, `test`. `apps/web` has `vitest` 5.1.0 and `"test": "vitest run --passWithNoTests"` (Ionut's, `node` environment, no DOM); `npm test` → 2 files, 7 tests passed. `apps/api` has no `test` script and no Vitest: B1-0 adds them.
 - `.env.example` already lists `SESSION_SECRET`, `AUTH0_DOMAIN`, `AUTH0_AUDIENCE`, `VITE_AUTH0_DOMAIN`, `VITE_AUTH0_CLIENT_ID`. No name is added in this block.
-- Needs from others: socket messages from Fabi by hour 6: not landed. No other member has a `GLOSSARY.md` yet. Ionut's routes, typed API client and Vitest: not landed. Fabi's `sites.json`: not landed.
+- Needs from others: socket messages from Fabi by hour 6: not landed, and Fabi has no `GLOSSARY.md` yet. Fabi's `sites.json`: not landed. Ionut's routes, typed API client and Vitest: landed (`ionut/GLOSSARY.md`, Hand-offs, hour 0).
+- Local dev: the API needs `WEB_ORIGIN=http://localhost:5173` in the root `.env`, or the dev page is refused by CORS (`ionut/GLOSSARY.md`, Changes).
+- Vercel (Hobby, private repo) builds no preview for teammates' PRs. A merge commit made by Cristea deploys to production: confirmed with PR #3.
 - Other lanes wait on this lane for: the tokens and base components (everyone, from the start of Build 1) and `requireVisitor` (Fabi, by hour 6).
 - Devices for Cristea's checks: an iPhone and a laptop with HDMI. No Android phone. Node 26.7.0, Vercel CLI and Render CLI installed and logged in.
 
@@ -63,7 +66,9 @@ Checkpoint this block must pass (Checkpoint 1, the lines this lane affects):
 | `design/css/livingmap.css` | Whole file | B1-4 |
 | `packages/shared/src/contract.ts` | `GlowMessage`, `Site` | B1-0, B1-4 |
 | `apps/api/src/index.ts`, `apps/api/package.json` | Whole file | B1-3 |
-| `apps/web/src/main.tsx`, `apps/web/src/App.tsx`, `apps/web/index.html`, `apps/web/package.json` | Whole file | B1-1, B1-4 |
+| `apps/web/src/main.tsx`, `apps/web/src/App.tsx`, `apps/web/src/routes/Screen.tsx`, `apps/web/index.html`, `apps/web/package.json` | Whole file | B1-1, B1-4 |
+| `apps/web/src/api/client.ts` | Whole file | B1-3.c |
+| `ionut/GLOSSARY.md` | Hand-offs and Changes | B1-0, B1-3.c, B1-4.c |
 | `.env.example` | Whole file | B1-2, B1-3 |
 | `IMPLEMENTATION_PLAN.md` | Section 8 (tests), section 9 (Auth0 and Cristea rows) | B1-2, B1-3, B1-4 |
 
@@ -145,7 +150,7 @@ Agent tasks:
 | B1-3.c.1 | `cristea-api` | Web session helper | `apps/web/src/session.ts`, `apps/web/src/session.test.ts` | after B1-3.b.1 |
 | B1-4.a.1 | `cristea-canvas` | Projection, spacing rule, fixture, tests | `apps/web/src/screen/projection.ts`, `projection.test.ts`, `sites.fixture.ts` | after `cristea/b1-foundation` is merged |
 | B1-4.b.1 | `cristea-canvas` | Glow state and the socket hook | `apps/web/src/screen/glow.ts`, `glow.test.ts`, `useGlowSocket.ts` | after B1-4.a.1 |
-| B1-4.c.1 | `cristea-canvas` | Canvas drawing and the page | `apps/web/src/screen/canvas.ts`, `ScreenPage.tsx`, `ScreenPage.module.css`, and one line of `apps/web/src/App.tsx` under the condition in the task | after B1-4.b.1 |
+| B1-4.c.1 | `cristea-canvas` | Canvas drawing and the page | `apps/web/src/screen/canvas.ts`, `ScreenPage.tsx`, `ScreenPage.module.css`, `apps/web/src/routes/Screen.tsx` | after B1-4.b.1 |
 
 Rules for this session:
 
@@ -162,11 +167,12 @@ Rules for this session:
 
 - [ ] `git status`, `git branch --show-current`, `git pull`. List local changes; do not touch them.
 - [ ] Baseline before any change, summary lines recorded: `npm ci && npm run typecheck && npm run build && npm test`.
-- [ ] Re-check each "Needs from others" item of section 1: `git fetch`, `ls */GLOSSARY.md`, `ls packages/shared/sites.json`, and whether `apps/web` has a router or a `test` script on `main`. If Ionut's Vitest has landed, skip the Vitest install for `apps/web` below and record it.
+- [ ] Re-check each "Needs from others" item of section 1: `git fetch`, `ls */GLOSSARY.md`, `ls packages/shared/sites.json`, and that `apps/web` still has its router and its `test` script on `main`.
 - [ ] Create `cristea/b1-foundation` from `main`.
 - [ ] Append `GlowMessage` and `Site` to `packages/shared/src/contract.ts` exactly as in the seam above. `index.ts` already re-exports the file.
-- [ ] Install, with exact versions: in `@lampa/web` dependencies `@fontsource/atkinson-hyperlegible-next@5.3.0`, `@fontsource/piazzolla@5.3.0`, `socket.io-client@4.8.4`; in `@lampa/web` devDependencies `vitest@5.1.0`; in `@lampa/api` dependencies `jose@6.2.17`, `express-rate-limit@8.7.4`; in `@lampa/api` devDependencies `vitest@5.1.0`.
-- [ ] Add `"test": "vitest run --passWithNoTests"` to the scripts of `apps/web/package.json` and `apps/api/package.json`.
+- [ ] Install, with exact versions: in `@lampa/web` dependencies `@fontsource/atkinson-hyperlegible-next@5.3.0`, `@fontsource/piazzolla@5.3.0`, `socket.io-client@4.8.4`; in `@lampa/api` dependencies `jose@6.2.17`, `express-rate-limit@8.7.4`; in `@lampa/api` devDependencies `vitest@5.1.0`.
+- [ ] Add `"test": "vitest run --passWithNoTests"` to the scripts of `apps/api/package.json`. `apps/web` already has Vitest and the same script from Ionut.
+- [ ] Add `WEB_ORIGIN=http://localhost:5173` and `PORT=3000` to the local root `.env`.
 - [ ] Commit as `feat(shared) added GlowMessage and Site to the contract and installed the Build 1 libraries`, push the branch, then create `cristea/b1-session` from that commit and push it.
 - [ ] Generate a 32-byte secret (`node -e "console.log(require('crypto').randomBytes(32).toString('base64url'))"`) and set it as `SESSION_SECRET` on the Render service `lampa-api` with the Render CLI, without printing it into the chat or a file in git. Put a second generated value in the local root `.env`. This is done before `cristea/b1-session` is merged, because the API refuses to start without it (Cristea's decision, hour 0). If the CLI cannot set an env var, stop and ask Cristea to paste it in the Render dashboard.
 - [ ] Tell Cristea to take to the team: `GlowMessage` and `Site` (Fabi emits one and seeds the other), the site ids `mx`, `unirii`, `victoriei`, `bastion`, `cathedral`, the socket join `query: { room: "screen" }` on namespace `/live` with no token, and the new section 8 test in the plan.
@@ -269,10 +275,12 @@ Branch `cristea/b1-session`. All values below are Cristea's decisions (pre-0 and
 
 **B1-3.c.1** Web session helper. Subagent: `cristea-api`. Files: `apps/web/src/session.ts`, `apps/web/src/session.test.ts`.
 
-- [ ] `getToken(): Promise<string>`: returns the token stored in `localStorage` under `lampa.session` (stored as `{ token, expiresAt }`) when `expiresAt` is in the future; otherwise calls `POST ${import.meta.env.VITE_API_URL}/session/anon`, stores the answer and returns the token. Concurrent callers share one request.
-- [ ] `authFetch(path, init?)`: `fetch(VITE_API_URL + path)` with `Authorization: Bearer <token>`. On a 401 it drops the stored token, gets a new one silently and retries once. A second 401 is returned to the caller. A 429 is returned to the caller untouched.
+- [ ] The helper uses `API_URL` and `SESSION_KEY` from `apps/web/src/api/client.ts` and does not edit that file. The value under `lampa.session` is the raw token string, because Ionut's `api()` already reads it that way.
+- [ ] `getToken(): Promise<string>`: returns the token stored in `localStorage` under `SESSION_KEY` when it is a non-empty string; otherwise calls `POST ${API_URL}/session/anon`, stores the answer's `token` and returns it. Concurrent callers share one request. There is no expiry check on the client: an expired token gets a 401 and the refresh below.
+- [ ] `authFetch(path, init?)`: `fetch(API_URL + path)` with `Authorization: Bearer <token>`. On a 401 it drops the stored token, gets a new one silently and retries once. A second 401 is returned to the caller. A 429 is returned to the caller untouched.
 - [ ] `localStorage` reads and writes sit in try/catch; when storage throws (private mode), the token lives in memory for the page's life.
-- [ ] `session.test.ts` with `vi.stubGlobal` for `fetch` and `localStorage`, cases by name: "first call requests a token and stores it under lampa.session"; "a stored unexpired token is reused without a request"; "an expired stored token is replaced"; "two concurrent getToken calls make one request"; "authFetch retries once after a 401 with a new token"; "authFetch returns the second 401"; "storage that throws falls back to memory".
+- [ ] `session.test.ts` with `vi.stubGlobal` for `fetch` and `localStorage`, cases by name: "first call requests a token and stores the raw token under lampa.session"; "a stored token is reused without a request"; "an empty stored value requests a new token"; "two concurrent getToken calls make one request"; "authFetch retries once after a 401 with a new token"; "authFetch returns the second 401"; "storage that throws falls back to memory".
+- [ ] Report for the Hand-offs: Ionut's `api()` gets the 401 refresh by calling `authFetch` in place of `fetch`. That edit is in Ionut's file and is Ionut's to make.
 - [ ] Commit: `feat(web) added the anonymous session helper`.
 - Verify: `npm run typecheck -w @lampa/web && npm test -w @lampa/web`. Paste the summary line.
 - Done when: the seven cases pass.
@@ -311,7 +319,7 @@ Branch `cristea/b1-screen`, created from `main` after `cristea/b1-foundation` is
 
 #### B1-4.c `/screen` draws the sites and their glow
 
-**B1-4.c.1** Canvas drawing and the page. Subagent: `cristea-canvas`. Files: `apps/web/src/screen/canvas.ts`, `apps/web/src/screen/ScreenPage.tsx`, `apps/web/src/screen/ScreenPage.module.css`, and one line of `apps/web/src/App.tsx` under the condition below.
+**B1-4.c.1** Canvas drawing and the page. Subagent: `cristea-canvas`. Files: `apps/web/src/screen/canvas.ts`, `apps/web/src/screen/ScreenPage.tsx`, `apps/web/src/screen/ScreenPage.module.css`, `apps/web/src/routes/Screen.tsx`.
 
 - [ ] `ScreenPage.module.css` ports these blocks of `design/css/livingmap.css`: `.living-map`, `__map`, `__panel`, `__mark`, `__status`, `__start`, `__start-line`, `__narrow` and its media query. Same values, camelCase class names.
 - [ ] `ScreenPage.tsx`, before the click: the start screen with the wordmark `LAMPA`, a primary L `Button` "Start the Living Map" and the line "Turns on the room sound.". After the click the start screen is gone until reload. v1 plays no sound.
@@ -324,7 +332,7 @@ Branch `cristea/b1-screen`, created from `main` after `cristea/b1-foundation` is
 - [ ] The Cathedral (`is_memorial`): a 1px `--line` circle of the same radius, no fill, no halo, no glow line, no percentage; its name in `--screen-name` with colour `--text-2`. A glow value sent for it is not drawn.
 - [ ] Reduced motion: glow brightness changes stay as they are (`DESIGN.md` 5.6 keeps them).
 - [ ] The page takes `sites` from `./sites.fixture`. If `packages/shared/sites.json` exists on `main` when this task starts, import that through `@lampa/shared` and leave the fixture to the tests; say which one in the report.
-- [ ] Mounting: if `apps/web/src/App.tsx` on `main` has a router with a `/screen` route, give `ScreenPage` to that route and report the file as touched outside the lane. If it has no router, add one line to `App.tsx`: `if (location.pathname === "/screen") return <ScreenPage />;` above the existing return (Cristea's decision, hour 0). Ionut's route replaces it later.
+- [ ] Mounting: Ionut's router has landed, so `App.tsx` is not touched. `apps/web/src/routes/Screen.tsx`, the placeholder Ionut handed to Cristea, becomes one line: `export { default } from "../screen/ScreenPage";`.
 - [ ] Commit: `feat(screen) added the Living Map v1 with glow on canvas`.
 - Verify: `npm run typecheck -w @lampa/web && npm run build -w @lampa/web && npm test -w @lampa/web && grep -nE "#[0-9A-Fa-f]{3,8}" apps/web/src/screen/canvas.ts apps/web/src/screen/ScreenPage.module.css | wc -l`. Paste the summary line.
 - Done when: the build and the tests pass and the grep count is 0. This session then opens `http://localhost:5173/screen` with `npm run dev`, clicks the start button and confirms five circles and five names with no overlap and no console error.
@@ -332,9 +340,9 @@ Branch `cristea/b1-screen`, created from `main` after `cristea/b1-foundation` is
 ### B1-last Integrate and hand over (last, this session)
 
 - [ ] All branches of this block merged into a local throwaway branch, `npm ci && npm run typecheck && npm run build && npm test` green on it.
-- [ ] Each branch was pushed and its PR opened as soon as its own verify passed, in this order: `cristea/b1-foundation`, `cristea/b1-session`, `cristea/b1-screen`. Each PR lists what was verified and what is waiting for a phone or for Fabi's socket.
+- [ ] Each branch was pushed and its PR opened as soon as its own verify passed, in this order: `cristea/b1-foundation`, `cristea/b1-session`, `cristea/b1-screen`. Each PR lists what was verified and what is waiting for a phone or for Fabi's socket. Cristea merges with a merge commit, never a squash, so Vercel deploys it.
 - [ ] After `cristea/b1-session` is merged and deployed: `curl -s -X POST https://lampa-api-b45i.onrender.com/session/anon` prints a token, and `curl -s https://lampa-api-b45i.onrender.com/health` prints `{"ok":true}`.
-- [ ] Glossary complete: every ID of this prompt is under Done or Blocked. Hand-offs lists: the tokens file and the import line; `Icon`, `Button`, `Notice`, `Ring`, `RoundControl` from `apps/web/src/components` with the states that shipped; `GlowMessage` and `Site`; `POST /session/anon`; `requireVisitor` then `visitorLimiter` and the `req.visitor` shape; `getToken` and `authFetch`; the root `.env` with `SESSION_SECRET` that local API runs need; `npm test` in both apps; the Auth0 domain and audience; the `/screen` socket join.
+- [ ] Glossary complete: every ID of this prompt is under Done or Blocked. Hand-offs lists: the tokens file and the import line; `Icon`, `Button`, `Notice`, `Ring`, `RoundControl` from `apps/web/src/components` with the states that shipped; `GlowMessage` and `Site`; `POST /session/anon`; `requireVisitor` then `visitorLimiter` and the `req.visitor` shape; `getToken` and `authFetch`, and the line for Ionut that `api()` gets the 401 refresh by calling `authFetch`; the root `.env` with `SESSION_SECRET` that local API runs need; `npm test` in both apps; the Auth0 domain and audience; the `/screen` socket join.
 - [ ] Cristea's check on the laptop with HDMI. Do not mark it done: `https://lampa-timisoara.vercel.app/screen` shows the start button; after the click, five sites with names, none overlapping, readable from across the room.
 - [ ] Cristea's check on the iPhone. Do not mark it done: the deployed page loads the two fonts (the wordmark is a serif) and the background is `--bg`.
 - [ ] Cristea's check with Fabi, once `/live` is on `main`. Do not mark it done: a `wake` from a phone, or `simulate-crowd`, brightens that site on the deployed `/screen` within 5 seconds, and its line changes from "Asleep, 0%". Pulling the network for 5 s shows "Reconnecting to the city…", and it clears on reconnect.
