@@ -7,7 +7,8 @@ Hour 0: 2026-11-13 13:21 (+0200).
 |---|---|---|---|---|
 | S-0 | Preflight: Node v26.13.1 and `gh` (account Skips26) already installed; `main` clean at `9649104`, no open PRs; docs commit pushed to `main`; branch `fabi/setup-db`; `npm ci`; no `patrick/GLOSSARY.md`, nothing moved in the other glossaries since section 1 | baseline `npm run typecheck` exit 0, `npm run build` exit 0, `npm test` → API `Tests 11 passed (11)`, web `Tests 76 passed (76)`; no failure already there | 7f8c736 | 4 |
 | S-1.a | `pg` 8.23.1, `yaml` 2.9.1, `zod` 4.6.7, `@types/pg` 8.23.1 (dev) in `apps/api`, exact; `db:reset` scripts in `apps/api` and root; `resolveJsonModule` | `npm run typecheck && npm run build && npm test` → exit 0, API `Tests 11 passed (11)`, web `Tests 76 passed (76)` | 3a9d645 | 4 |
-| S-1.c.1 | `db/migrations/001_init.sql` (3 extensions, 6 tables, GIST index, `interaction_events` hypertable by day, `(site_id, ts DESC)` index) and `db/reset.sql`, by `fabi-sql` | `grep -c` verify → `6`, `3`, `1`, `1`; statements with comments stripped are identical to the prompt's block (`diff -w` empty); no aggregate, policy or seed row. Not yet run against Tiger (S-1.e) | filled in the next commit | 4 |
+| S-1.c.1 | `db/migrations/001_init.sql` (3 extensions, 6 tables, GIST index, `interaction_events` hypertable by day, `(site_id, ts DESC)` index) and `db/reset.sql`, by `fabi-sql` | `grep -c` verify → `6`, `3`, `1`, `1`; statements with comments stripped are identical to the prompt's block (`diff -w` empty); no aggregate, policy or seed row. Not yet run against Tiger (S-1.e) | f40208c | 4 |
+| S-1.d.1 | `createPool()`, pure seed functions (`SiteFile`, `parseSiteFile`, `toSiteRow`, `toSitesJson`, `INSERT_SITE`, `siteParams`), `reset.ts`, five site files in `content/sites/`, `packages/shared/sites.json`, `sites` exported from `@lampa/shared`, six tests; by `fabi-api` | `npm run test -w @lampa/api -- src/db && npm run typecheck && npm run build -w @lampa/web && npx tsx -e ...` with `DATABASE_URL` unset → `Tests 6 passed (6)`, `✓ built in 331ms`, `5 cathedral`, exit 0; also 6 passed with `sites.json` converted to CRLF. `reset.ts` not yet run against Tiger (S-1.e) | filled in the next commit | 4 |
 
 ## Changes
 Anything that differs from the plan, `DESIGN.md` or the contract, and any file outside this lane that was touched.
@@ -19,6 +20,8 @@ Anything that differs from the plan, `DESIGN.md` or the contract, and any file o
 | 4 | S-1.a | `yaml` 2.9.1 and `@types/pg` 8.23.1 added, which plan section 3 does not name (approved by Fabi, hour 3) | `apps/api/package.json`, `package-lock.json` | `yaml` reads the site files; `@types/pg` types the pool |
 | 4 | S-1.a | Root script `db:reset` runs the API workspace's script | `package.json` | The plan's command is `npm run db:reset` at the root |
 | 4 | S-1.a | `"resolveJsonModule": true` in `compilerOptions` | `tsconfig.base.json` | `packages/shared/src/sites.ts` imports `sites.json` |
+| 4 | S-1.d.1 | Added `packages/shared/sites.json` and `packages/shared/src/sites.ts`, and one line `export * from "./sites.js";` in `packages/shared/src/index.ts` (approved by Fabi, hour 3) | `packages/shared/` | `sites` for `/screen` and the phone screens |
+| 4 | S-1.d.1 | The `sites.json` test compares after turning CRLF into LF | `apps/api/src/db/seed.test.ts` | `core.autocrlf=true` and no `.gitattributes`: a Windows clone checks `sites.json` out with CRLF, which a byte compare would fail; git sees no change either way |
 | 4 | S-1.a | Each Done line is committed with the work; its Commit cell is filled in the next commit, since a commit cannot hold its own sha | `fabi/GLOSSARY.md` | Repo style puts the sha in the Done table |
 
 ## Decisions
