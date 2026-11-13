@@ -1,10 +1,11 @@
 import { randomUUID } from "node:crypto";
 import express, { Router, type RequestHandler } from "express";
 import { rateLimit } from "express-rate-limit";
-import { EchoAccepted, PendingEchoes, sites } from "@lampa/shared";
+import { EchoAccepted, EchoApprovedMessage, PendingEchoes, SocketMessage, sites } from "@lampa/shared";
 import type { Db, Emit, Tx } from "../seam.js";
 import { requireVisitor, visitorLimiter, type Visitor } from "../auth/session.js";
-import { userSub } from "../events/router.js";
+import { INSERT_EVENTS, userSub } from "../events/router.js";
+import { WEIGHTS } from "../events/weights.js";
 import { transcribe } from "./scribe.js";
 
 export const ECHO_MAX_BYTES = 2 * 1024 * 1024;
@@ -19,6 +20,19 @@ LEFT JOIN echoes e ON e.audio_url = '/blob/' || b.key
 WHERE b.key = $1`;
 export const SELECT_PENDING = `SELECT id, site_id, created_at, lang, transcript, audio_url FROM echoes
 WHERE status = 'pending' ORDER BY created_at ASC, id ASC`;
+export const APPROVE_ECHO = `UPDATE echoes SET status = 'approved', public_audio_url = audio_url
+WHERE id = $1 AND status = 'pending' RETURNING site_id, audio_url, transcript, lang, anon_id, author_sub`;
+export const REJECT_ECHO = "UPDATE echoes SET status = 'rejected' WHERE id = $1 AND status = 'pending' RETURNING audio_url";
+export const DELETE_BLOB = "DELETE FROM blobs WHERE key = $1";
+export const SELECT_STATUS = "SELECT status FROM echoes WHERE id = $1";
+
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/** Why an UPDATE ... AND status = 'pending' touched no row: the echo is missing, or no longer pending. */
+async function missing(db: Db, id: string): Promise<{ status: number; error: string }> {
+  const { rows } = await db.query(SELECT_STATUS, [id]);
+  return rows[0] ? { status: 409, error: "not_pending" } : { status: 404, error: "unknown_echo" };
+}
 
 export const canModerate = (visitor: Visitor): boolean =>
   visitor.kind === "auth0" && visitor.permissions.includes("moderate:echo");
@@ -125,6 +139,74 @@ export function createEchoesRouter(deps: EchoesDeps): Router {
       res.set("Cache-Control", "no-store").json(PendingEchoes.parse({ echoes }));
     } catch (err) {
       console.error("pending echoes read failed: " + (err instanceof Error ? err.message : "unknown"));
+      res.status(503).json({ error: "unavailable" });
+    }
+  });
+
+  router.post("/echoes/:id/approve", requireVisitor, visitorLimiter, curatorOnly, async (req, res) => {
+    const id = req.params.id as string;
+    if (!UUID.test(id)) return void res.status(404).json({ error: "unknown_echo" });
+    if (!deps.db) return void res.status(503).json({ error: "unavailable" });
+    const db = deps.db;
+    let echo: { site_id: string; audio_url: string; transcript: string | null; lang: string | null; anon_id: string | null; author_sub: string | null };
+    try {
+      echo = (await db.query(APPROVE_ECHO, [id])).rows[0];
+      if (!echo) {
+        const miss = await missing(db, id);
+        return void res.status(miss.status).json({ error: miss.error });
+      }
+    } catch (err) {
+      console.error(`echo approve failed for ${id}: ` + (err instanceof Error ? err.message : "unknown"));
+      return void res.status(503).json({ error: "unavailable" });
+    }
+    // The echo is approved from here on: a failing event or broadcast is logged, not answered.
+    try {
+      await db.query(INSERT_EVENTS, [
+        echo.anon_id ?? echo.author_sub,
+        echo.author_sub,
+        [new Date().toISOString()],
+        [echo.site_id],
+        ["echo_approved"],
+        [WEIGHTS.echo_approved],
+      ]);
+      deps.onStored?.();
+    } catch (err) {
+      console.error(`echo_approved event failed for ${id}: ` + (err instanceof Error ? err.message : "unknown"));
+    }
+    if (deps.emit) {
+      try {
+        const message = EchoApprovedMessage.parse({
+          echoId: id,
+          siteId: echo.site_id,
+          audioUrl: echo.audio_url,
+          transcript: echo.transcript,
+          lang: echo.lang,
+        });
+        deps.emit("screen", SocketMessage.enum.echo_approved, message);
+        deps.emit(`site:${echo.site_id}`, SocketMessage.enum.echo_approved, message);
+      } catch (err) {
+        console.error(`echo_approved emit failed for ${id}: ` + (err instanceof Error ? err.message : "unknown"));
+      }
+    }
+    res.status(204).end();
+  });
+
+  router.post("/echoes/:id/reject", requireVisitor, visitorLimiter, curatorOnly, async (req, res) => {
+    const id = req.params.id as string;
+    if (!UUID.test(id)) return void res.status(404).json({ error: "unknown_echo" });
+    if (!deps.tx) return void res.status(503).json({ error: "unavailable" });
+    try {
+      // One transaction, so a rejected echo never keeps its audio.
+      const miss = await deps.tx(async (db) => {
+        const row = (await db.query(REJECT_ECHO, [id])).rows[0];
+        if (!row) return missing(db, id);
+        await db.query(DELETE_BLOB, [String(row.audio_url).replace(/^\/blob\//, "")]);
+        return null;
+      });
+      if (miss) return void res.status(miss.status).json({ error: miss.error });
+      res.status(204).end();
+    } catch (err) {
+      console.error(`echo reject failed for ${id}: ` + (err instanceof Error ? err.message : "unknown"));
       res.status(503).json({ error: "unavailable" });
     }
   });
