@@ -55,6 +55,7 @@ export type SiteClips = {
   greeting: Record<string, string>; // lang -> file
   answers: Record<string, Record<string, string>>; // tap_to_ask id -> lang -> file
   narrations: Record<string, Record<string, string>>; // narration id -> lang -> file
+  tapToAsk: { id: string; q: Record<string, string>; a: Record<string, string> }[]; // persona.tap_to_ask text, file order
 };
 type ProjectClips = { glass?: string; crackle?: string; chime?: string; waltz: string[] };
 
@@ -189,7 +190,9 @@ export function toClips(
 ): { sites: Record<string, SiteClips>; project: ProjectClips } {
   const out: { sites: Record<string, SiteClips>; project: ProjectClips } = { sites: {}, project: { waltz: [] } };
   for (const site of sites) {
-    const c: SiteClips = { beds: [], greeting: {}, answers: {}, narrations: {} };
+    // the text goes in whether or not a clip exists: Talk speaks it with the browser voice
+    const persona = site.is_memorial ? undefined : PersonaContent.safeParse(site.persona).data;
+    const c: SiteClips = { beds: [], greeting: {}, answers: {}, narrations: {}, tapToAsk: persona?.tap_to_ask ?? [] };
     for (const { file, reason, slot } of planSite(site)) {
       if (reason || !exists(file)) continue;
       if (slot.kind === "bed") c.beds.push(file);

@@ -1,5 +1,5 @@
 {
-  "git": { "deploymentEnabled": { "main": true, "*": false } },
+  "git": { "deploymentEnabled": { "main": false, "*": false } },
   "ignoreCommand": "! echo \"$VERCEL_GIT_COMMIT_AUTHOR_LOGIN\" | grep -qix alexandrucl",
   "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
 }
