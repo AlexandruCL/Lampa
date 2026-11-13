@@ -4,17 +4,23 @@ import { io } from "socket.io-client";
 import { applyCandle, applyCandleState, candleDecay, CANDLE_MIN_DECAY, type Candle } from "./candles";
 import { DEMO_CANDLE_MS, DEMO_GLOW, DEMO_PANE_MS, nextDemoCandle, nextDemoMessage } from "./demoFeed";
 import { applyGlow } from "./glow";
-import { addTickerEvent } from "./tickerCopy";
+import { addTickerEvent, parseEcho } from "./tickerCopy";
 import { applyPane, applyState, applyWindowComplete, emptyWindows, type WindowsState } from "./windows";
 
 export type ScreenEffect =
   | { kind: "pane"; siteId: string; slot: number; hex: string; at: number }
-  | { kind: "complete"; siteId: string; panes: (string | null)[]; at: number };
+  | { kind: "complete"; siteId: string; panes: (string | null)[]; at: number }
+  | { kind: "echo"; siteId: string; at: number };
 
 export type ScreenEvent =
   | { kind: "pane"; siteId: string; hex: string; at: number }
   | { kind: "complete"; siteId: string; at: number }
+  | { kind: "echo"; siteId: string; at: number }
   | { kind: "candle"; at: number };
+
+export type ScreenSubtitle = { siteId: string; text: string; lang: string | null; at: number };
+
+const SUBTITLE_CHARS = 90;
 
 /** `siteIds` must keep its identity across renders: a new array reconnects the socket. */
 export function useScreenSocket(
@@ -28,6 +34,7 @@ export function useScreenSocket(
   connected: boolean;
   coloursToday: number | null;
   events: ScreenEvent[];
+  subtitles: ScreenSubtitle[];
 } {
   const glowRef = useRef<Record<string, number>>({});
   const windowsRef = useRef<WindowsState>(emptyWindows(siteIds));
@@ -36,6 +43,7 @@ export function useScreenSocket(
   const [connected, setConnected] = useState(false);
   const [coloursToday, setColoursToday] = useState<number | null>(null);
   const [events, setEvents] = useState<ScreenEvent[]>([]);
+  const [subtitles, setSubtitles] = useState<ScreenSubtitle[]>([]);
 
   useEffect(() => {
     windowsRef.current = emptyWindows(siteIds);
@@ -69,6 +77,17 @@ export function useScreenSocket(
       candlesRef.current = after;
       // A candle already past the minimum decay only prunes the list: it gets no ticker line.
       if (after.some((c) => c.id === CandleMessage.parse(message).id)) addEvent({ kind: "candle", at: Date.now() });
+    };
+    const onEcho = (message: unknown) => {
+      const echo = parseEcho(message, siteIds);
+      if (!echo) return;
+      const { siteId, transcript, lang } = echo;
+      const at = Date.now();
+      effectsRef.current.push({ kind: "echo", siteId, at: performance.now() });
+      addEvent({ kind: "echo", siteId, at });
+      if (transcript === null) return;
+      const text = [...transcript].slice(0, SUBTITLE_CHARS).join("");
+      setSubtitles((list) => [...list.filter((s) => s.siteId !== siteId), { siteId, text, lang, at }]);
     };
 
     if (demo) {
@@ -119,11 +138,12 @@ export function useScreenSocket(
     socket.on(SocketMessage.enum.pane, onPane);
     socket.on(SocketMessage.enum.window_complete, onComplete);
     socket.on(SocketMessage.enum.candle, onCandle);
+    socket.on(SocketMessage.enum.echo_approved, onEcho);
     return () => {
       live = false;
       socket.close();
     };
   }, [siteIds, demo]);
 
-  return { glowRef, windowsRef, effectsRef, candlesRef, connected, coloursToday, events };
+  return { glowRef, windowsRef, effectsRef, candlesRef, connected, coloursToday, events, subtitles };
 }

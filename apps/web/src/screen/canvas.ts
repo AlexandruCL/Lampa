@@ -24,6 +24,11 @@ export const FLARE_OUT_MS = 1600;
 export const FLARE_EMPTY_MS = 800;
 const FLARE_REACH = 2.6;
 const REDUCED_MS = 600;
+export const ECHO_RING_MS = 3000;
+export const ECHO_RING_GAP_MS = 400;
+export const ECHO_RINGS = 3;
+const ECHO_RING_REACH = 3;
+const ECHO_RING_ALPHA = 0.4;
 const CANDLE_HALO_ALPHA = 0.25;
 const CANDLE_FADE_IN_MS = 3000;
 
@@ -78,6 +83,7 @@ export function startCanvas(
   const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const paneMs = reduced ? REDUCED_MS : Math.max(PANE_FLASH_MS, PANE_RING_MS);
   const completeMs = reduced ? REDUCED_MS : FLARE_IN_MS + FLARE_HOLD_MS + FLARE_OUT_MS;
+  const echoMs = reduced ? REDUCED_MS : ECHO_RING_MS + (ECHO_RINGS - 1) * ECHO_RING_GAP_MS;
 
   const byId = new Map(sites.map((s) => [s.id, s]));
   const placed = layout(sites, lines);
@@ -259,6 +265,30 @@ export function startCanvas(
       complete.panes.forEach((hex, i) => slot(x, y, r, i, hex ? mixHex(hex, bg, 1) : surface2, alpha));
     }
 
+    ctx.strokeStyle = text;
+    ctx.lineWidth = 2 * (canvas.width / MAP_WIDTH);
+    for (const e of effects) {
+      if (e.kind !== "echo") continue;
+      if (reduced) {
+        // DESIGN.md 5.6: one 600ms opacity flash on the window in place of the rings.
+        ctx.globalAlpha = ECHO_RING_ALPHA * (1 - progress(now - e.at, REDUCED_MS));
+        ctx.fillStyle = text;
+        ctx.beginPath();
+        ctx.arc(x, y, r, 0, Math.PI * 2);
+        ctx.fill();
+        continue;
+      }
+      for (let k = 0; k < ECHO_RINGS; k++) {
+        const elapsed = now - e.at - k * ECHO_RING_GAP_MS;
+        if (elapsed < 0 || elapsed >= ECHO_RING_MS) continue;
+        const t = elapsed / ECHO_RING_MS;
+        ctx.globalAlpha = ECHO_RING_ALPHA * (1 - t);
+        ctx.beginPath();
+        ctx.arc(x, y, r * (1 + (ECHO_RING_REACH - 1) * t), 0, Math.PI * 2);
+        ctx.stroke();
+      }
+    }
+
     if (!reduced) {
       for (const e of effects) {
         if (e.kind !== "pane") continue;
@@ -276,7 +306,8 @@ export function startCanvas(
   };
 
   const draw = (now: number) => {
-    effectsRef.current = effectsRef.current.filter((e) => now - e.at < (e.kind === "pane" ? paneMs : completeMs));
+    const effectMs = { pane: paneMs, complete: completeMs, echo: echoMs };
+    effectsRef.current = effectsRef.current.filter((e) => now - e.at < effectMs[e.kind]);
     // The canvas spans the 1380-unit map area, so one design unit is canvas.width / 1380 device pixels.
     const s = canvas.width / MAP_WIDTH;
     ctx.globalAlpha = 1;

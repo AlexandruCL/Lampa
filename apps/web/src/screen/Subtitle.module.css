@@ -1,0 +1,23 @@
+/* Ported from .living-map__subtitle and __subtitle-lang in design/css/livingmap.css; left and top come from layout. */
+.subtitle {
+  position: absolute;
+  transform: translateX(-50%);
+  width: max-content;
+  max-width: calc(520 * var(--u));
+  box-sizing: border-box;
+  margin: 0;
+  padding: calc(12 * var(--u)) calc(16 * var(--u));
+  border-radius: var(--radius-s);
+  background: var(--surface);
+  font: var(--screen-subtitle);
+  color: var(--text);
+  white-space: normal;
+  transition: opacity 600ms var(--ease-out);
+}
+.lang { display: block; font: var(--screen-meta); color: var(--text-3); }
+.fading { opacity: 0; }
+
+/* DESIGN.md 5.6: opacity fades stay, shortened to 150ms. */
+@media (prefers-reduced-motion: reduce) {
+  .subtitle { transition-duration: 150ms; }
+}
