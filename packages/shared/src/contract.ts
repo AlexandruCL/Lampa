@@ -22,3 +22,17 @@ export const SocketMessage = z.enum([
   "finale",
 ]);
 export type SocketMessage = z.infer<typeof SocketMessage>;
+
+export const GlowMessage = z.object({
+  sites: z.array(z.object({ siteId: z.string(), glow: z.number().min(0).max(1) })),
+});
+export type GlowMessage = z.infer<typeof GlowMessage>;
+
+export const Site = z.object({
+  id: z.string(),
+  name: z.string(),
+  lat: z.number(),
+  lng: z.number(),
+  is_memorial: z.boolean(),
+});
+export type Site = z.infer<typeof Site>;

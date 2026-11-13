@@ -27,6 +27,7 @@ Anything that differs from the plan, `DESIGN.md` or the contract, and any file o
 | 0 | S-1.c.1 | Git Bash rewrites leading-slash arguments such as `/health` into Windows paths. Prefix CLI calls with `MSYS_NO_PATHCONV=1` | none | Hit while creating the Render service |
 | 0 | B1 prompt | Added a test to plan section 8: `/screen` projection and the 2.4R spacing rule, owner Cristea | `IMPLEMENTATION_PLAN.md` | Cristea's pre-0 decision; the team needs to see it |
 | 1 | B1 prompt | After Ionut's PR #3: `/screen` mounts through `apps/web/src/routes/Screen.tsx` (no `App.tsx` line); the web session helper stores the raw token under `lampa.session` with no client expiry check, because Ionut's `api()` reads the key as a raw string; Vitest for `apps/web` comes from Ionut | `cristea/build_1/build_1_prompt.md` | The hour 0 decisions on the mount and on Vitest each named this case; the key format follows the code on `main` |
+| 2 | B1-0 | Appended `GlowMessage` and `Site` to the team contract; installed `@fontsource/atkinson-hyperlegible-next` 5.3.0, `@fontsource/piazzolla` 5.3.0, `socket.io-client` 4.8.4 (web), `jose` 6.2.17, `express-rate-limit` 8.7.4, `vitest` 5.1.0 (api); added `test` script to `apps/api` | `packages/shared/src/contract.ts`, `apps/web/package.json`, `apps/api/package.json`, `package-lock.json` | Seam for B1-1, B1-3, B1-4 (Cristea's hour 0 decision); Fabi to agree the payloads |
 
 ## Decisions
 The owner's answers only.
