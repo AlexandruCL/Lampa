@@ -1,6 +1,6 @@
 import type { Site } from "@lampa/shared";
 import { expect, it } from "vitest";
-import { labelSides, layout, project, spread, type Point } from "./projection";
+import { labelSides, layout, MIN_SPACING, project, SITE_RADIUS, spread, type Point } from "./projection";
 import { sites } from "./sites.fixture";
 
 const MIN_DIST = 2.4 * 96;
@@ -45,7 +45,8 @@ it("no two fixture sites are closer than 2.4R after spread", () => {
 
 it("two sites at the same point end 2.4R apart", () => {
   const [a, b] = layout([site("a", 45.75, 21.23), site("b", 45.75, 21.23)]);
-  expect(dist(a, b)).toBeCloseTo(MIN_DIST, 9);
+  expect(dist(a, b)).toBeCloseTo(MIN_SPACING * SITE_RADIUS, 9);
+  expect(dist(a, b)).toBeGreaterThanOrEqual(MIN_DIST - EPS);
   expect(a.y).toBe(b.y);
 });
 

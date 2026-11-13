@@ -5,7 +5,8 @@ export const MAP_WIDTH = 1380;
 export const DESIGN_HEIGHT = 1080;
 export const PADDING = 0.12;
 export const SITE_RADIUS = 96;
-export const MIN_SPACING = 2.4;
+// 2.95, not DESIGN.md's 2.4: the smallest value that keeps every fixture label clear of other circles; re-check when packages/shared/sites.json lands
+export const MIN_SPACING = 2.95;
 export const SPACING_PASSES = 20;
 export const REF_LAT_DEG = 45.75;
 
