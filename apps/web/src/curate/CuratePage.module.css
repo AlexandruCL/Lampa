@@ -1,0 +1,48 @@
+/* Ported from design/css/console.css (DESIGN.md 7.15). Nothing animates in the console. */
+
+.console { min-height: 100vh; display: flex; flex-direction: column; background: var(--bg); color: var(--text); font: var(--type-body); }
+.consoleNotice { padding: var(--space-m) var(--space-l) 0; }
+.consolePanes { flex: 1; display: flex; min-height: 0; }
+.consoleList { flex: none; width: 360px; margin: 0; padding: 0; list-style: none; border-right: var(--border-divider) solid var(--line); overflow-y: auto; }
+
+/* The only tab, so a heading rather than a tab control */
+.consoleTab { margin: 0; padding: var(--space-m) var(--space-l); font: var(--type-label); color: var(--text); border-bottom: var(--border-divider) solid var(--line); }
+
+.queueRow {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2xs);
+  width: 100%;
+  min-height: 64px;
+  padding: var(--space-m) var(--space-l);
+  box-sizing: border-box;
+  border: 0;
+  border-bottom: var(--border-divider) solid var(--line);
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.queueRow[aria-current="true"] { background: var(--surface-2); }
+.queueRowSite { font: var(--type-body); font-weight: 600; overflow-wrap: anywhere; }
+.queueRowMeta { font: var(--type-meta); color: var(--text-2); font-variant-numeric: tabular-nums; }
+.queueRowLoading { cursor: default; }
+.queueRowLoading .queueRowSite { font-weight: 400; color: var(--text-3); }
+
+.consoleEmpty { margin: 0; padding: var(--space-m) var(--space-l); color: var(--text-2); }
+
+.detailPane { flex: 1; min-width: 0; display: flex; }
+
+.consoleCenter { width: 100%; max-width: 480px; margin: 0 auto; padding: var(--space-3xl) var(--space-l); box-sizing: border-box; display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-m); }
+.consoleWordmark { margin: 0; font: var(--type-label); font-family: var(--font-display); letter-spacing: var(--wordmark-tracking); color: var(--text-2); }
+.consoleTitle { margin: 0; font: var(--type-title); letter-spacing: var(--type-title-tracking); }
+.consoleText { margin: 0; max-width: var(--measure); color: var(--text); }
+
+@media (max-width: 1023px) {
+  .consolePanes { display: block; }
+  .consoleList { width: auto; border-right: 0; }
+  /* Under 1024px the list is the screen; a row opens the detail in its place */
+  .open .consoleList { display: none; }
+  .consolePanes:not(.open) .detailPane { display: none; }
+}
