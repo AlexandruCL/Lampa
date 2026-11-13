@@ -17,4 +17,3 @@
 .notice { margin-top: var(--space-s); }
 .centre { flex: 1; display: grid; place-items: center; }
 .actions { display: flex; flex-direction: column; gap: var(--space-s); }
-.close { align-self: flex-end; }

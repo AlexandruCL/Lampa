@@ -5,6 +5,7 @@ import type { Recording } from "../echo/recording";
 import { sendEcho, toEchoForm } from "../echo/upload";
 import type { PhoneSite } from "../sites/sites";
 import styles from "./EchoRecorder.module.css";
+import { Sheet } from "./Sheet";
 import { TopBar } from "./TopBar";
 
 type Phase = "idle" | "recording" | "recorded" | "sent" | "denied" | "unavailable";
@@ -201,25 +202,10 @@ export function EchoRecorder({ site, demo, prompt, onBack, onSent }: { site: Pho
           </span>
           Play my voice here in public after a curator listens to it.
         </label>
-        <Button variant="quiet" aria-expanded={info} onClick={() => setInfo(!info)}>What happens to my voice</Button>
-        {info && (
-          <p className={styles.info}>
-            Your recording is stored on our server and transcribed. A curator listens to it. If approved, visitors here hear it in your voice. If rejected, it never plays. We do not ask for your name.
-          </p>
-        )}
+        <Button variant="quiet" aria-haspopup="dialog" onClick={() => setInfo(true)}>What happens to my voice</Button>
       </>
     );
-    if (leaving) {
-      bottom = (
-        <>
-          <p className={styles.ask}>Discard this echo?</p>
-          <div className={styles.row}>
-            <Button variant="danger" onClick={onBack}>Discard</Button>
-            <Button variant="secondary" onClick={() => setLeaving(false)}>Keep recording</Button>
-          </div>
-        </>
-      );
-    } else if (phase === "recorded") {
+    if (phase === "recorded") {
       bottom = (
         <>
           <Button variant="primary" size="l" block loading={sending} disabled={!consent && !sending} aria-describedby={consent ? undefined : "echo-hint"} onClick={send}>
@@ -234,10 +220,27 @@ export function EchoRecorder({ site, demo, prompt, onBack, onSent }: { site: Pho
   }
 
   return (
+    <>
     <main className={styles.view}>
       <TopBar siteName={site.name} onBack={leave} demo={demo} />
       <div className={styles.body}>{body}</div>
       {bottom && <div className={styles.bottom}>{bottom}</div>}
     </main>
+      {info && (
+        <Sheet title="What happens to my voice" onClose={() => setInfo(false)}>
+          <p className={styles.info}>
+            Your recording is stored on our server and transcribed. A curator listens to it. If approved, visitors here hear it in your voice. If rejected, it never plays. We do not ask for your name.
+          </p>
+        </Sheet>
+      )}
+      {leaving && (
+        <Sheet title="Discard this echo?" onClose={() => setLeaving(false)}>
+          <div className={styles.row}>
+            <Button variant="danger" onClick={onBack}>Discard</Button>
+            <Button variant="secondary" onClick={() => setLeaving(false)}>Keep recording</Button>
+          </div>
+        </Sheet>
+      )}
+    </>
   );
 }

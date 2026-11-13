@@ -1,0 +1,34 @@
+.root { position: fixed; inset: 0; z-index: var(--z-sheet); display: flex; flex-direction: column; justify-content: flex-end; }
+.backdrop { position: absolute; inset: 0; background: var(--scrim); animation: fade-in var(--dur-sheet) var(--ease-drawer); }
+.panel {
+  position: relative;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: var(--column-wide);
+  max-height: 85dvh;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  border-radius: var(--radius-m) var(--radius-m) 0 0;
+  animation: slide-in var(--dur-sheet) var(--ease-drawer);
+}
+.handle { align-self: center; flex: none; width: 36px; height: 4px; margin-top: var(--space-xs); border-radius: 2px; background: var(--line-strong); }
+.head { flex: none; display: flex; align-items: center; justify-content: space-between; gap: var(--space-s); padding: 0 var(--space-m) 0 var(--space-l); min-height: var(--tap-primary); }
+.title { margin: 0; font: var(--type-title); letter-spacing: var(--type-title-tracking); color: var(--text); }
+.title:focus { outline: none; }
+.content {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0 var(--space-l) calc(var(--space-l) + env(safe-area-inset-bottom, 0px));
+}
+.root[data-closing] .backdrop { animation: fade-out var(--dur-base) var(--ease-out) forwards; }
+.root[data-closing] .panel { animation: slide-out var(--dur-base) var(--ease-out) forwards; }
+@keyframes slide-in { from { transform: translateY(100%); } to { transform: none; } }
+@keyframes slide-out { from { transform: none; } to { transform: translateY(100%); } }
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes fade-out { from { opacity: 1; } to { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .panel { animation-name: fade-in; }
+  .root[data-closing] .panel { animation-name: fade-out; }
+}

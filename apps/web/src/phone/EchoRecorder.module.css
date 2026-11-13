@@ -52,7 +52,7 @@
 .box input:disabled { opacity: 0.4; }
 .tick { position: absolute; inset: 0; display: none; place-items: center; color: var(--on-lamp); pointer-events: none; line-height: 0; }
 .box input:checked + .tick { display: grid; }
-.info { margin: 0; font: var(--type-meta); color: var(--text-2); text-align: left; }
+.info { margin: 0; font: var(--type-body); color: var(--text-2); }
 .bottom {
   display: flex;
   flex-direction: column;
@@ -60,5 +60,4 @@
   padding: var(--space-m) var(--space-l) calc(var(--space-l) + env(safe-area-inset-bottom, 0px));
 }
 .hint { margin: 0; font: var(--type-meta); color: var(--text-2); text-align: center; }
-.ask { margin: 0; font: var(--type-label); color: var(--text); text-align: center; }
 .row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-s); }

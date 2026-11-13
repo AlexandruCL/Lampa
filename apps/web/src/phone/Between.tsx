@@ -19,6 +19,7 @@ import { findSite, SITES, type PhoneSite } from "../sites/sites";
 import styles from "./Between.module.css";
 import { CompassCard } from "./CompassCard";
 import { DemoBadge } from "./DemoBadge";
+import { Sheet } from "./Sheet";
 import { SitesList } from "./SitesList";
 import { TopBar } from "./TopBar";
 import { useCityGlow } from "./useCityGlow";
@@ -95,6 +96,7 @@ export function Between({ from, primer, demo, remote, notice, onBack, onTarget, 
   const iphone = isIPhone(navigator.userAgent);
 
   return (
+    <>
     <main className={styles.page}>
       {from && onBack ? (
         <TopBar siteName={from.name} onBack={onBack} demo={demo} />
@@ -111,7 +113,34 @@ export function Between({ from, primer, demo, remote, notice, onBack, onTarget, 
           </Notice>
         </div>
       )}
-      {list ? (
+      <div className={styles.centre}>
+        {shown && (
+          <CompassCard
+            site={shown}
+            distanceM={here ? haversineM(here, shown) : null}
+            bearing={here ? bearingDeg(here, shown) : null}
+            heading={blendHeading(heading, position)}
+            weak={position !== null && position.accuracy > MAX_ACCURACY_M}
+            locationOff={status === "denied" || status === "unavailable"}
+            glow={city.glow?.[shown.id] ?? null}
+            connected={city.connected}
+            allVisited={next.allVisited}
+          />
+        )}
+      </div>
+      <div className={styles.actions}>
+        <Button variant="secondary" size="l" block onClick={() => setList(true)}>Sites</Button>
+        <Button
+          variant="secondary"
+          size="l"
+          block
+          onClick={() => (iphone ? setChoose(true) : shown && open(googleMapsUrl(shown)))}
+        >
+          Open in Maps
+        </Button>
+      </div>
+    </main>
+      {list && (
         <SitesList
           ranked={next.ranked}
           glow={city.glow}
@@ -129,48 +158,15 @@ export function Between({ from, primer, demo, remote, notice, onBack, onTarget, 
             }
           }}
         />
-      ) : (
-        <>
-      <div className={styles.centre}>
-        {shown && (
-          <CompassCard
-            site={shown}
-            distanceM={here ? haversineM(here, shown) : null}
-            bearing={here ? bearingDeg(here, shown) : null}
-            heading={blendHeading(heading, position)}
-            weak={position !== null && position.accuracy > MAX_ACCURACY_M}
-            locationOff={status === "denied" || status === "unavailable"}
-            glow={city.glow?.[shown.id] ?? null}
-            connected={city.connected}
-            allVisited={next.allVisited}
-          />
-        )}
-      </div>
-      <div className={styles.actions}>
-        {choose ? (
-          <>
-            <div className={styles.close}>
-              <Button variant="icon" icon="close" aria-label="Close" onClick={() => setChoose(false)} />
-            </div>
+      )}
+      {choose && (
+        <Sheet title="Open in Maps" onClose={() => setChoose(false)}>
+          <div className={styles.actions}>
             <Button variant="secondary" size="l" block onClick={() => shown && open(appleMapsUrl(shown))}>Apple Maps</Button>
             <Button variant="secondary" size="l" block onClick={() => shown && open(googleMapsUrl(shown))}>Google Maps</Button>
-          </>
-        ) : (
-          <>
-            <Button variant="secondary" size="l" block onClick={() => setList(true)}>Sites</Button>
-            <Button
-              variant="secondary"
-              size="l"
-              block
-              onClick={() => (iphone ? setChoose(true) : shown && open(googleMapsUrl(shown)))}
-            >
-              Open in Maps
-            </Button>
-          </>
-        )}
-      </div>
-        </>
+          </div>
+        </Sheet>
       )}
-    </main>
+    </>
   );
 }
