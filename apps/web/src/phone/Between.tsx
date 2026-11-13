@@ -35,6 +35,8 @@ type BetweenProps = {
   onArrive?: (siteId: string) => void; // Patrick: the arrival chime; never called for the memorial
 };
 
+const LANTERN_MS = 10000;
+
 const open = (url: string) => window.open(url, "_blank", "noopener");
 
 /** Between sites (DESIGN.md 7.8). */
@@ -95,9 +97,51 @@ export function Between({ from, primer, demo, remote, notice, onBack, onTarget, 
   const [choose, setChoose] = useState(false);
   const iphone = isIPhone(navigator.userAgent);
 
+  // Lantern dim (6.12): idle for LANTERN_MS dims the view; the waking tap or key does nothing else.
+  const [dim, setDim] = useState(false);
+  const held = list || choose;
+  useEffect(() => {
+    if (held) return setDim(false);
+    let dimmed = false;
+    let swallow = false; // the click/keyup that follows a swallowed pointerdown/keydown
+    let timer = 0;
+    const arm = () => {
+      window.clearTimeout(timer);
+      timer = window.setTimeout(() => setDim((dimmed = true)), LANTERN_MS);
+    };
+    const wake = (e: Event) => {
+      if (dimmed) {
+        e.stopPropagation();
+        e.preventDefault();
+        swallow = true;
+        setDim((dimmed = false));
+      }
+      arm();
+    };
+    const eat = (e: Event) => {
+      if (!swallow) return;
+      swallow = false;
+      e.stopPropagation();
+      e.preventDefault();
+    };
+    const opts = { capture: true } as const;
+    document.addEventListener("pointerdown", wake, opts);
+    document.addEventListener("keydown", wake, opts);
+    document.addEventListener("click", eat, opts);
+    document.addEventListener("keyup", eat, opts);
+    arm();
+    return () => {
+      window.clearTimeout(timer);
+      document.removeEventListener("pointerdown", wake, opts);
+      document.removeEventListener("keydown", wake, opts);
+      document.removeEventListener("click", eat, opts);
+      document.removeEventListener("keyup", eat, opts);
+    };
+  }, [held]);
+
   return (
     <>
-    <main className={styles.page}>
+    <main className={`${styles.page} ${dim ? styles.dim : ""}`}>
       {from && onBack ? (
         <TopBar siteName={from.name} onBack={onBack} demo={demo} />
       ) : (

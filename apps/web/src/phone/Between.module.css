@@ -7,7 +7,9 @@
   margin: 0 auto;
   padding: env(safe-area-inset-top) var(--space-m) calc(var(--space-l) + env(safe-area-inset-bottom));
   animation: open var(--dur-base) var(--ease-out);
+  transition: opacity var(--dur-fast);
 }
+.dim { opacity: 0.6; }
 @keyframes open { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) {
   .page { animation-name: openfade; }
