@@ -10,6 +10,7 @@ import { appleMapsUrl, googleMapsUrl, isIPhone } from "../nav/maps";
 import { suggestNext } from "../nav/score";
 import { visitedSites } from "../nav/visited";
 import { readDemo } from "../sensors/demo";
+import { blendHeading } from "../sensors/heading";
 import type { PrimerResult } from "../sensors/primer";
 import { useCompass } from "../sensors/useCompass";
 import { useGeofence } from "../sensors/useGeofence";
@@ -136,7 +137,7 @@ export function Between({ from, primer, demo, remote, notice, onBack, onTarget, 
             site={shown}
             distanceM={here ? haversineM(here, shown) : null}
             bearing={here ? bearingDeg(here, shown) : null}
-            heading={heading}
+            heading={blendHeading(heading, position)}
             weak={position !== null && position.accuracy > MAX_ACCURACY_M}
             locationOff={status === "denied" || status === "unavailable"}
             glow={city.glow?.[shown.id] ?? null}
