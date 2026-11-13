@@ -29,6 +29,7 @@ Nothing. No cut from the cut order was used.
 Not runnable here; the dev-server checks ran in desktop Chromium at 390×844.
 - iPhone, deployed (passed, reported by Ionut): `/s/unirii` → one tap → the iOS location and motion prompts appear, both granted, the Site view shows; `/s/unirii?demo=1` → "Demo position", no prompt; `/s/cathedral` → memorial landing and stub. Also: deny motion → "Use the compass" shows on the Site view and asks again.
 - Android, a teammate (passed, reported by Ionut): the same steps.
+- Checkpoint 1 line 5 (passed on both phones, reported by Ionut): ten minutes outdoors in daylight, the dark theme's text is readable on the Join and Site screens.
 - With Fabi, once `POST /events` lands: a `wake` from the phone is a row in `interaction_events`.
 - With Patrick, once the engine lands: a sound bed plays after the tap (Checkpoint 1 line 1).
 - Not seen in a browser: the "Tap to listen" and "Location is off" Notices, the 8 s "Still connecting" Notice, glow over the socket, "(last known)".
