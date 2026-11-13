@@ -210,6 +210,7 @@ The owner's answers only.
 | 29 | B3-5.b.1: a cancelled sign-in returns the visitor to the page they left, with no message | Cristea took the recommendation; `DESIGN.md` 7.10 |
 | 29 | B3-7.a.1: at Piața Unirii the subtitle covers most of the Victoriei and Bastion windows for 8 s; accepted for Build 3 | Cristea took the recommendation; revisit in Build 4 |
 | 29 | B3-3.a.1: Universal Login primary `#FFB547` renders a dark label (checked by Cristea); the wordmark logo is added later | "We will add the logo later" |
+| 30 | Vercel git deploys are off for every branch (`git.deploymentEnabled` `main` and `*` false in `apps/web/vercel.json`); the web app deploys only by hand from the Vercel dashboard (Redeploy) or `vercel --prod`. A merge to `main` no longer reaches the site by itself. Render still deploys the API from `main` | Cristea's decision |
 
 ## Blocked
 | Since hour | ID | Question | Recommendation | Waiting on |
