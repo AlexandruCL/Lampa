@@ -3,6 +3,7 @@ import express, { type Express } from "express";
 import { createAgentRouter } from "./agent/session.js";
 import { sessionRouter } from "./auth/session.js";
 import { createEventsRouter } from "./events/router.js";
+import { createSitesRouter } from "./sites/router.js";
 import type { AppDeps } from "./seam.js";
 
 export function createApp(deps: AppDeps = {}): Express {
@@ -16,6 +17,7 @@ export function createApp(deps: AppDeps = {}): Express {
   app.use(express.json());
   app.use(createAgentRouter());
   app.use(createEventsRouter({ db: deps.db, onStored: deps.onEventsStored }));
+  app.use(createSitesRouter({ db: deps.db, latestGlow: deps.latestGlow ?? (() => null) }));
   app.get("/health", (_req, res) => {
     res.json({ ok: true });
   });

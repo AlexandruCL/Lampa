@@ -8,7 +8,8 @@
     "start": "tsx --env-file-if-exists=../../.env src/index.ts",
     "typecheck": "tsc --noEmit",
     "test": "vitest run --passWithNoTests",
-    "db:reset": "tsx --env-file-if-exists=../../.env src/db/reset.ts"
+    "db:reset": "tsx --env-file-if-exists=../../.env src/db/reset.ts",
+    "glow:check": "tsx --env-file-if-exists=../../.env src/glow/check.ts"
   },
   "dependencies": {
     "@lampa/shared": "*",
