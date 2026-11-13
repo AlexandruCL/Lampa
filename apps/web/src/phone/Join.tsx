@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router";
 import { unlockAudio } from "../audio/context";
 import { Button, Icon, Notice } from "../components";
+import { markVisited } from "../nav/visited";
 import { isDemo } from "../sensors/demo";
 import { primeDevice, type PrimerResult } from "../sensors/primer";
 import { findSite } from "../sites/sites";
@@ -42,6 +43,10 @@ export default function Join({ siteId }: { siteId?: string }) {
   const site = siteId === undefined ? undefined : findSite(siteId);
   const city = siteId === undefined;
   const name = city ? "Timișoara" : site?.name;
+
+  useEffect(() => {
+    if (result && site?.is_memorial) markVisited(site.id);
+  }, [result, site]);
 
   const top = <div className={styles.top}>{demo && <DemoBadge />}</div>;
 
@@ -89,7 +94,16 @@ export default function Join({ siteId }: { siteId?: string }) {
     return memorial ? (
       <MemorialStub siteId={site!.id} name={name!} demo={demo} notice={notice || undefined} />
     ) : (
-      <SiteView site={site!} demo={demo} remote={remote} notice={notice || undefined} compass={result.compass} />
+      <SiteView
+        key={site!.id}
+        site={site!}
+        demo={demo}
+        remote={remote}
+        notice={notice || undefined}
+        compass={result.compass}
+        primer={result}
+        arrived={primedThisLoad && (state as { arrived?: boolean } | null)?.arrived === true}
+      />
     );
   }
 

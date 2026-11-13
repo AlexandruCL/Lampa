@@ -1,0 +1,8 @@
+.card { display: flex; flex-direction: column; align-items: center; gap: var(--space-m); text-align: center; }
+.arrow { width: 120px; height: 120px; fill: var(--lamp); transform-origin: 50% 50%; }
+.weak { opacity: 0.4; }
+.distance { margin: 0; color: var(--text); font: var(--type-numeral); letter-spacing: var(--type-numeral-tracking); font-variant-numeric: tabular-nums; }
+.name { margin: 0; font: var(--type-title); letter-spacing: var(--type-title-tracking); }
+.memorial { color: var(--text-2); font: var(--type-label); }
+.extra { margin: 0; color: var(--text-2); font: var(--type-body); }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
