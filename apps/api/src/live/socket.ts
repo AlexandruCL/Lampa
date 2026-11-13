@@ -37,6 +37,7 @@ export function attachLive(server: HttpServer, { origin, latestGlow }: { origin:
       const parsed = WindowCompleteMessage.parse(message);
       live.to(paneRooms(parsed.siteId)).emit(SocketMessage.enum.window_complete, parsed);
     },
+    emit: (room, message, payload) => void live.to(room).emit(message, payload),
     close: () => io.close(),
   };
 }

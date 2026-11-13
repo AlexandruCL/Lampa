@@ -19,7 +19,7 @@ const onPane: OnPane = (pane, completed) => {
   if (completed) live.emitWindowComplete({ siteId: pane.siteId, windowId: pane.windowId });
   loop?.nudge();
 };
-const server = createServer(createApp({ db, tx, onEventsStored: () => loop?.nudge(), onPane, latestGlow }));
+const server = createServer(createApp({ db, tx, onEventsStored: () => loop?.nudge(), onPane, latestGlow, emit: (...a) => live.emit(...a) }));
 const live = attachLive(server, { origin: process.env.WEB_ORIGIN, latestGlow });
 if (db) loop = startGlowLoop({ db, emit: live.emitGlow });
 server.listen(port, () => console.log(`api listening on ${port}`));
