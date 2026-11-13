@@ -6,7 +6,8 @@ Hour 0: 2026-11-13 13:21 (+0200).
 | ID | What | Verify summary | Commit | Hour |
 |---|---|---|---|---|
 | S-0 | Preflight: Node v26.13.1 and `gh` (account Skips26) already installed; `main` clean at `9649104`, no open PRs; docs commit pushed to `main`; branch `fabi/setup-db`; `npm ci`; no `patrick/GLOSSARY.md`, nothing moved in the other glossaries since section 1 | baseline `npm run typecheck` exit 0, `npm run build` exit 0, `npm test` → API `Tests 11 passed (11)`, web `Tests 76 passed (76)`; no failure already there | 7f8c736 | 4 |
-| S-1.a | `pg` 8.23.1, `yaml` 2.9.1, `zod` 4.6.7, `@types/pg` 8.23.1 (dev) in `apps/api`, exact; `db:reset` scripts in `apps/api` and root; `resolveJsonModule` | `npm run typecheck && npm run build && npm test` → exit 0, API `Tests 11 passed (11)`, web `Tests 76 passed (76)` | filled in the next commit | 4 |
+| S-1.a | `pg` 8.23.1, `yaml` 2.9.1, `zod` 4.6.7, `@types/pg` 8.23.1 (dev) in `apps/api`, exact; `db:reset` scripts in `apps/api` and root; `resolveJsonModule` | `npm run typecheck && npm run build && npm test` → exit 0, API `Tests 11 passed (11)`, web `Tests 76 passed (76)` | 3a9d645 | 4 |
+| S-1.c.1 | `db/migrations/001_init.sql` (3 extensions, 6 tables, GIST index, `interaction_events` hypertable by day, `(site_id, ts DESC)` index) and `db/reset.sql`, by `fabi-sql` | `grep -c` verify → `6`, `3`, `1`, `1`; statements with comments stripped are identical to the prompt's block (`diff -w` empty); no aggregate, policy or seed row. Not yet run against Tiger (S-1.e) | filled in the next commit | 4 |
 
 ## Changes
 Anything that differs from the plan, `DESIGN.md` or the contract, and any file outside this lane that was touched.
