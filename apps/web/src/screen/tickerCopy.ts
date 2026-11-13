@@ -9,10 +9,11 @@ export function tickerText(event: ScreenEvent, siteName: string, name: string): 
   return event.kind === "pane" ? `New colour at ${siteName}: ${name}` : `The ${siteName} window is complete.`;
 }
 
-/** Newest first, at most six lines. DESIGN.md 6.18: a newer candle replaces the one memorial line in place. */
+/** Newest first, at most six lines, the one memorial line pinned last: a newer candle replaces it (DESIGN.md 6.18). */
 export function addTickerEvent(list: ScreenEvent[], event: ScreenEvent): ScreenEvent[] {
-  if (event.kind === "candle" && list.some((e) => e.kind === "candle")) return list.map((e) => (e.kind === "candle" ? event : e));
-  return [event, ...list].slice(0, MAX_EVENTS);
+  const memorial = event.kind === "candle" ? event : list.find((e) => e.kind === "candle");
+  const others = (event.kind === "candle" ? list : [event, ...list]).filter((e) => e.kind !== "candle");
+  return memorial ? [...others.slice(0, MAX_EVENTS - 1), memorial] : others.slice(0, MAX_EVENTS);
 }
 
 export function timeAgo(at: number, now: number): string {

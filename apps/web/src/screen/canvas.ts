@@ -25,6 +25,7 @@ export const FLARE_EMPTY_MS = 800;
 const FLARE_REACH = 2.6;
 const REDUCED_MS = 600;
 const CANDLE_HALO_ALPHA = 0.25;
+const CANDLE_FADE_IN_MS = 3000;
 
 type Ease = { from: number; to: number; start: number };
 type Refs = {
@@ -121,7 +122,7 @@ export function startCanvas(
     }
   };
   const eases = new Map<string, Ease>(placed.map((p) => [p.id, { from: 0, to: 0, start: 0 }]));
-  const candleEases = new Map<string, Ease>();
+  const candleEases = new Map<string, Ease & { ms: number }>();
   let candleGlow: Record<string, number> | null = null;
 
   const fit = () => {
@@ -167,8 +168,9 @@ export function startCanvas(
     ctx.stroke();
   };
 
-  // DESIGN.md 5.5: a new point fades in from 0, and every alpha is recomputed and eased on each glow update.
+  // DESIGN.md 5.5: a new point fades in from 0 over 3000ms; each glow update recomputes every alpha and eases it over 1200ms.
   // Reduced motion keeps these fades (5.6).
+  const candleShown = (e: Ease & { ms: number }, now: number) => e.from + (e.to - e.from) * easeOut(progress(now - e.start, e.ms));
   const drawCandles = (x: number, y: number, r: number, s: number, now: number) => {
     const candles = candlesRef.current;
     const recompute = glowRef.current !== candleGlow;
@@ -178,10 +180,11 @@ export function startCanvas(
     const point = CANDLE_RADIUS_U * s;
     const reach = CANDLE_HALO * point;
     for (const c of candles) {
+      const target = candleAlpha(candleDecay(c.litAt, Date.now()));
       let e = candleEases.get(c.id);
-      if (!e) candleEases.set(c.id, (e = { from: 0, to: candleAlpha(candleDecay(c.litAt, Date.now())), start: now }));
-      const shown = e.from + (e.to - e.from) * easeOut(progress(now - e.start, EASE_MS));
-      if (recompute) Object.assign(e, { from: shown, to: candleAlpha(candleDecay(c.litAt, Date.now())), start: now });
+      if (!e) candleEases.set(c.id, (e = { from: 0, to: target, start: now, ms: CANDLE_FADE_IN_MS }));
+      else if (recompute) Object.assign(e, { from: candleShown(e, now), to: target, start: now, ms: EASE_MS });
+      const shown = candleShown(e, now);
       const { dx, dy } = candlePosition(c.id);
       const [cx, cy] = [x + dx * r, y + dy * r];
       ctx.globalAlpha = shown;

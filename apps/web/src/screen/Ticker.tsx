@@ -17,30 +17,36 @@ export function Ticker({ events, siteNames }: { events: ScreenEvent[]; siteNames
 
   if (events.length === 0) return <p className={styles.empty}>Waiting for the first visitor tonight.</p>;
 
+  const memorial = events.find((e) => e.kind === "candle");
+
+  // The memorial line sits outside the wrapping list, so lines that do not fit can never push it out.
   return (
-    <ul className={styles.ticker} aria-live="off">
-      {events.map((e) =>
-        e.kind === "candle" ? (
-          // A replaced memorial line gets a new key, so it fades in again.
-          <li key={`${e.at}-candle`} className={`${styles.line} ${styles.memorial}`}>
-            <span className={styles.candle} />
-            <span className={styles.body}>
-              <span className={styles.text}>{tickerText(e, "", "")}</span>
-            </span>
-          </li>
-        ) : (
-          // Stable keys keep older lines from replaying the fade when they move down.
-          <li key={`${e.at}-${e.kind}-${e.siteId}-${e.kind === "pane" ? e.hex : ""}`} className={styles.line}>
-            {e.kind === "pane" && <span className={styles.swatch} style={{ background: e.hex }} />}
-            <span className={styles.body}>
-              <span className={styles.text}>
-                {tickerText(e, siteNames[e.siteId] ?? e.siteId, e.kind === "pane" ? colourName(e.hex).en : "")}
+    <div className={styles.feed} aria-live="off">
+      <ul className={styles.ticker}>
+        {events.map((e) =>
+          e.kind === "candle" ? null : (
+            // Stable keys keep older lines from replaying the fade when they move down.
+            <li key={`${e.at}-${e.kind}-${e.siteId}-${e.kind === "pane" ? e.hex : ""}`} className={styles.line}>
+              {e.kind === "pane" && <span className={styles.swatch} style={{ background: e.hex }} />}
+              <span className={styles.body}>
+                <span className={styles.text}>
+                  {tickerText(e, siteNames[e.siteId] ?? e.siteId, e.kind === "pane" ? colourName(e.hex).en : "")}
+                </span>
+                <span className={styles.ago}>{timeAgo(e.at, Math.max(now, e.at))}</span>
               </span>
-              <span className={styles.ago}>{timeAgo(e.at, Math.max(now, e.at))}</span>
-            </span>
-          </li>
-        ),
+            </li>
+          ),
+        )}
+      </ul>
+      {memorial && (
+        // A replaced memorial line gets a new key, so it fades in again.
+        <p key={memorial.at} className={`${styles.line} ${styles.memorial}`}>
+          <span className={styles.candle} />
+          <span className={styles.body}>
+            <span className={styles.text}>{tickerText(memorial, "", "")}</span>
+          </span>
+        </p>
       )}
-    </ul>
+    </div>
   );
 }

@@ -16,6 +16,14 @@ it("a second candle replaces the memorial line in place", () => {
   ]);
 });
 
+it("the memorial line stays when six newer lines arrive", () => {
+  let list = addTickerEvent([], { kind: "candle", at: 0 });
+  for (let at = 1; at <= 6; at++) list = addTickerEvent(list, { kind: "complete", siteId: "mx", at });
+  expect(list).toHaveLength(6);
+  expect(list.map((e) => e.at)).toEqual([6, 5, 4, 3, 2, 0]);
+  expect(list.at(-1)).toEqual({ kind: "candle", at: 0 });
+});
+
 it("a pane line names the site and the colour", () => {
   expect(tickerText({ kind: "pane", siteId: "unirii", hex: "#FF8800", at: 0 }, "Piața Unirii", colourName("#FF8800").en)).toBe(
     "New colour at Piața Unirii: Orange",
