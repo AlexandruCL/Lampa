@@ -159,6 +159,7 @@ The owner's answers only.
 | 7 | Build 3: "Say why" shows only once the pane's status is `sent`, not right after the catch as `DESIGN.md` 7.5 reads | Leaving the lens stops a pane that is still waiting to send |
 | 7 | Build 3: the CompassCard's "arriving" state of `DESIGN.md` 6.12 is not drawn; arrival opens the Site view at once with "{Site} is waking." for 4 s (7.2) | The view changes in the same moment |
 | 7 | Build 3: the prompt, the hour 7 rows and the plan update become the first docs commit of `ionut/b3-echo` at the start of the block; Ionut pastes the echo seam to Cristea by hand until then | Ionut's answer |
+| 25 | Echo seam vs Cristea's Build 3 prompt (`17ca6b8`, which appends an identical `EchoAccepted`): push `ionut/b3-echo` and open its PR now; whichever side merges second keeps one `EchoAccepted`; `EchoFields` stays as the phone's form; `durationMs` and `prompt` are extra fields Cristea's `POST /echoes` may ignore | Gets the seam to Cristea before hour 28; the two schemas are the same |
 
 ## Blocked
 | Since hour | ID | Question | Recommendation | Waiting on |
