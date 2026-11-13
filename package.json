@@ -8,7 +8,8 @@
     "build": "npm run build --workspaces --if-present",
     "typecheck": "npm run typecheck --workspaces --if-present",
     "test": "npm run test --workspaces --if-present",
-    "db:reset": "npm run db:reset -w @lampa/api"
+    "db:reset": "npm run db:reset -w @lampa/api",
+    "glow:check": "npm run glow:check -w @lampa/api"
   },
   "devDependencies": { "concurrently": "10.0.7" }
 }
