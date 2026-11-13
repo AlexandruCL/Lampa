@@ -1,6 +1,6 @@
 # Prompt: Cristea's Setup (Cristea, LAMPA)
 
-**Status: prompt completed and checked against `IMPLEMENTATION_PLAN.md` before hour 0 (2026-11-13 13:14 +0200). Implementation not started.**
+**Status: prompt completed and checked against `IMPLEMENTATION_PLAN.md` before hour 0 (2026-11-13 13:14 +0200). Implemented from hour 0 (13:21). Open: the S-1.c.1 push-triggered deploy check (waits on PR #1's merge) and Cristea's checks in S-last.**
 
 You are implementing Cristea's part of Setup (hours 0 to 2) in this repository. Follow the checklist in section 3 in order, except where it says agent tasks run in parallel. Tick a box only after its verify command has run and passed.
 
@@ -106,13 +106,13 @@ Rules for this session:
 
 ### S-0 Preflight (first, this session)
 
-- [ ] `git status`, `git branch --show-current`, `git pull`. List local changes; do not touch them.
-- [ ] Baseline before any change: no script exists yet, so record `git log -1 --oneline` and the file list from `git ls-files`.
-- [ ] Ask Cristea for hour 0 (date and time) and write it into the first line of `cristea/GLOSSARY.md`.
-- [ ] Look up in the Vercel and Render docs which Node majors each host supports, and record both lists.
-- [ ] Put the Blocked row S-0 of the glossary to Cristea, with the two Node lists. Five values wait on the answer: the workspace package names, the Node major, the API port for local work, the health path, and how `npm run dev` starts web and API together on Windows. Write the answers into this prompt's S-1.a.1 block and into the glossary's Decisions, then remove the Blocked row. S-1.a.1 does not start before this.
-- [ ] Install the Vercel CLI and the Render CLI as their docs describe for Windows. Ask Cristea to log in to each one with `! vercel login` and `! render login`.
-- [ ] `cristea/GLOSSARY.md` exists. Do not recreate it.
+- [x] `git status`, `git branch --show-current`, `git pull`. List local changes; do not touch them.
+- [x] Baseline before any change: no script exists yet, so record `git log -1 --oneline` and the file list from `git ls-files`.
+- [x] Ask Cristea for hour 0 (date and time) and write it into the first line of `cristea/GLOSSARY.md`.
+- [x] Look up in the Vercel and Render docs which Node majors each host supports, and record both lists.
+- [x] Put the Blocked row S-0 of the glossary to Cristea, with the two Node lists. Five values wait on the answer: the workspace package names, the Node major, the API port for local work, the health path, and how `npm run dev` starts web and API together on Windows. Write the answers into this prompt's S-1.a.1 block and into the glossary's Decisions, then remove the Blocked row. S-1.a.1 does not start before this.
+- [x] Install the Vercel CLI and the Render CLI as their docs describe for Windows. Ask Cristea to log in to each one with `! vercel login` and `! render login`.
+- [x] `cristea/GLOSSARY.md` exists. Do not recreate it.
 - Done when: hour 0 and the five values are recorded, `vercel whoami` and `render whoami` both print Cristea's account, and the baseline is written down.
 
 ### S-1 Workspaces, Vercel and Render deploys, `.env.example` (2 h)
@@ -123,15 +123,15 @@ Rules for this session:
 
 Values from S-0 (Cristea's decision, recorded at preflight): package names: `@lampa/web`, `@lampa/api`, `@lampa/shared`. Node major: 26, written as `"engines": { "node": "26.x" }`. API port for local work: 3000. Health path: `GET /health`. `dev` script: `concurrently "npm run dev -w @lampa/api" "npm run dev -w @lampa/web"`, with `concurrently` 10.0.7 as a root dev dependency. If any of these five is still blank, stop and report it as Blocked.
 
-- [ ] Root `package.json`: `"private": true`, `"workspaces": ["apps/*", "packages/*"]`, `engines.node` set to the Node major above, and four scripts: `dev` (as recorded above), `build`, `typecheck` and `test`. The last three run the script of the same name in every workspace that has one, with npm's `--workspaces --if-present` flags.
-- [ ] `tsconfig.base.json` with `"strict": true`. Each workspace's `tsconfig.json` extends it.
-- [ ] `.gitignore`: keep the three existing lines and add `node_modules`, `dist`, `.env`, `.env.*`, `!.env.example`, `.vercel`.
-- [ ] `apps/web`: Vite, React and TypeScript, installed at their current npm releases. `App.tsx` renders the text `LAMPA` and nothing else. Scripts `dev`, `build`, `typecheck`. `apps/web/vercel.json` rewrites every path to `/index.html`, so `/screen`, `/pulse`, `/curate` and `/s/:siteId` open on a reload. Routes, the API client and Vitest are Ionut's Setup row: do not add them.
-- [ ] `apps/api`: Express and TypeScript with `tsx` and `cors` as runtime dependencies. `src/index.ts` allows the origin in `WEB_ORIGIN` through `cors`, answers the health path with status 200 and the JSON body `{"ok":true}`, and listens on `PORT`, falling back to the local port above. Scripts: `dev` is `tsx watch src/index.ts`, `start` is `tsx src/index.ts`, `typecheck` is `tsc --noEmit`.
-- [ ] `packages/shared`: `zod` as a dependency. `package.json` points `exports` at `./src/index.ts`, so web and API import the TypeScript source with no build step. `src/index.ts` holds `export {};` until S-2.a.1. Both apps list this package as a workspace dependency.
-- [ ] Commit `package-lock.json`.
-- [ ] Start the API locally and call the health path. Paste the status line and the body.
-- [ ] Commit to `main` as `chore(setup) added the npm workspaces for web, api and shared` and push. Tell Cristea the scaffold is on `main`, so the team can pull.
+- [x] Root `package.json`: `"private": true`, `"workspaces": ["apps/*", "packages/*"]`, `engines.node` set to the Node major above, and four scripts: `dev` (as recorded above), `build`, `typecheck` and `test`. The last three run the script of the same name in every workspace that has one, with npm's `--workspaces --if-present` flags.
+- [x] `tsconfig.base.json` with `"strict": true`. Each workspace's `tsconfig.json` extends it.
+- [x] `.gitignore`: keep the three existing lines and add `node_modules`, `dist`, `.env`, `.env.*`, `!.env.example`, `.vercel`.
+- [x] `apps/web`: Vite, React and TypeScript, installed at their current npm releases. `App.tsx` renders the text `LAMPA` and nothing else. Scripts `dev`, `build`, `typecheck`. `apps/web/vercel.json` rewrites every path to `/index.html`, so `/screen`, `/pulse`, `/curate` and `/s/:siteId` open on a reload. Routes, the API client and Vitest are Ionut's Setup row: do not add them.
+- [x] `apps/api`: Express and TypeScript with `tsx` and `cors` as runtime dependencies. `src/index.ts` allows the origin in `WEB_ORIGIN` through `cors`, answers the health path with status 200 and the JSON body `{"ok":true}`, and listens on `PORT`, falling back to the local port above. Scripts: `dev` is `tsx watch src/index.ts`, `start` is `tsx src/index.ts`, `typecheck` is `tsc --noEmit`.
+- [x] `packages/shared`: `zod` as a dependency. `package.json` points `exports` at `./src/index.ts`, so web and API import the TypeScript source with no build step. `src/index.ts` holds `export {};` until S-2.a.1. Both apps list this package as a workspace dependency.
+- [x] Commit `package-lock.json`.
+- [x] Start the API locally and call the health path. Paste the status line and the body.
+- [x] Commit to `main` as `chore(setup) added the npm workspaces for web, api and shared` and push. Tell Cristea the scaffold is on `main`, so the team can pull.
 - Verify: `npm ci && npm run typecheck && npm run build && npm test`. Paste the summary line.
 - Done when: the verify command exits 0 from a fresh clone, the health call returns 200 with `{"ok":true}`, and the commit is on `origin/main`.
 
@@ -139,9 +139,9 @@ Values from S-0 (Cristea's decision, recorded at preflight): package names: `@la
 
 **S-1.b.1** `.env.example`. Subagent: `cristea-infra`. Files: `.env.example`.
 
-- [ ] Create `.env.example` at the repo root with these twelve names, each with an empty value, in two groups. API: `PORT`, `DATABASE_URL`, `WEB_ORIGIN`, `SESSION_SECRET`, `AUTH0_DOMAIN`, `AUTH0_AUDIENCE`, `ELEVENLABS_API_KEY`, `ELEVENLABS_WEBHOOK_SECRET`, `AGENT_TOOL_SECRET`. Web: `VITE_API_URL`, `VITE_AUTH0_DOMAIN`, `VITE_AUTH0_CLIENT_ID`. (Cristea's decision, pre-0.)
-- [ ] One comment line above the web group: only names that start with `VITE_` reach the browser bundle, so no secret takes that prefix.
-- [ ] Commit on `cristea/setup-contract-env`.
+- [x] Create `.env.example` at the repo root with these twelve names, each with an empty value, in two groups. API: `PORT`, `DATABASE_URL`, `WEB_ORIGIN`, `SESSION_SECRET`, `AUTH0_DOMAIN`, `AUTH0_AUDIENCE`, `ELEVENLABS_API_KEY`, `ELEVENLABS_WEBHOOK_SECRET`, `AGENT_TOOL_SECRET`. Web: `VITE_API_URL`, `VITE_AUTH0_DOMAIN`, `VITE_AUTH0_CLIENT_ID`. (Cristea's decision, pre-0.)
+- [x] One comment line above the web group: only names that start with `VITE_` reach the browser bundle, so no secret takes that prefix.
+- [x] Commit on `cristea/setup-contract-env`.
 - Verify: `git check-ignore -q .env && git check-ignore -q .env.local && ! git check-ignore -q .env.example && grep -c "=" .env.example`. Paste the output, which is `12`.
 - Done when: the verify command exits 0 and prints `12`, and `git log --all --name-only` shows no `.env` file in any commit.
 
@@ -149,12 +149,12 @@ Values from S-0 (Cristea's decision, recorded at preflight): package names: `@la
 
 **S-1.c.1** Vercel and Render projects deploying from `main`. Subagent: `cristea-infra`. Files: none in the repo.
 
-- [ ] Vercel: create the project `lampa-timisoara` with root directory `apps/web`, connect it to this GitHub repository with production branch `main`, and set `VITE_API_URL` to the Render service's HTTPS URL for the production environment. (Names are Cristea's decision, pre-0.)
-- [ ] Render: create the web service `lampa-api` on the free plan in the Frankfurt region, from this repository's `main` branch with auto-deploy on. Build command `npm ci`. Start command: `npm run start` in the API workspace. Health check path: the health path from S-0. Env: `WEB_ORIGIN` set to the Vercel production URL, and the Node major from S-0.
-- [ ] If the Render CLI has no command that creates a service, stop this box and report it as Blocked with the CLI's help output. Recommendation to put to Cristea: a `render.yaml` blueprint in the repo, which Cristea applies once in the Render dashboard.
-- [ ] If either name is taken, stop that box and report it as Blocked. Cristea gives the new name.
+- [x] Vercel: create the project `lampa-timisoara` with root directory `apps/web`, connect it to this GitHub repository with production branch `main`, and set `VITE_API_URL` to the Render service's HTTPS URL for the production environment. (Names are Cristea's decision, pre-0.)
+- [x] Render: create the web service `lampa-api` on the free plan in the Frankfurt region, from this repository's `main` branch with auto-deploy on. Build command `npm ci`. Start command: `npm run start` in the API workspace. Health check path: the health path from S-0. Env: `WEB_ORIGIN` set to the Vercel production URL, and the Node major from S-0.
+- [x] If the Render CLI has no command that creates a service, stop this box and report it as Blocked with the CLI's help output. Recommendation to put to Cristea: a `render.yaml` blueprint in the repo, which Cristea applies once in the Render dashboard. (Not needed: `render services create` exists.)
+- [x] If either name is taken, stop that box and report it as Blocked. Cristea gives the new name. (Not needed: both names were free.)
 - [ ] Confirm auto-deploy: after the next push to `main`, both hosts list a deployment for that commit's SHA.
-- [ ] Record the two URLs in the glossary's Hand-offs.
+- [x] Record the two URLs in the glossary's Hand-offs.
 - Verify: `curl -sS -o /dev/null -w "%{http_code} " https://<web URL>/screen && curl -sS https://<api URL><health path>`. Paste the output, which is `200 {"ok":true}`.
 - Done when: the verify command prints `200 {"ok":true}`, both hosts show a deployment for the current `main` SHA, and the response to an `OPTIONS` call from the web origin carries that origin in `Access-Control-Allow-Origin`.
 
@@ -164,20 +164,20 @@ Values from S-0 (Cristea's decision, recorded at preflight): package names: `@la
 
 **S-2.a.1** Event kinds and socket message names as Zod enums. Subagent: `cristea-infra`. Files: `packages/shared/src/contract.ts`, `packages/shared/src/index.ts`.
 
-- [ ] `contract.ts` exports `EventKind`, a `z.enum` of exactly these eight strings in this order: `wake`, `talk_turn`, `colour`, `lamp`, `candle`, `echo_approved`, `echo_heard`, `arrived`.
-- [ ] `contract.ts` exports `SocketMessage`, a `z.enum` of exactly these seven strings in this order: `glow`, `pane`, `window_complete`, `echo_approved`, `lamps`, `candle`, `finale`.
-- [ ] `contract.ts` exports the inferred TypeScript type of each enum under the same name.
-- [ ] `index.ts` re-exports everything from `contract.ts`.
-- [ ] Write no payload schema. Field names and shapes are the team's decision in the 30-minute session (Cristea's decision, pre-0).
-- [ ] Commit on `cristea/setup-contract-env`.
+- [x] `contract.ts` exports `EventKind`, a `z.enum` of exactly these eight strings in this order: `wake`, `talk_turn`, `colour`, `lamp`, `candle`, `echo_approved`, `echo_heard`, `arrived`.
+- [x] `contract.ts` exports `SocketMessage`, a `z.enum` of exactly these seven strings in this order: `glow`, `pane`, `window_complete`, `echo_approved`, `lamps`, `candle`, `finale`.
+- [x] `contract.ts` exports the inferred TypeScript type of each enum under the same name.
+- [x] `index.ts` re-exports everything from `contract.ts`.
+- [x] Write no payload schema. Field names and shapes are the team's decision in the 30-minute session (Cristea's decision, pre-0).
+- [x] Commit on `cristea/setup-contract-env`.
 - Verify: `npm run typecheck && npx tsx -e "import('./packages/shared/src/index.ts').then(m => console.log(m.EventKind.options.length, m.SocketMessage.options.length))"`. Paste the output, which ends in `8 7`.
 - Done when: the verify command prints `8 7`, and both `apps/web` and `apps/api` typecheck with an import of `EventKind` from the shared package.
 
 ### S-last Integrate and hand over (last, this session)
 
-- [ ] `cristea/setup-contract-env` rebased on the current `main`, and `npm ci && npm run typecheck && npm run build && npm test` green on it.
-- [ ] Push the branch and open its PR. The PR lists what was verified and what is waiting for a phone.
-- [ ] Glossary complete: every ID of this prompt is under Done or Blocked, and Hand-offs lists the web URL, the API URL, the health path, the four root scripts, the twelve env names, and `EventKind` and `SocketMessage` in `packages/shared`.
+- [x] `cristea/setup-contract-env` rebased on the current `main`, and `npm ci && npm run typecheck && npm run build && npm test` green on it.
+- [x] Push the branch and open its PR. The PR lists what was verified and what is waiting for a phone.
+- [x] Glossary complete: every ID of this prompt is under Done or Blocked, and Hand-offs lists the web URL, the API URL, the health path, the four root scripts, the twelve env names, and `EventKind` and `SocketMessage` in `packages/shared`.
 - [ ] Cristea's check with the team. Do not mark it done: the 30-minute contract session. The four members agree the payload of each of the eight event kinds and seven socket messages and write them into `packages/shared` as Zod schemas. Cristea records in the glossary who writes the file and the commit.
 - [ ] Cristea's check on the iPhone. Do not mark it done: the web URL opens over HTTPS and shows `LAMPA`; `/screen` opens after a reload.
 - [ ] Cristea's check through a teammate. Do not mark it done: the same two steps on the team's Android phone. Cristea has no Android.
