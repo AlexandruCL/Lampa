@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { authFetch } from "../session";
 
 export const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 export const SESSION_KEY = "lampa.session";
@@ -22,11 +23,9 @@ export async function api<T>(
   },
 ): Promise<T> {
   const headers: Record<string, string> = {};
-  const token = typeof localStorage !== "undefined" ? localStorage.getItem(SESSION_KEY) : null;
-  if (token) headers.Authorization = `Bearer ${token}`;
   if (options.body !== undefined) headers["Content-Type"] = "application/json";
 
-  const res = await fetch(API_URL + path, {
+  const res = await authFetch(path, {
     method: options.method ?? "GET",
     headers,
     body: options.body !== undefined ? JSON.stringify(options.body) : undefined,

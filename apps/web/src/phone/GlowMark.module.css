@@ -1,0 +1,7 @@
+.mark { display: inline-flex; align-items: center; gap: var(--space-s); }
+.lamp { position: relative; display: grid; place-items: center; width: 40px; height: 40px; flex: none; }
+.halo, .core { position: absolute; border-radius: var(--radius-round); transition: opacity var(--dur-glow) var(--ease-out); }
+.halo { inset: 0; background: radial-gradient(circle, var(--lamp), transparent 70%); }
+.core { width: 20px; height: 20px; background: var(--lamp); }
+.word { color: var(--text); font: var(--type-label); }
+.loading { color: var(--text-3); font: var(--type-label); }
