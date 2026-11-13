@@ -31,12 +31,13 @@ type Props = {
   onReading?: (reading: Reading) => void;
   onCaught?: (reading: Reading) => void;
   onComplete?: () => void;
+  onSayWhy?: () => void;
   panes: WindowPanes;
   addPane: (pane: { windowId: string; slot: number; hex: string }) => void;
 };
 
 /** DESIGN.md 6.11 and 7.5: holding, caught, sending. The lens plays no sound. */
-export function ColourLens({ site, remote, demo, camera, onBack, onReading, onCaught, onComplete, panes, addPane }: Props) {
+export function ColourLens({ site, remote, demo, camera, onBack, onReading, onCaught, onComplete, onSayWhy, panes, addPane }: Props) {
   const [cam, setCam] = useState(camera);
   const [result, setResult] = useState<CameraResult | null>(null);
   const [stopped, setStopped] = useState(false);
@@ -243,6 +244,11 @@ export function ColourLens({ site, remote, demo, camera, onBack, onReading, onCa
         {!caught && (result?.status === "denied" || stopped) && (
           <Button variant="secondary" size="l" block onClick={retry}>
             Try again
+          </Button>
+        )}
+        {onSayWhy && status?.state === "sent" && (
+          <Button variant="secondary" size="l" block onClick={onSayWhy}>
+            Say why
           </Button>
         )}
         <Button variant={caught ? "primary" : "secondary"} size="l" block onClick={onBack}>{`Back to ${site.name}`}</Button>

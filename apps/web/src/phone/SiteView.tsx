@@ -47,6 +47,10 @@ export function SiteView({ site, demo, remote, notice, compass }: { site: PhoneS
         demo={demo}
         camera={camera}
         onBack={() => setView("site")}
+        onSayWhy={() => {
+          setEchoPrompt("Why this colour?");
+          setView("echo");
+        }}
         panes={remote ? local : live.panes}
         addPane={remote ? (p) => setLocal((s) => applyPane(s, p)) : live.addPane}
       />
