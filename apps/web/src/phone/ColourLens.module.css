@@ -80,3 +80,18 @@
   animation: spin 800ms linear infinite;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
+.limited { opacity: 0.4; }
+.readingCaught { font: var(--type-title); }
+/* caught: the disk fills the lens, then flies to the mini window slot (5.2); transform only */
+.caught {
+  width: 100%;
+  animation: fill 300ms var(--ease-out) both, flight var(--dur-flight) var(--ease-in-out) 300ms forwards;
+}
+@keyframes fill { from { transform: scale(0.4); } to { transform: scale(1); } }
+@keyframes flight { from { transform: scale(1); } to { transform: translate(var(--fx, 0px), var(--fy, 0px)) scale(0.12); } }
+/* 5.6: no flight, the disk fades */
+@media (prefers-reduced-motion: reduce) {
+  .caught { animation: fill 300ms var(--ease-out) both, fade var(--dur-flight) linear 300ms forwards; }
+  @keyframes fade { from { opacity: 1; } to { opacity: 0; } }
+}
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
