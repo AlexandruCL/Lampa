@@ -5,11 +5,14 @@ Hour 0: 2026-11-13 13:21 (+0200).
 ## Done
 | ID | What | Verify summary | Commit | Hour |
 |---|---|---|---|---|
+| S-0 | Preflight: Node v26.13.1; `ionut/` on `main`; branch `ionut/setup-routes-client` from `9603702`; `npm ci` | baseline `npm run typecheck` → exit 0; `npm run build` → `✓ built in 124ms`, exit 0; `npm test` → exit 0 (no workspace had a test script). No failures were already there | 9603702 | 0 |
+| S-1.a | `react-router` 8.5.1, `zod` 4.6.7, `vitest` 5.1.0 (dev) in `apps/web`, exact versions; `test` script; `vite-env.d.ts` | `npm run typecheck && npm run build && npm test` → `✓ built in 106ms`; `No test files found, exiting with code 0`; exit 0 | this commit | 0 |
 
 ## Changes
 Anything that differs from the plan, `DESIGN.md` or the contract, and any file outside this lane that was touched.
 | Hour | ID | What changed | Files | Why |
 |---|---|---|---|---|
+| 0 | S-1.a | Added `react-router` 8.5.1, which plan section 3 does not name | `apps/web/package.json`, `package-lock.json` | Approved by Ionut at hour 0 (Decisions) |
 
 ## Decisions
 The owner's answers only.
