@@ -1,4 +1,4 @@
-import type { Site } from "@lampa/shared";
+import type { MapLine, Site } from "@lampa/shared";
 
 export const DESIGN_WIDTH = 1920;
 export const MAP_WIDTH = 1380;
@@ -23,19 +23,29 @@ const minY = DESIGN_HEIGHT * PADDING;
 const maxY = DESIGN_HEIGHT * (1 - PADDING);
 const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v));
 
-export function project(sites: Site[]): Point[] {
-  const k = Math.cos((REF_LAT_DEG * Math.PI) / 180);
-  const raw = sites.map((s) => ({ id: s.id, x: s.lng * k, y: -s.lat }));
-  const xs = raw.map((p) => p.x);
-  const ys = raw.map((p) => p.y);
+const K = Math.cos((REF_LAT_DEG * Math.PI) / 180);
+
+function fitTo(sites: Site[], lines: MapLine[]): (lat: number, lng: number) => { x: number; y: number } {
+  const all = [...sites.map((s): [number, number] => [s.lat, s.lng]), ...lines.flatMap((l) => l.points)];
+  const xs = all.map(([, lng]) => lng * K);
+  const ys = all.map(([lat]) => -lat);
   const [x0, x1, y0, y1] = [Math.min(...xs), Math.max(...xs), Math.min(...ys), Math.max(...ys)];
   const scale = Math.min((maxX - minX) / (x1 - x0), (maxY - minY) / (y1 - y0));
   const s = Number.isFinite(scale) ? scale : 0;
-  return raw.map((p) => ({
-    id: p.id,
-    x: MAP_WIDTH / 2 + (p.x - (x0 + x1) / 2) * s,
-    y: DESIGN_HEIGHT / 2 + (p.y - (y0 + y1) / 2) * s,
-  }));
+  return (lat, lng) => ({
+    x: MAP_WIDTH / 2 + (lng * K - (x0 + x1) / 2) * s,
+    y: DESIGN_HEIGHT / 2 + (-lat - (y0 + y1) / 2) * s,
+  });
+}
+
+export function project(sites: Site[], lines: MapLine[] = []): Point[] {
+  const at = fitTo(sites, lines);
+  return sites.map((s) => ({ id: s.id, ...at(s.lat, s.lng) }));
+}
+
+export function projectLines(sites: Site[], lines: MapLine[]): { id: MapLine["id"]; kind: MapLine["kind"]; points: { x: number; y: number }[] }[] {
+  const at = fitTo(sites, lines);
+  return lines.map((l) => ({ id: l.id, kind: l.kind, points: l.points.map(([lat, lng]) => at(lat, lng)) }));
 }
 
 export function spread(points: Point[]): Point[] {
@@ -100,8 +110,8 @@ export function labelSides(points: Point[]): Record<string, LabelSide> {
   return sides;
 }
 
-export function layout(sites: Site[]): (Point & { label: LabelSide })[] {
-  const points = spread(project(sites));
+export function layout(sites: Site[], lines: MapLine[] = []): (Point & { label: LabelSide })[] {
+  const points = spread(project(sites, lines));
   const sides = labelSides(points);
   return points.map((p) => ({ ...p, label: sides[p.id] }));
 }

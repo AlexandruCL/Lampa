@@ -10,6 +10,9 @@
 
 .map { position: absolute; left: 0; top: 0; width: calc(1380 * var(--u)); height: 100%; overflow: hidden; }
 .canvas { display: block; width: 100%; height: 100%; }
+.credit { position: absolute; right: calc(16 * var(--u)); bottom: calc(16 * var(--u)); margin: 0; font: var(--screen-meta); color: var(--text-3); }
+/* DemoBadge position on /screen: top-left of the map, mirroring the credit (Cristea, B2-2.d.1). */
+.demo { position: absolute; left: calc(16 * var(--u)); top: calc(16 * var(--u)); z-index: var(--z-demo); }
 
 .panel {
   position: absolute;
@@ -27,6 +30,11 @@
 }
 .mark { margin: 0; font: var(--screen-title); letter-spacing: var(--wordmark-tracking); }
 .status { margin: 0; font: var(--screen-meta); color: var(--text-2); }
+.stat { display: flex; flex-direction: column; gap: calc(4 * var(--u)); }
+.statLabel { margin: 0; font: var(--screen-meta); color: var(--text-2); }
+.number { margin: 0; font: var(--screen-numeral); font-variant-numeric: tabular-nums; color: var(--text); }
+.numberLamps { color: var(--text-2); }
+.qr { margin-top: auto; }
 
 .start { position: absolute; inset: 0; z-index: var(--z-light); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: calc(24 * var(--u)); background: var(--bg); text-align: center; }
 .startLine { margin: 0; font: var(--screen-meta); color: var(--text-2); }

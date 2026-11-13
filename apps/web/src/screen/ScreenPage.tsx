@@ -1,18 +1,28 @@
+import { MAP_LINES, sites } from "@lampa/shared";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "../components";
+import { DemoBadge } from "../phone/DemoBadge";
+import { isDemo } from "../sensors/demo";
 import { startCanvas } from "./canvas";
+import { QRBlock } from "./QRBlock";
 import styles from "./ScreenPage.module.css";
-import { sites } from "./sites.fixture";
-import { useGlowSocket } from "./useGlowSocket";
+import { Ticker } from "./Ticker";
+import { useScreenSocket } from "./useScreenSocket";
 
 const RECONNECT_NOTICE_MS = 3000;
+// Module scope keeps one array identity, so renders never reconnect the socket.
+const COLOUR_SITE_IDS = sites.filter((s) => !s.is_memorial).map((s) => s.id);
+const SITE_NAMES = Object.fromEntries(sites.map((s) => [s.id, s.name]));
 
-function LivingMap() {
+function LivingMap({ demo }: { demo: boolean }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const { glowRef, connected } = useGlowSocket();
+  const { glowRef, windowsRef, effectsRef, connected, coloursToday, events } = useScreenSocket(COLOUR_SITE_IDS, demo);
   const [reconnecting, setReconnecting] = useState(false);
 
-  useEffect(() => (canvasRef.current ? startCanvas(canvasRef.current, sites, glowRef) : undefined), [glowRef]);
+  useEffect(
+    () => (canvasRef.current ? startCanvas(canvasRef.current, sites, MAP_LINES, { glowRef, windowsRef, effectsRef }) : undefined),
+    [glowRef, windowsRef, effectsRef],
+  );
 
   useEffect(() => {
     if (connected) {
@@ -27,12 +37,31 @@ function LivingMap() {
     <>
       <div className={styles.map}>
         <canvas ref={canvasRef} className={styles.canvas} aria-hidden="true" />
+        <p className={styles.credit}>© OpenStreetMap contributors</p>
+        {demo && (
+          <div className={styles.demo}>
+            <DemoBadge />
+          </div>
+        )}
       </div>
       <aside className={styles.panel}>
         <p className={styles.mark}>LAMPA</p>
+        <div className={styles.stat}>
+          <p className={styles.statLabel}>Lamps lit today</p>
+          {/* The lamps message is Fabi's Build 3 row. */}
+          <p className={`${styles.number} ${styles.numberLamps}`}>...</p>
+        </div>
+        <div className={styles.stat}>
+          <p className={styles.statLabel}>Colours caught today</p>
+          <p className={styles.number}>{coloursToday ?? "..."}</p>
+        </div>
+        <Ticker events={events} siteNames={SITE_NAMES} />
         <p className={styles.status} role="status">
           {reconnecting ? "Reconnecting to the city…" : ""}
         </p>
+        <div className={styles.qr}>
+          <QRBlock />
+        </div>
       </aside>
     </>
   );
@@ -40,11 +69,12 @@ function LivingMap() {
 
 export default function ScreenPage() {
   const [started, setStarted] = useState(false);
+  const demo = isDemo(location.search);
 
   return (
     <main className={styles.livingMap}>
       {started ? (
-        <LivingMap />
+        <LivingMap demo={demo} />
       ) : (
         <div className={styles.start}>
           <p className={styles.mark}>LAMPA</p>

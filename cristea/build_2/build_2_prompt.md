@@ -1,6 +1,6 @@
 # Prompt: Cristea's Build 2, Colours and Talk (Identity, infra, Living Map, LAMPA)
 
-**Status: prompt completed and checked against `IMPLEMENTATION_PLAN.md` at hour 12 (2026-11-13 18:40 +0200). Implementation not started.**
+**Status: implemented at hour 18 (2026-11-13). Report in `build_2_report.md`; open checks under Blocked in the glossary.**
 
 You are implementing Cristea's part of Build 2 (hours 12 to 18) in this repository. Follow the checklist in section 3 in order, except where it says agent tasks run in parallel. Tick a box only after its verify command has run and passed.
 
