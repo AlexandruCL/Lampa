@@ -45,6 +45,14 @@ Nothing: no ID was cut. Known limits, in the glossary Changes:
 - With Cristea, once `POST /echoes` is on `main` (demo step 1:20): the echo in the curator queue from both phones.
 - With Patrick (demo step 1:40), iPhone with `?demo=1` and no `heading=`: "Next site" shows the motion prompt once, the arrow turns with the phone, and the arrow card and the beacon agree on the Piața Unirii poster.
 
+### Results (2026-11-14, deployed build after PRs #31 to #38)
+
+- Echo, iPhone and Android: the microphone works and the echo sends. Passed.
+- Curator queue: Cristea sees the echoes in `/curate`. Passed.
+- Outdoors walk (Next site, arrow, distance, Open in Maps, arrival "{Site} is waking."): Ionut reports everything passed.
+- "Tap to listen again": the Notice shows after Maps, but nothing is heard. Expected for now: Between sites plays no sound until Patrick's beacon uses `onTarget`/`onArrive` (Blocked row B3-2.b, B3-last). Re-check after Maps once he wires it.
+- Still open: the demo check with Patrick (step 1:40).
+
 ## For the checkpoint
 
 - Merge PR #31 first, then the `ionut/b3-between` PR (it contains #31's commits until then).
