@@ -32,14 +32,12 @@ Nothing from the cut order was cut: the QR code, the flare, the pane ring and th
 
 ## Blocked
 
-- **Live Talk (Checkpoint 2, lines 3 and 4):**
-  - Paste the two ElevenLabs values into Render, with overrides on in the agent's Security tab.
-  - Then run one live session with Patrick, and check the 503 fallback with the key removed.
+- **Live Talk (Checkpoint 2, lines 3 and 4):** the env vars are on Render and the deployed route returns a signed URL.
+  - Left: one live session with Patrick (a client tool fires), then the tap-to-ask fallback with the key removed. Patrick turns on the four overrides before `getPersona` lands.
 - **Live panes (Checkpoint 2, lines 1 and 2):** waiting for Fabi's `/live`, `POST /panes` and `GET /screen/state`.
 - **Schemas:** the team still has to agree `PaneMessage`, `WindowCompleteMessage`, `ScreenState`, `AgentSession` and `AgentLang`.
 - **Patrick's lane:**
   - Patrick passes `getPersona` to `createAgentRouter`.
-  - Patrick confirms `xi-api-key` against the docs.
 - **Fabi's lane:** Fabi passes `getSiteStats` to `createAgentRouter`.
 
 ## Not finished at hour 18
