@@ -211,6 +211,10 @@ export function ColourLens({ site, remote, demo, camera, onBack, onReading, onCa
           </div>
         )}
       </div>
+      <div className={styles.sr} role="status">
+        {status?.state === "sent" && `Colour caught. ${status.accepted.count} of 48 in the ${where} window.`}
+      </div>
+      <div className={styles.column}>
       <div className={styles.below}>
         {showCaught ? (
           <>
@@ -235,9 +239,6 @@ export function ColourLens({ site, remote, demo, camera, onBack, onReading, onCa
           <p className={styles.line}>Starting the camera</p>
         )}
       </div>
-      <div className={styles.sr} role="status">
-        {status?.state === "sent" && `Colour caught. ${status.accepted.count} of 48 in the ${where} window.`}
-      </div>
       <div className={styles.bottom}>
         {!caught && (result?.status === "denied" || stopped) && (
           <Button variant="secondary" size="l" block onClick={retry}>
@@ -245,6 +246,7 @@ export function ColourLens({ site, remote, demo, camera, onBack, onReading, onCa
           </Button>
         )}
         <Button variant={caught ? "primary" : "secondary"} size="l" block onClick={onBack}>{`Back to ${site.name}`}</Button>
+      </div>
       </div>
     </div>
   );
