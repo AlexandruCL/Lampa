@@ -1,1 +1,52 @@
-{ "sites": {}, "project": { "waltz": [] } }
+{
+  "sites": {
+    "mx": {
+      "beds": [
+        "mx/bed-1-346a95f32b1f.wav",
+        "mx/bed-2-3d23238814b1.wav"
+      ],
+      "greeting": {},
+      "answers": {},
+      "narrations": {}
+    },
+    "unirii": {
+      "beds": [
+        "unirii/bed-1-c6609b0a9504.wav",
+        "unirii/bed-2-2d3dd1d1aeaf.wav"
+      ],
+      "greeting": {},
+      "answers": {},
+      "narrations": {}
+    },
+    "victoriei": {
+      "beds": [
+        "victoriei/bed-1-fc6f3872034f.wav",
+        "victoriei/bed-2-a06c6ef28e98.wav"
+      ],
+      "greeting": {},
+      "answers": {},
+      "narrations": {}
+    },
+    "bastion": {
+      "beds": [
+        "bastion/bed-1-1c110a9e8c7f.wav",
+        "bastion/bed-2-cc9f328214a4.wav"
+      ],
+      "greeting": {},
+      "answers": {},
+      "narrations": {}
+    },
+    "cathedral": {
+      "beds": [
+        "cathedral/bed-1-0669be93afde.wav",
+        "cathedral/bed-2-45e1c30854d4.wav"
+      ],
+      "greeting": {},
+      "answers": {},
+      "narrations": {}
+    }
+  },
+  "project": {
+    "waltz": []
+  }
+}
