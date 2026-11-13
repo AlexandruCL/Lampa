@@ -1,5 +1,6 @@
 import cors from "cors";
 import express, { type Express } from "express";
+import { makeGetPersona } from "./agent/persona.js";
 import { createAgentRouter } from "./agent/session.js";
 import { sessionRouter } from "./auth/session.js";
 import { createEventsRouter } from "./events/router.js";
@@ -20,7 +21,7 @@ export function createApp(deps: AppDeps = {}): Express {
   app.use(sessionRouter);
   app.use(express.json());
   const getSiteStats = deps.db ? createGetSiteStats({ db: deps.db, latestGlow: deps.latestGlow ?? (() => null) }) : undefined;
-  app.use(createAgentRouter({ getSiteStats }));
+  app.use(createAgentRouter({ getPersona: deps.db && makeGetPersona(deps.db), getSiteStats }));
   app.use(createEventsRouter({ db: deps.db, onStored: deps.onEventsStored }));
   app.use(createSitesRouter({ db: deps.db, latestGlow: deps.latestGlow ?? (() => null) }));
   app.use(createPanesRouter({ tx: deps.tx, onPane: deps.onPane }));
