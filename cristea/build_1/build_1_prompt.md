@@ -1,6 +1,6 @@
 # Prompt: Cristea's Build 1, the spine (Identity, infra, Living Map, LAMPA)
 
-**Status: prompt completed and checked against `IMPLEMENTATION_PLAN.md` at hour 1 (2026-11-13 14:45 +0200), after Ionut's PR #3 was merged. Implementation not started.**
+**Status: implemented at hour 9 (2026-11-13). Report in `build_1_report.md`; open checks under Blocked in the glossary.**
 
 You are implementing Cristea's part of Build 1 (hours 2 to 10) in this repository. Follow the checklist in section 3 in order, except where it says agent tasks run in parallel. Tick a box only after its verify command has run and passed.
 
