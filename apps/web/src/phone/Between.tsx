@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useLocation, useNavigate } from "react-router";
 import { getAudioContext, unlockAudio } from "../audio/context";
 import { Button, Notice } from "../components";
@@ -18,6 +18,7 @@ import { findSite, SITES, type PhoneSite } from "../sites/sites";
 import styles from "./Between.module.css";
 import { CompassCard } from "./CompassCard";
 import { DemoBadge } from "./DemoBadge";
+import { SitesList } from "./SitesList";
 import { TopBar } from "./TopBar";
 import { useCityGlow } from "./useCityGlow";
 
@@ -26,6 +27,7 @@ type BetweenProps = {
   primer: PrimerResult;
   demo: boolean;
   remote: boolean;
+  notice?: ReactNode; // the location-denied Notice of 7.1
   onBack?: () => void; // absent on "/"
   onTarget?: (siteId: string) => void; // Patrick: the beacon follows the chosen site
   onArrive?: (siteId: string) => void; // Patrick: the arrival chime; never called for the memorial
@@ -34,7 +36,7 @@ type BetweenProps = {
 const open = (url: string) => window.open(url, "_blank", "noopener");
 
 /** Between sites (DESIGN.md 7.8). */
-export function Between({ from, primer, demo, onBack, onTarget, onArrive }: BetweenProps) {
+export function Between({ from, primer, demo, remote, notice, onBack, onTarget, onArrive }: BetweenProps) {
   const { search } = useLocation();
   const navigate = useNavigate();
   const injected = demo ? readDemo(search, from?.id) : null;
@@ -48,7 +50,8 @@ export function Between({ from, primer, demo, onBack, onTarget, onArrive }: Betw
   if (position && position.accuracy <= MAX_ACCURACY_M) good.current = position;
   const here = good.current;
 
-  const [targetId] = useState<string | null>(null); // B3-2.c.1 adds the setter for a site picked in the list
+  const [targetId, setTargetId] = useState<string | null>(null);
+  const [list, setList] = useState(remote);
   const next = useMemo(
     () => suggestNext({ sites: SITES, position: here, glow: city.glow, visited: visitedSites() }),
     [here, city.glow],
@@ -61,7 +64,7 @@ export function Between({ from, primer, demo, onBack, onTarget, onArrive }: Betw
   }, [shownId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const arrivedOnce = useRef(false);
-  const arrived = shown !== null && hasArrived(fence, shown.id, from?.id ?? null);
+  const arrived = !remote && shown !== null && hasArrived(fence, shown.id, from?.id ?? null);
   useEffect(() => {
     if (!arrived || !shown || arrivedOnce.current) return;
     arrivedOnce.current = true;
@@ -97,6 +100,7 @@ export function Between({ from, primer, demo, onBack, onTarget, onArrive }: Betw
       ) : (
         <div className={styles.top}>{demo && <DemoBadge />}</div>
       )}
+      {notice && <div className={styles.notice}>{notice}</div>}
       {audioOff && (
         <div className={styles.notice}>
           <Notice variant="info" icon="headphones">
@@ -106,6 +110,26 @@ export function Between({ from, primer, demo, onBack, onTarget, onArrive }: Betw
           </Notice>
         </div>
       )}
+      {list ? (
+        <SitesList
+          ranked={next.ranked}
+          glow={city.glow}
+          connected={city.connected}
+          allVisited={next.allVisited}
+          fromId={from?.id ?? null}
+          remote={remote}
+          onClose={() => setList(false)}
+          onPick={(id) => {
+            if (remote) navigate(`/s/${id}${search}`, { state: primer });
+            else if (id === from?.id && onBack) onBack();
+            else {
+              setTargetId(id);
+              setList(false);
+            }
+          }}
+        />
+      ) : (
+        <>
       <div className={styles.centre}>
         {shown && (
           <CompassCard
@@ -132,7 +156,7 @@ export function Between({ from, primer, demo, onBack, onTarget, onArrive }: Betw
           </>
         ) : (
           <>
-            <Button variant="secondary" size="l" block>Sites</Button>
+            <Button variant="secondary" size="l" block onClick={() => setList(true)}>Sites</Button>
             <Button
               variant="secondary"
               size="l"
@@ -144,6 +168,8 @@ export function Between({ from, primer, demo, onBack, onTarget, onArrive }: Betw
           </>
         )}
       </div>
+        </>
+      )}
     </main>
   );
 }

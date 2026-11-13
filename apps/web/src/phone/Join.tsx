@@ -10,6 +10,7 @@ import { DemoBadge } from "./DemoBadge";
 import styles from "./Join.module.css";
 import { MemorialStub } from "./MemorialStub";
 import { RoseWindow } from "./RoseWindow";
+import { Between } from "./Between";
 import { SiteView } from "./SiteView";
 
 // A reload clears this, so history state from before it is ignored: the AudioContext needs a new tap.
@@ -69,11 +70,8 @@ export default function Join({ siteId }: { siteId?: string }) {
     primedThisLoad = true;
     const r = await primeDevice({ demo });
     setBusy(false);
-    if (city) navigate(`/s/mx${search}`, { state: r });
-    else {
-      setResult(r);
-      setAudioBlocked(r.audio === "blocked");
-    }
+    setResult(r);
+    setAudioBlocked(r.audio === "blocked");
   };
 
   const memorial = !!site?.is_memorial;
@@ -91,6 +89,13 @@ export default function Join({ siteId }: { siteId?: string }) {
       )
     );
     const remote = new URLSearchParams(search).get("mode") === "remote";
+    if (city) {
+      const noLocation = remote || result.location === "denied";
+      const denied = result.location === "denied" && (
+        <Notice variant="info">Location is off. This site still works. To walk to the next one, use the list.</Notice>
+      );
+      return <Between from={null} primer={result} demo={demo} remote={noLocation} notice={denied || undefined} />;
+    }
     return memorial ? (
       <MemorialStub siteId={site!.id} name={name!} demo={demo} notice={notice || undefined} />
     ) : (
