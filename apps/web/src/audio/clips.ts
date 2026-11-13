@@ -7,6 +7,7 @@ export type SiteClips = {
   greeting: Record<string, string>; // lang -> file
   answers: Record<string, Record<string, string>>; // tap_to_ask id -> lang -> file
   narrations: Record<string, Record<string, string>>; // narration id -> lang -> file
+  tapToAsk: { id: string; q: Record<string, string>; a: Record<string, string> }[]; // persona.tap_to_ask text, file order
 };
 export type ProjectClips = { glass?: string; crackle?: string; chime?: string; waltz: string[] };
 export type Clips = { sites: Record<string, SiteClips>; project: ProjectClips };

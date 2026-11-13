@@ -7,7 +7,8 @@
       ],
       "greeting": {},
       "answers": {},
-      "narrations": {}
+      "narrations": {},
+      "tapToAsk": []
     },
     "unirii": {
       "beds": [
@@ -16,7 +17,8 @@
       ],
       "greeting": {},
       "answers": {},
-      "narrations": {}
+      "narrations": {},
+      "tapToAsk": []
     },
     "victoriei": {
       "beds": [
@@ -25,7 +27,8 @@
       ],
       "greeting": {},
       "answers": {},
-      "narrations": {}
+      "narrations": {},
+      "tapToAsk": []
     },
     "bastion": {
       "beds": [
@@ -34,7 +37,8 @@
       ],
       "greeting": {},
       "answers": {},
-      "narrations": {}
+      "narrations": {},
+      "tapToAsk": []
     },
     "cathedral": {
       "beds": [
@@ -43,7 +47,8 @@
       ],
       "greeting": {},
       "answers": {},
-      "narrations": {}
+      "narrations": {},
+      "tapToAsk": []
     }
   },
   "project": {
