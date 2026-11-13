@@ -4,16 +4,19 @@ import { Button } from "../components";
 import { DemoBadge } from "../phone/DemoBadge";
 import { isDemo } from "../sensors/demo";
 import { startCanvas } from "./canvas";
+import { QRBlock } from "./QRBlock";
 import styles from "./ScreenPage.module.css";
+import { Ticker } from "./Ticker";
 import { useScreenSocket } from "./useScreenSocket";
 
 const RECONNECT_NOTICE_MS = 3000;
 // Module scope keeps one array identity, so renders never reconnect the socket.
 const COLOUR_SITE_IDS = sites.filter((s) => !s.is_memorial).map((s) => s.id);
+const SITE_NAMES = Object.fromEntries(sites.map((s) => [s.id, s.name]));
 
 function LivingMap({ demo }: { demo: boolean }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const { glowRef, windowsRef, effectsRef, connected } = useScreenSocket(COLOUR_SITE_IDS, demo);
+  const { glowRef, windowsRef, effectsRef, connected, coloursToday, events } = useScreenSocket(COLOUR_SITE_IDS, demo);
   const [reconnecting, setReconnecting] = useState(false);
 
   useEffect(
@@ -36,16 +39,29 @@ function LivingMap({ demo }: { demo: boolean }) {
         <canvas ref={canvasRef} className={styles.canvas} aria-hidden="true" />
         <p className={styles.credit}>© OpenStreetMap contributors</p>
         {demo && (
-          <div style={{ position: "absolute", left: "calc(16 * var(--u))", top: "calc(16 * var(--u))", zIndex: "var(--z-demo)" }}>
+          <div className={styles.demo}>
             <DemoBadge />
           </div>
         )}
       </div>
       <aside className={styles.panel}>
         <p className={styles.mark}>LAMPA</p>
+        <div className={styles.stat}>
+          <p className={styles.statLabel}>Lamps lit today</p>
+          {/* The lamps message is Fabi's Build 3 row. */}
+          <p className={`${styles.number} ${styles.numberLamps}`}>...</p>
+        </div>
+        <div className={styles.stat}>
+          <p className={styles.statLabel}>Colours caught today</p>
+          <p className={styles.number}>{coloursToday ?? "..."}</p>
+        </div>
+        <Ticker events={events} siteNames={SITE_NAMES} />
         <p className={styles.status} role="status">
           {reconnecting ? "Reconnecting to the city…" : ""}
         </p>
+        <div className={styles.qr}>
+          <QRBlock />
+        </div>
       </aside>
     </>
   );

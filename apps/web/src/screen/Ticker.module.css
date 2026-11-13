@@ -1,0 +1,18 @@
+/* Ported from the 6.18 .ticker block of design/css/components.css. */
+.ticker { display: flex; flex-direction: column; gap: calc(16 * var(--u)); margin: 0; padding: 0; list-style: none; }
+/* Six two-row lines do not fit above the QR code at 1080: lines that do not fit whole wrap to a hidden column. */
+.ticker { flex: 1 1 0; min-height: 0; flex-wrap: wrap; align-content: flex-start; overflow: hidden; }
+.line { display: flex; align-items: flex-start; gap: calc(12 * var(--u)); animation: tickerIn 400ms var(--ease-out); }
+.line { width: 100%; }
+.swatch { width: calc(20 * var(--u)); height: calc(20 * var(--u)); flex: none; margin-top: calc(8 * var(--u)); border-radius: calc(2 * var(--u)); }
+.body { display: flex; flex-direction: column; min-width: 0; }
+.text { font: var(--screen-body); color: var(--text); display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; }
+.ago { font: var(--screen-meta); color: var(--text-3); }
+.empty { margin: 0; font: var(--screen-body); color: var(--text-2); }
+
+@keyframes tickerIn { from { opacity: 0; } }
+
+/* DESIGN.md 5.6: opacity fades stay, shortened to 150ms. */
+@media (prefers-reduced-motion: reduce) {
+  .line { animation-duration: 150ms; }
+}

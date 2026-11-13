@@ -1,0 +1,7 @@
+/* Ported from the 6.17 .qr and .qr--screen rules of design/css/components.css. */
+.qr { display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-s); }
+.code { display: block; width: 200px; height: 200px; background: var(--lamp-white); }
+.qrScreen { gap: calc(16 * var(--u)); }
+.qrScreen .code { width: calc(240 * var(--u)); height: calc(240 * var(--u)); }
+.qrScreen .caption { margin: 0; font: var(--screen-body); color: var(--text); }
+.url { overflow-wrap: anywhere; }
