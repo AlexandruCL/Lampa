@@ -235,10 +235,44 @@ describe("publish", () => {
       greeting: { ro: f[0], en: f[1] },
       answers: { paint: { ro: f[2], en: f[3] } },
       narrations: {},
+      tapToAsk: persona.persona!.tap_to_ask,
     });
-    expect(clips.sites.garden).toEqual({ beds: [], greeting: {}, answers: {}, narrations: {} });
+    expect(clips.sites.garden).toEqual({ beds: [], greeting: {}, answers: {}, narrations: {}, tapToAsk: [] });
     const pf = p.items.map((i) => i.file);
     expect(clips.project).toEqual({ glass: pf[0], crackle: pf[1], chime: pf[2], waltz: [pf[3], pf[4]] });
     expect(toClips([], () => false)).toEqual({ sites: {}, project: { waltz: [] } });
+  });
+
+  const twoQuestions = SiteFile.parse({
+    ...persona,
+    persona: {
+      ...persona.persona,
+      tap_to_ask: [
+        { id: "roof", q: { ro: "De ce acoperiș?", en: "Why a roof?" }, a: { ro: "Pentru ploaie.", en: "For the rain." } },
+        { id: "bell", q: { en: "Whose bell?" }, a: { en: "The tram's." } },
+      ],
+    },
+  });
+
+  it("toClips copies tap_to_ask text in file order", () => {
+    expect(toClips([twoQuestions], () => true).sites.kiosk!.tapToAsk).toEqual([
+      { id: "roof", q: { ro: "De ce acoperiș?", en: "Why a roof?" }, a: { ro: "Pentru ploaie.", en: "For the rain." } },
+      { id: "bell", q: { en: "Whose bell?" }, a: { en: "The tram's." } },
+    ]);
+  });
+
+  it("toClips gives [] without tap_to_ask", () => {
+    const none = SiteFile.parse({ ...persona, persona: { voice: "voiceKiosk01", first_message: { en: "Hi." } } });
+    const withPersona = SiteFile.parse({ ...memorial, persona: persona.persona });
+    const clips = toClips([none, withPersona], () => true);
+    expect(clips.sites.kiosk!.tapToAsk).toEqual([]);
+    expect(clips.sites.garden!.tapToAsk).toEqual([]);
+  });
+
+  it("toClips keeps the text when the answer clip is missing", () => {
+    const c = toClips([twoQuestions], (file) => !file.includes("/answer-")).sites.kiosk!;
+    expect(c.answers).toEqual({});
+    expect(c.tapToAsk.map((t) => t.id)).toEqual(["roof", "bell"]);
+    expect(c.tapToAsk[0]!.a).toEqual({ ro: "Pentru ploaie.", en: "For the rain." });
   });
 });
