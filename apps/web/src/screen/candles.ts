@@ -32,6 +32,12 @@ export const applyCandleState = (list: Candle[], candles: CandleMessage[], now: 
 export function candlePosition(id: string): { dx: number; dy: number } {
   let hash = 0x811c9dc5;
   for (const byte of new TextEncoder().encode(id)) hash = Math.imul(hash ^ byte, 0x01000193);
+  // murmur3 fmix32: FNV-1a alone barely moves when only the last character changes (demo-candle-1, -2, ...).
+  hash ^= hash >>> 16;
+  hash = Math.imul(hash, 0x85ebca6b);
+  hash ^= hash >>> 13;
+  hash = Math.imul(hash, 0xc2b2ae35);
+  hash ^= hash >>> 16;
   hash >>>= 0;
   const angle = ((hash & 0xffff) / 65536) * 2 * Math.PI;
   const distance = Math.sqrt((hash >>> 16) / 65536) * CANDLE_SPREAD;

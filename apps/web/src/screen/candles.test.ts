@@ -60,6 +60,12 @@ it("the same id gives the same position", () => {
   expect(candlePosition("abc-123")).not.toEqual(candlePosition("abc-124"));
 });
 
+it("sequential ids land apart", () => {
+  const points = Array.from({ length: 10 }, (_, i) => candlePosition(`demo-candle-${i + 1}`));
+  for (const [i, a] of points.entries())
+    for (const b of points.slice(i + 1)) expect(Math.hypot(a.dx - b.dx, a.dy - b.dy)).toBeGreaterThanOrEqual(0.1);
+});
+
 it("every position lies inside the spread", () => {
   for (let i = 0; i < 1000; i++) {
     const { dx, dy } = candlePosition(`candle-${i}`);
