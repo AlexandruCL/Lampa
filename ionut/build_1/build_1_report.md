@@ -27,7 +27,7 @@ Nothing. No cut from the cut order was used.
 
 ## Phone checks for Ionut
 Not runnable here; the dev-server checks ran in desktop Chromium at 390×844.
-- iPhone, deployed: `/s/unirii` → one tap → the iOS location and motion prompts appear, both granted, the Site view shows; `/s/unirii?demo=1` → "Demo position", no prompt; `/s/cathedral` → memorial landing and stub. Also: deny motion → "Use the compass" shows on the Site view and asks again.
+- iPhone, deployed (passed, reported by Ionut): `/s/unirii` → one tap → the iOS location and motion prompts appear, both granted, the Site view shows; `/s/unirii?demo=1` → "Demo position", no prompt; `/s/cathedral` → memorial landing and stub. Also: deny motion → "Use the compass" shows on the Site view and asks again.
 - Android, a teammate: the same steps.
 - With Fabi, once `POST /events` lands: a `wake` from the phone is a row in `interaction_events`.
 - With Patrick, once the engine lands: a sound bed plays after the tap (Checkpoint 1 line 1).
