@@ -29,8 +29,8 @@ persona:
         ro: "Ce este coloana din mijlocul pieței?"
         en: "What is the column in the middle of the square?"
       a:
-        ro: "Este Coloana Sfintei Treimi, ridicată aici în 1740. I se spune și coloana ciumei: mulțumește pentru sfârșitul unei epidemii."
-        en: "That is the Holy Trinity column, raised here in 1740. People call it the plague column: it gives thanks for the end of an epidemic."
+        ro: "Este Coloana Sfintei Treimi, începută în 1740. I se spune și coloana ciumei: mulțumește pentru sfârșitul unei epidemii."
+        en: "That is the Holy Trinity column, begun in 1740. People call it the plague column: it gives thanks for the end of an epidemic."
     - id: cathedrals
       q:
         ro: "De ce sunt două catedrale aici?"
