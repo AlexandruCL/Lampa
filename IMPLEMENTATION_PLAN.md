@@ -166,9 +166,9 @@ Goal: the two stations the demo is built around.
 | Patrick | Talk, live: `GET /agent/session`, `useConversation`, client tools (`show_archive_image`, `set_light`, `start_colour_catch`, `start_echo_recording`, `suggest_next_site`), captions | 3 |
 | Patrick | Talk fallback: tap-to-ask with pre-generated clips, browser speech synthesis as last resort, automatic switch on agent error | 1.5 |
 | Patrick | Colour to note: hue to pentatonic step, lightness to octave, via `playbackRate` on the glass sample | 0.5 |
-| Fabi | `POST /panes`: rate limit, slot assignment, window completes at 48, archive and open a new one, broadcast. Test for slot and completion logic | 2.5 |
+| Fabi | `POST /panes`: rate limit, slot assignment, window completes at 48, archive and open a new one, broadcast. Test for slot and completion logic. `GET /screen/state` for `/screen` on reconnect | 2.5 |
 | Fabi | `colour_readings` hypertable and the `colour_1h` aggregate | 0.5 |
-| Fabi | Agent server tools `get_site_stats` and `get_recent_echo`, behind a shared-secret header | 1 |
+| Fabi | Agent server tools `get_site_stats` and `get_recent_echo`, behind a shared-secret header. The same site stats passed to `GET /agent/session` | 1 |
 | Fabi | `scripts/simulate-crowd.ts`, minimal: fake sessions sending events and panes. Everyone uses it from here on to develop without phones | 1 |
 | Cristea | `GET /agent/session`: signed URL, per-site overrides, dynamic variables, rate limit. The API key never reaches the browser | 1.5 |
 | Cristea | `/screen` v2: each site draws its window with 48 slots, panes appear on the socket message, ticker, counters | 3.5 |
@@ -390,9 +390,9 @@ Needs from others: site content YAML at hour 0, `GET /agent/session` from Criste
 | Build 1 | Socket.IO `/live` with rooms | 1.5 |
 | Build 1 | Continuous aggregate, glow query, 5 s loop, decay test | 2.5 |
 | Build 1 | `GET /sites?near=`, `GET /sites/:id` | 1 |
-| Build 2 | `POST /panes`, windows, completion at 48, test | 2.5 |
+| Build 2 | `POST /panes`, windows, completion at 48, test, `GET /screen/state` | 2.5 |
 | Build 2 | `colour_readings` and `colour_1h` | 0.5 |
-| Build 2 | Agent server tools behind a secret header | 1 |
+| Build 2 | Agent server tools behind a secret header, site stats for `GET /agent/session` | 1 |
 | Build 2 | `simulate-crowd.ts`, minimal | 1 |
 | Build 3 | Lamps lit today: query and broadcast | 1 |
 | Build 3 | People lighting now, per site | 0.5 |
