@@ -22,7 +22,7 @@ These were settled after `DESIGN.md` was written and override anything older in 
 | Bucket | Per person | Team | Notes |
 |---|---|---|---|
 | Setup and kick-off | 2 h | 8 h | repo, deploys, accounts wired, contracts agreed |
-| Feature tasks | 20 h | 80 h | the estimates in section 6. After the 10 November moves: Ionut 18.25 h, Patrick 23 h, Fabi 21 h, Cristea 23.75 h (86 h) |
+| Feature tasks | 20 h | 80 h | the estimates in section 6. After the 10 November moves: Ionut 19.1 h (18.25 h plus 0.85 h added on 13 November), Patrick 23 h, Fabi 21 h, Cristea 23.75 h (86.85 h) |
 | Slack inside build blocks | 4 h | 16 h | meals, breaks, small blockers; blocks are planned at about 80% |
 | Checkpoints (integrate, then fix) | 5 h | 20 h | three of them, everyone stops building |
 | Freeze: bugs only, device pass, load test | 4 h | 16 h | no new features after hour 40 |
@@ -190,6 +190,7 @@ Before sleeping, Patrick starts `publish-site.ts` for all five sites.
 |---|---|---|
 | Ionut | Echo recorder: MediaRecorder (webm on Chrome, mp4 on Safari), 20 s cap, consent checkbox, upload | 1.5 |
 | Ionut | Between sites: arrow and distance, sites list with distance and glow, next-site score from section 7.7, Google and Apple Maps links | 2.5 |
+| Ionut | Added 13 November (hour 7): the phone reads the five sites from `packages/shared`; "Say why" on the caught lens opens Echo; the tap on `/` opens Between sites; the heading blends with the GPS course while walking (first to cut) | 0.85 |
 | Patrick | Lamp: raise gesture (pitch above 60 degrees for 1.5 s, below 40 to lower), full-screen light, Wake Lock, `lamp` events per minute held, city counter and "people lighting this site now" | 2 |
 | Patrick | Lamp pulse: every lit phone pulses on a slow 4 s cycle aligned to server time through the clock offset | 0.5 |
 | Patrick | Navigation audio: sound compass for the 2 to 3 nearest sites (HRTF panner from bearing minus heading, low-pass by distance), beacon for the chosen site, arrival chime, 12 dB ducking under the persona voice | 3.5 |
@@ -339,7 +340,7 @@ From section 10.7, checked at hour 44:
 
 The same tasks as section 6, regrouped so each person can read their own 48 hours top to bottom. Checkpoints, freeze and submission (section 5) are shared by all four and are not repeated here. In earlier versions of this plan Ionut was P1, Patrick was P2, Fabi was P3 and Cristea was P4.
 
-### Ionut: phone experience (18.25 h of tasks)
+### Ionut: phone experience (19.1 h of tasks)
 
 | Block | Task | Hours |
 |---|---|---|
@@ -353,6 +354,7 @@ The same tasks as section 6, regrouped so each person can read their own 48 hour
 | Build 2 | Colour names for the 12 hue bins | 0.25 |
 | Build 3 | Echo recorder: 20 s cap, consent, upload | 1.5 |
 | Build 3 | Between sites: arrow, distance, sites list, next-site score, Maps links | 2.5 |
+| Build 3 | Added at hour 7: sites from `packages/shared`, "Say why", `/` opens Between sites, GPS course blend (first to cut) | 0.85 |
 | Build 4 | ro and en dictionary (a native speaker reviews the Romanian strings first) | 1.5 |
 | Build 4 | Memorial candle: motion-only stillness, 5 s in demo mode | 1 |
 
