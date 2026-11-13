@@ -3,7 +3,7 @@ import type { AddressInfo } from "node:net";
 import express from "express";
 import { SignJWT } from "jose";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { createAgentRouter, type AgentDeps } from "./session.js";
+import { createAgentRouter, type AgentDeps, type SiteStats } from "./session.js";
 
 process.env.SESSION_SECRET = "test-secret";
 
@@ -183,6 +183,16 @@ describe("GET /agent/session falls back with 503", () => {
       throw new DOMException("The operation was aborted due to timeout", "TimeoutError");
     });
     await expectUnavailable(await (await start({ fetch: upstream }))("?site=mx"));
+  });
+
+  it("a rejecting getPersona answers 503 agent_unavailable", async () => {
+    const getPersona = vi.fn(async () => { throw new Error("persona store down"); });
+    await expectUnavailable(await (await start({ fetch: upstreamOk(), getPersona }))("?site=mx"));
+  });
+
+  it("stats that fail the schema answer 503 agent_unavailable", async () => {
+    const getSiteStats = vi.fn(async () => ({ glow: 0.5, coloursToday: "many", lampsToday: 3 }) as unknown as SiteStats);
+    await expectUnavailable(await (await start({ fetch: upstreamOk(), getSiteStats }))("?site=mx"));
   });
 });
 

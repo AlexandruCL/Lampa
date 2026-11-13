@@ -73,27 +73,33 @@ export function createAgentRouter(deps: AgentDeps = {}): Router {
       return;
     }
 
-    const persona = deps.getPersona ? await deps.getPersona(site, lang) : null;
-    const stats = (await deps.getSiteStats?.(site).catch(() => undefined)) ?? { glow: 0, coloursToday: 0, lampsToday: 0 };
-
-    const session = AgentSession.parse({
-      signedUrl: url,
-      ...(persona && {
-        overrides: {
-          agent: { prompt: { prompt: persona.prompt }, firstMessage: persona.firstMessage, language: lang },
-          tts: { voiceId: persona.voiceId },
+    let session: AgentSession;
+    try {
+      const persona = deps.getPersona ? await deps.getPersona(site, lang) : null;
+      const stats = (await deps.getSiteStats?.(site).catch(() => undefined)) ?? { glow: 0, coloursToday: 0, lampsToday: 0 };
+      session = AgentSession.parse({
+        signedUrl: url,
+        ...(persona && {
+          overrides: {
+            agent: { prompt: { prompt: persona.prompt }, firstMessage: persona.firstMessage, language: lang },
+            tts: { voiceId: persona.voiceId },
+          },
+        }),
+        dynamicVariables: {
+          visitor_name: "traveller",
+          local_time: bucharestTime.format(new Date()),
+          site_glow: Math.round(stats.glow * 100),
+          colours_today: stats.coloursToday,
+          lamps_lit_today: stats.lampsToday,
+          sites_visited: "none yet",
+          returning_visitor: "no",
         },
-      }),
-      dynamicVariables: {
-        visitor_name: "traveller",
-        local_time: bucharestTime.format(new Date()),
-        site_glow: Math.round(stats.glow * 100),
-        colours_today: stats.coloursToday,
-        lamps_lit_today: stats.lampsToday,
-        sites_visited: "none yet",
-        returning_visitor: "no",
-      },
-    });
+      });
+    } catch {
+      // A failed persona or data that fails the schema is the same fallback signal; nothing is logged.
+      res.status(503).json({ error: "agent_unavailable" });
+      return;
+    }
     res.set("Cache-Control", "no-store").json(session);
   });
 
