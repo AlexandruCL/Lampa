@@ -24,6 +24,8 @@ Anything that differs from the plan, `DESIGN.md` or the contract, and any file o
 | 7 | S-last | This session reworded one cell of the subagent's findings (Sketch 1, response field): the docs example signed URL, which showed its query placeholders, is now described in words | `patrick/setup/elevenlabs_findings.md` | The secret scan of S-last counted the placeholder; it now prints 0 |
 | 7 | S-last | The "For Patrick" questions were asked in batches of up to four, each with its recommendation, not strictly one at a time | none | The block had run past hour 7 |
 | 7 | S-last | The language-override failure test rests on reading the code: the only live run with `false` flags also had `signed_url 401`, so the flag alone was never shown to cause exit 1 | `scripts/agent-check.ts` | Patrick skipped the test |
+| 7 | Build 1 prompt | Patrick's Build 1 runs from hour 7.5 to 15.5, not hours 2 to 10 of plan section 5 | none | Setup ended at hour 7; Patrick keeps the full Build 1 rows |
+| 7 | Build 1 prompt | New site-file keys for Patrick's lane: `persona.name`, `persona.first_message`, `persona.cathedral_line`, `persona.tap_to_ask`, and for the memorial `narrator_voice` and `narrations`; written as the seam `apps/api/src/content.ts`. Patrick takes them to the team | `patrick/build_1/build_1_prompt.md` | Concept 8.3 names no keys for these, and content had not landed at hour 7 |
 
 ## Decisions
 The owner's answers only.
@@ -59,6 +61,21 @@ The owner's answers only.
 | 7 | Findings 12, 14, 16, 17: dynamic variables stay strings and numbers; Build 2 captions show final messages only, told apart by the package's types; the signed-URL call is treated as free and stays rate-limited at 6 per 10 min; the session response is never cached (15 min expiry) | No change needed on `main` |
 | 7 | Findings 18, 19, 20: Scribe uses `scribe_v3` in Build 3 and stays out of the 30,000 budget until the meter is known; the ElevenLabs credit stays on the About page; the memorial narrator is priced when its text is written (about 1,200 credits, still under 30,000) | Patrick accepted the recommendations |
 | 7 | Setup: the language-override failure test (S-last) is skipped | Patrick: "it works" |
+| 7 | Build 1: block runs hour 7.5 to 15.5. Order: audio engine with one real bed first (Checkpoint 1 line 1), then renderer and `getPersona`, then `publish-site.ts`, then project sounds. If late, project sounds move to Build 2 first | Ionut's Blocked row and Checkpoint 1 wait on the engine; Cristea's B2-1 on `getPersona` |
+| 7 | Build 1 content: the new YAML keys are defined now and the team fills the content; code and tests run on fixtures in the test files; Patrick writes the five `sound_bed` lines himself; nobody writes placeholder persona text, facts, answers or narrations | Content was empty at hour 7; a sound prompt is not a historical fact |
+| 7 | Build 1 voices: Patrick picks four persona voices and one narrator voice from the ElevenLabs voice library by hand; IDs go into `persona.voice` and a top-level `narrator_voice` of the Cathedral file. No Voice Design | No credits, about 15 min; the design API's cost is not stated |
+| 7 | Build 1 keys sit under `persona:` (`name`, `voice`, `traits`, `first_message`, `cathedral_line`, `tap_to_ask`); the memorial gets top-level `narrations` and `narrator_voice`; `getPersona` reads the `sites` table; clips are made for every language key present | `toSiteRow` copies `persona` into the table; works for add-a-place later |
+| 7 | Build 1 manifest: the publish CLI writes `apps/web/src/audio/clips.json` (bundled); Patrick's bed pick is hand-edited in `apps/web/src/audio/picks.json`; without a pick take 1 plays | No extra request; Checkpoint 2 line 5 |
+| 7 | Build 1 formats: beds `wav_24000` (gapless loop); speech, music and short sounds `mp3_44100_128` | MP3 loops can tick; 44.1 kHz WAV needs Pro |
+| 7 | Build 1 gain: `0.3 + 0.7 × glow`, ramps over 1 s, 2 s fade-in; memorial fixed at 0.5 | An asleep site stays audible; `DESIGN.md` 7.1 and 7.11 |
+| 7 | Build 1 wiring: Patrick adds `useBed` in Ionut's `SiteView.tsx` and `MemorialStub.tsx` (with `siteId` passed from `Join.tsx`) after Ionut agrees; Join's "Waking {Site}" wait stays Ionut's | Checkpoint 1 line 1 |
+| 7 | Build 1 publish: plain `fetch`, no SDK; core in `apps/api/src/publish/` as `publishSite`/`publishProject` with injected `fetch`, `exists`, `put`; `scripts/publish-site.ts` is a thin CLI | Tested by Vitest; importable for add-a-place |
+| 7 | Build 1 credits: the CLI is a dry run by default; `--run` makes only missing files; a run whose estimate is over 6,000 credits stops unless `--max-credits` is raised. In Build 1: beds for all five sites, then the four project sounds (waltz two takes); then Patrick reads the usage meter | Findings 1 |
+| 7 | Build 1 project sounds: crackle 4 s "a 19th-century gas street lamp being lit: match strike, soft gas whoosh, gentle crackle settling into a low warm hum"; chime 2 s "soft warm two-note glass chime, gentle, short decay, no reverb tail"; glass 3 s and waltz 45 s as in the concept | Patrick accepted the recommended prompts |
+| 7 | Build 1 bed failure: one retry after 2 s, then silent with one console line and no notice | Ionut's audio-blocked notice covers a context that will not start |
+| 7 | Build 1 `getPersona`: name, first message and Cathedral line use the visitor's language, else `en`; `null` (no overrides) when `persona.name.en`, `voice`, `traits`, `first_message.en` or `cathedral_line.en` is missing, and always for the memorial | Personas never improvise about 1989 (plan section 4) |
+| 7 | Build 1 process: branches `patrick/b1-engine`, `patrick/b1-persona`, `patrick/b1-publish` in that PR order, cut from a local `patrick/b1-work` by cherry-pick; tests for gain, renderer and publish with a fake `fetch` | Engine before Checkpoint 1 |
+| 7 | Build 1 subagents, all on `opus`: `patrick-elevenlabs` (reused, scope widened to `apps/api/src/publish/`), new `patrick-api`, new `patrick-web-audio` | Patrick's choice |
 
 ## Blocked
 | Since hour | ID | Question | Recommendation | Waiting on |
