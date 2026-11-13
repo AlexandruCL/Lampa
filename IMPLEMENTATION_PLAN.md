@@ -202,6 +202,9 @@ Before sleeping, Patrick starts `publish-site.ts` for all five sites.
 | Fabi | `GET /pulse/*`, cached 5 s: glow, gap-filled interactions, unique visitors with hyperloglog, colour clock, languages | 2.5 |
 | Fabi | `/pulse` page: charts and the colour clock ring | 2 |
 | Fabi | Post-call webhook with HMAC check into `conversations` | 0.5 |
+| Fabi | `npm run db:migrate` (applies new migrations without a wipe) and `npm run db:seed` (refreshes the sites from YAML, keeps events); added at hour 10 | 0.5 |
+| Fabi | `simulate-crowd.ts --lamps --candles`, so lamps and candles can be checked without phones; added at hour 10 | 0.25 |
+| Fabi | Talk-turn cap: at most 5 `talk_turn` per visitor per site in 10 minutes, carried from Build 1; added at hour 10 | 0 |
 | Cristea | `POST /echoes`: multipart upload, store in `blobs`, Scribe transcript, status `pending`. Also `GET /blob/:key` (public once approved, `moderate:echo` before) and `GET /echoes?status=pending` for the curator queue (added by Cristea, hour 25) | 2 |
 | Cristea | Approve and reject endpoints behind `moderate:echo`, broadcast on approval. Test: the endpoint returns 403 without the permission | 1 |
 | Cristea | Post-login Action: roles claim, MFA forced for curator and admin | 0.5 |
@@ -381,7 +384,7 @@ Needs from others: `POST /events` and `GET /sites` from Fabi by hour 6, `POST /p
 
 Needs from others: site content YAML at hour 0, `GET /agent/session` from Cristea by hour 14, heading and position from Ionut's hooks by hour 25, the clock offset and the per-site lamp count from Fabi in Build 3.
 
-### Fabi: data and real-time (21 h of tasks)
+### Fabi: data and real-time (21.75 h of tasks; 0.75 h added in Build 3 at hour 10)
 
 | Block | Task | Hours |
 |---|---|---|
@@ -401,6 +404,9 @@ Needs from others: site content YAML at hour 0, `GET /agent/session` from Criste
 | Build 3 | `GET /pulse/*` | 2.5 |
 | Build 3 | `/pulse` page with the colour clock | 2 |
 | Build 3 | Post-call webhook (first to cut) | 0.5 |
+| Build 3 | `npm run db:migrate` and `npm run db:seed` (added at hour 10) | 0.5 |
+| Build 3 | `simulate-crowd.ts --lamps --candles` (added at hour 10) | 0.25 |
+| Build 3 | Talk-turn cap, 5 per visitor per site in 10 minutes (carried from Build 1) | 0 |
 | Build 4 | `npm run demo:reset` (do this first) | 0.5 |
 | Build 4 | Finale trigger | 0.5 |
 | Build 4 | Compression, retention, `EXPLAIN ANALYZE` numbers | 1 |
