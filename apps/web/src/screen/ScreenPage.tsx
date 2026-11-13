@@ -1,3 +1,4 @@
+import { MAP_LINES } from "@lampa/shared";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "../components";
 import { startCanvas } from "./canvas";
@@ -12,7 +13,7 @@ function LivingMap() {
   const { glowRef, connected } = useGlowSocket();
   const [reconnecting, setReconnecting] = useState(false);
 
-  useEffect(() => (canvasRef.current ? startCanvas(canvasRef.current, sites, glowRef) : undefined), [glowRef]);
+  useEffect(() => (canvasRef.current ? startCanvas(canvasRef.current, sites, MAP_LINES, glowRef) : undefined), [glowRef]);
 
   useEffect(() => {
     if (connected) {
@@ -27,6 +28,7 @@ function LivingMap() {
     <>
       <div className={styles.map}>
         <canvas ref={canvasRef} className={styles.canvas} aria-hidden="true" />
+        <p className={styles.credit}>© OpenStreetMap contributors</p>
       </div>
       <aside className={styles.panel}>
         <p className={styles.mark}>LAMPA</p>

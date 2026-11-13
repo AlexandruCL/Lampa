@@ -1,7 +1,7 @@
-import type { Site } from "@lampa/shared";
+import type { MapLine, Site } from "@lampa/shared";
 import type { RefObject } from "react";
 import { glowAlpha, glowLine, haloAlpha } from "./glow";
-import { layout, MAP_WIDTH, SITE_RADIUS } from "./projection";
+import { layout, MAP_WIDTH, projectLines, SITE_RADIUS } from "./projection";
 
 const EASE_MS = 1200;
 const HALO_REACH = 1.6;
@@ -22,16 +22,21 @@ function clearOf(ctx: CanvasRenderingContext2D, color: string): string {
 export function startCanvas(
   canvas: HTMLCanvasElement,
   sites: Site[],
+  lines: MapLine[],
   glowRef: RefObject<Record<string, number>>,
 ): () => void {
   const ctx = canvas.getContext("2d");
-  if (!ctx) return () => {};
+  const art = document.createElement("canvas");
+  const artCtx = art.getContext("2d");
+  if (!ctx || !artCtx) return () => {};
   const css = getComputedStyle(document.documentElement);
   const token = (name: string) => css.getPropertyValue(name).trim();
-  const [bg, lamp, line, text, text2, fontUi, fontDisplay] = [
+  const [bg, lamp, line, lineStrong, river, text, text2, fontUi, fontDisplay] = [
     "--bg",
     "--lamp",
     "--line",
+    "--line-strong",
+    "--river",
     "--text",
     "--text-2",
     "--font-ui",
@@ -40,7 +45,30 @@ export function startCanvas(
   const lampClear = clearOf(ctx, lamp);
 
   const byId = new Map(sites.map((s) => [s.id, s]));
-  const placed = layout(sites);
+  const placed = layout(sites, lines);
+  const projected = projectLines(sites, lines);
+
+  // DESIGN.md 5.5: the map art is drawn once per size and copied each frame.
+  const drawArt = () => {
+    const u = canvas.width / MAP_WIDTH;
+    art.width = canvas.width;
+    art.height = canvas.height;
+    artCtx.fillStyle = bg;
+    artCtx.fillRect(0, 0, art.width, art.height);
+    for (const l of projected) {
+      const isRiver = l.kind === "river";
+      artCtx.globalAlpha = isRiver ? 0.35 : 0.5;
+      artCtx.strokeStyle = isRiver ? river : lineStrong;
+      artCtx.lineWidth = (isRiver ? 14 : 2) * u;
+      artCtx.lineJoin = "round";
+      artCtx.lineCap = isRiver ? "round" : "butt";
+      artCtx.setLineDash(isRiver ? [] : [10 * u, 8 * u]);
+      artCtx.beginPath();
+      l.points.forEach((p, i) => (i ? artCtx.lineTo(p.x * u, p.y * u) : artCtx.moveTo(p.x * u, p.y * u)));
+      artCtx.stroke();
+    }
+    artCtx.globalAlpha = 1;
+  };
   const eases = new Map<string, Ease>(placed.map((p) => [p.id, { from: 0, to: 0, start: 0 }]));
 
   let dpr = 1;
@@ -54,6 +82,7 @@ export function startCanvas(
     dpr = Math.min(window.devicePixelRatio || 1, 2);
     canvas.width = Math.round(canvas.clientWidth * dpr);
     canvas.height = Math.round(canvas.clientHeight * dpr);
+    drawArt();
   };
 
   const shownGlow = (id: string, now: number) => {
@@ -84,8 +113,7 @@ export function startCanvas(
     // The canvas spans the 1380-unit map area, so one design unit is canvas.width / 1380 device pixels.
     const s = canvas.width / MAP_WIDTH;
     ctx.globalAlpha = 1;
-    ctx.fillStyle = bg;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(art, 0, 0);
     for (const p of placed) {
       const site = byId.get(p.id)!;
       const [x, y, r] = [p.x * s, p.y * s, SITE_RADIUS * s];

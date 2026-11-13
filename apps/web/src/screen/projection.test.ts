@@ -1,6 +1,6 @@
-import type { Site } from "@lampa/shared";
+import { MAP_LINES, type MapLine, type Site } from "@lampa/shared";
 import { expect, it } from "vitest";
-import { labelSides, layout, MIN_SPACING, project, SITE_RADIUS, spread, type Point } from "./projection";
+import { labelSides, layout, MIN_SPACING, project, projectLines, SITE_RADIUS, spread, type Point } from "./projection";
 import { sites } from "./sites.fixture";
 
 const MIN_DIST = 2.4 * 96;
@@ -89,4 +89,47 @@ it("a label that would cross another site's circle moves to the clear side", () 
       { id: "lower", x: 600, y: 640 },
     ]),
   ).toEqual({ upper: "above", lower: "below" });
+});
+
+it("with the map lines the five sites still land inside the padded map area", () => {
+  const ps = layout(sites, MAP_LINES);
+  expect(ps).toHaveLength(5);
+  ps.forEach(inside);
+});
+
+it("with the map lines no two sites are closer than 2.4R after spread", () => {
+  const ps = layout(sites, MAP_LINES);
+  for (const [i, a] of ps.entries()) for (const b of ps.slice(i + 1)) expect(dist(a, b)).toBeGreaterThanOrEqual(MIN_DIST - EPS);
+});
+
+it("every projected line point lands inside the padded map area", () => {
+  const lines = projectLines(sites, MAP_LINES);
+  expect(lines.map((l) => l.id)).toEqual(MAP_LINES.map((l) => l.id));
+  for (const l of lines) l.points.forEach((p) => inside({ id: l.id, ...p }));
+});
+
+it("a line point at a site's lat and lng projects to that site's unspread position", () => {
+  const unirii = sites.find((s) => s.id === "unirii")!;
+  const lines: MapLine[] = [...MAP_LINES, { id: "ring", kind: "ring", points: [[unirii.lat, unirii.lng]] }];
+  const point = projectLines(sites, lines).at(-1)!.points[0];
+  const site = byId(project(sites, lines)).unirii;
+  expect(point.x).toBeCloseTo(site.x, 9);
+  expect(point.y).toBeCloseTo(site.y, 9);
+});
+
+it("without lines the layout is unchanged", () => {
+  // Recorded from layout(sites) before the lines joined the fit.
+  const before = [
+    { id: "mx", x: 1214.4, y: 213.3922135879223, label: "below" },
+    { id: "unirii", x: 349.96448991706353, y: 390.606913599394, label: "above" },
+    { id: "victoriei", x: 213.75108175780255, y: 638.8973633503957, label: "below" },
+    { id: "bastion", x: 626.0893556707451, y: 453.5139761004465, label: "below" },
+    { id: "cathedral", x: 165.6, y: 917.9739000308396, label: "below" },
+  ];
+  const after = layout(sites);
+  expect(after.map(({ id, label }) => ({ id, label }))).toEqual(before.map(({ id, label }) => ({ id, label })));
+  after.forEach((p, i) => {
+    expect(p.x).toBeCloseTo(before[i].x, 9);
+    expect(p.y).toBeCloseTo(before[i].y, 9);
+  });
 });
