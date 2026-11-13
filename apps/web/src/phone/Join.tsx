@@ -89,7 +89,7 @@ export default function Join({ siteId }: { siteId?: string }) {
     return memorial ? (
       <MemorialStub name={name!} demo={demo} notice={notice || undefined} />
     ) : (
-      <SiteView site={site!} demo={demo} remote={remote} notice={notice || undefined} />
+      <SiteView site={site!} demo={demo} remote={remote} notice={notice || undefined} compass={result.compass} />
     );
   }
 

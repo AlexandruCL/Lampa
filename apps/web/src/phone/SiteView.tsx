@@ -1,6 +1,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { Button, Notice } from "../components";
 import { track } from "../events";
+import { requestCompass, type CompassStatus } from "../sensors/primer";
 import type { PhoneSite } from "../sites/sites";
 import { DemoBadge } from "./DemoBadge";
 import { GlowMark } from "./GlowMark";
@@ -12,7 +13,8 @@ const EMPTY_PANES: null[] = Array(48).fill(null);
 const CONNECT_WAIT_MS = 8000;
 
 /** Site view (DESIGN.md 7.2). Action buttons have no action yet. */
-export function SiteView({ site, demo, remote, notice }: { site: PhoneSite; demo: boolean; remote: boolean; notice?: ReactNode }) {
+export function SiteView({ site, demo, remote, notice, compass }: { site: PhoneSite; demo: boolean; remote: boolean; notice?: ReactNode; compass: CompassStatus }) {
+  const [compassDenied, setCompassDenied] = useState(compass === "denied");
   const { glow, connected } = useSiteGlow(site.id);
   const [waited, setWaited] = useState(false);
 
@@ -46,6 +48,11 @@ export function SiteView({ site, demo, remote, notice }: { site: PhoneSite; demo
           <Button variant="secondary" size="l" block>Leave an echo</Button>
         </div>
         <Button variant="quiet">Next site</Button>
+        {compassDenied && (
+          <Button variant="quiet" onClick={() => requestCompass().then((s) => setCompassDenied(s !== "granted"))}>
+            Use the compass
+          </Button>
+        )}
       </div>
     </main>
   );
