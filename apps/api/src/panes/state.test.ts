@@ -4,7 +4,8 @@ import express from "express";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { ScreenState } from "@lampa/shared";
 import type { Db } from "../seam.js";
-import { COLOURS_TODAY_SQL, createScreenStateRouter, toScreenState, WINDOWS_SQL } from "./state.js";
+import { candleId } from "../events/candles.js";
+import { COLOURS_TODAY_SQL, createScreenStateRouter, SCREEN_CANDLES_SQL, toScreenState, WINDOWS_SQL } from "./state.js";
 
 let servers: Server[] = [];
 afterEach(async () => {
@@ -13,11 +14,15 @@ afterEach(async () => {
   vi.restoreAllMocks();
 });
 
-async function get(opts: { rows?: any[]; n?: number; noDb?: boolean; fail?: boolean } = {}) {
+async function get(opts: { rows?: any[]; n?: number; noDb?: boolean; fail?: boolean; candles?: any[] } = {}) {
   const db: Db = {
     query: async (text) => {
       if (opts.fail) throw new Error("boom");
-      const rows = text === COLOURS_TODAY_SQL ? [{ n: opts.n ?? 0 }] : text === WINDOWS_SQL ? (opts.rows ?? []) : [];
+      const rows =
+        text === COLOURS_TODAY_SQL ? [{ n: opts.n ?? 0 }]
+        : text === WINDOWS_SQL ? (opts.rows ?? [])
+        : text === SCREEN_CANDLES_SQL ? (opts.candles ?? [])
+        : [];
       return { rows, rowCount: rows.length };
     },
   };
@@ -51,6 +56,32 @@ describe("toScreenState", () => {
 
   it("coloursToday passes through", () => {
     expect(toScreenState([], 17).coloursToday).toBe(17);
+  });
+});
+
+describe("screen candles", () => {
+  const ts = new Date("2026-06-01T12:00:00.000Z");
+
+  it("screen state lists memorial candles as CandleMessage", async () => {
+    const res = await get({ candles: [{ ts, session_id: "anon:x", site_id: "cat" }] });
+    const body = ScreenState.parse(await res.json());
+    expect(body.candles).toEqual([{ id: candleId(ts, "anon:x"), siteId: "cat", litAt: ts.toISOString() }]);
+  });
+
+  it("a screen candle id does not contain the session", async () => {
+    const res = await get({ candles: [{ ts, session_id: "anon:x", site_id: "cat" }] });
+    expect(JSON.stringify(await res.json())).not.toContain("anon:x");
+  });
+
+  it("SCREEN_CANDLES_SQL reads only memorial sites in the last 24 hours", () => {
+    expect(SCREEN_CANDLES_SQL).toContain("kind = 'candle'");
+    expect(SCREEN_CANDLES_SQL).toContain("s.is_memorial");
+    expect(SCREEN_CANDLES_SQL).toContain("now() - INTERVAL '24 hours'");
+    expect(SCREEN_CANDLES_SQL).toContain("ORDER BY e.ts ASC");
+  });
+
+  it("no candle gives candles []", async () => {
+    expect(ScreenState.parse(await (await get()).json()).candles).toEqual([]);
   });
 });
 

@@ -30,7 +30,7 @@ export type GlowLoop = { tick: () => Promise<void>; nudge: () => void; latest: L
 /** Called after a pane is committed: its message, and whether it completed its window. */
 export type OnPane = (pane: PaneMessage, completed: boolean) => void;
 
-/** Called after POST /events stores rows: the candles among them, as messages (often none). */
-export type OnEventsStored = (candles: CandleMessage[]) => void;
+/** Called after rows are stored: the candles among them, as messages (often none). Optional so a caller with no candles (Cristea's echoes router) can pass it as `() => void`. */
+export type OnEventsStored = (candles?: CandleMessage[]) => void;
 
 export type AppDeps = { db?: Db; tx?: Tx; onEventsStored?: OnEventsStored; onPane?: OnPane; latestGlow?: LatestGlow };

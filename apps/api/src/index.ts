@@ -21,7 +21,7 @@ const onPane: OnPane = (pane, completed) => {
   loop?.nudge();
 };
 // Candles go out, then the glow and lamps nudge; the loop sends lamps.
-const onEventsStored: OnEventsStored = (candles) => {
+const onEventsStored: OnEventsStored = (candles = []) => {
   for (const candle of candles) live.emitCandle(candle);
   loop?.nudge();
 };

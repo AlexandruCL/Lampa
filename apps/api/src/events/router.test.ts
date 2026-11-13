@@ -4,6 +4,8 @@ import express from "express";
 import { SignJWT } from "jose";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { INSERT_EVENTS, MAX_EVENT_AGE_MS, createEventsRouter, toRows, userSub } from "./router.js";
+import { candleId } from "./candles.js";
+import { TALK_COUNT_SQL } from "./talk.js";
 
 process.env.SESSION_SECRET = "test-secret";
 
@@ -16,15 +18,23 @@ afterEach(async () => {
 });
 
 type Call = { text: string; params: any[] };
-function fakeDb(rowCount: number | null | Error = 1) {
+// calls holds the inserts; all holds every query, the talk count included.
+function fakeDb(rowCount: number | null | Error = 1, opts: { rows?: any[]; counts?: any[]; countFails?: boolean } = {}) {
   const calls: Call[] = [];
+  const all: Call[] = [];
   return {
     calls,
+    all,
     db: {
       query: async (text: string, params?: unknown[]) => {
+        all.push({ text, params: params as any[] });
+        if (text === TALK_COUNT_SQL) {
+          if (opts.countFails) throw new Error("count boom");
+          return { rows: opts.counts ?? [], rowCount: 0 };
+        }
         calls.push({ text, params: params as any[] });
         if (rowCount instanceof Error) throw rowCount;
-        return { rows: [], rowCount };
+        return { rows: opts.rows ?? [], rowCount };
       },
     },
   };
@@ -140,6 +150,74 @@ describe("POST /events", () => {
     expect(onStored).toHaveBeenCalledTimes(1);
     await (await start({ db: fakeDb(0).db, onStored }))({ events: [ev("wake")] });
     expect(onStored).toHaveBeenCalledTimes(1);
+  });
+
+  it("a lamp at a memorial site is not stored", async () => {
+    const f = fakeDb();
+    await (await start({ db: f.db }))({ events: [ev("lamp")] });
+    expect(f.calls[0]!.text).toContain("NOT (e.kind = 'lamp' AND s.is_memorial)");
+    expect(f.calls[0]!.params[4]).toEqual(["lamp"]);
+  });
+
+  it("a candle at a site that is not a memorial is not stored", async () => {
+    const f = fakeDb();
+    await (await start({ db: f.db }))({ events: [ev("candle")] });
+    expect(f.calls[0]!.text).toContain("NOT (e.kind = 'candle' AND NOT s.is_memorial)");
+    expect(f.calls[0]!.params[4]).toEqual(["candle"]);
+  });
+
+  it("a stored candle reaches onStored as a CandleMessage", async () => {
+    const onStored = vi.fn();
+    const ts = new Date(NOW);
+    const f = fakeDb(2, { rows: [{ ts, site_id: "cat", kind: "candle" }, { ts, site_id: "mx", kind: "wake" }] });
+    await (await start({ db: f.db, onStored }))({ events: [ev("candle", "cat"), ev("wake")] });
+    expect(onStored).toHaveBeenCalledWith([{ id: candleId(ts, "anon:test"), siteId: "cat", litAt: ts.toISOString() }]);
+  });
+
+  it("the candle id does not contain the session", async () => {
+    const onStored = vi.fn();
+    const f = fakeDb(1, { rows: [{ ts: new Date(NOW), site_id: "cat", kind: "candle" }] });
+    await (await start({ db: f.db, onStored }))({ events: [ev("candle", "cat")] });
+    expect(JSON.stringify(onStored.mock.calls[0]![0])).not.toContain("anon:test");
+  });
+
+  it("onStored gets an empty list when no candle was stored", async () => {
+    const onStored = vi.fn();
+    const f = fakeDb(1, { rows: [{ ts: new Date(NOW), site_id: "mx", kind: "wake" }] });
+    await (await start({ db: f.db, onStored }))({ events: [ev("wake")] });
+    expect(onStored).toHaveBeenCalledWith([]);
+  });
+
+  it("onStored throwing still answers 202", async () => {
+    const spy = vi.spyOn(console, "error").mockImplementation(() => {});
+    const onStored = vi.fn(() => { throw new Error("socket down"); });
+    const res = await (await start({ db: fakeDb().db, onStored }))({ events: [ev("wake")] });
+    expect(res.status).toBe(202);
+    expect(spy).toHaveBeenCalledWith("events onStored failed: socket down");
+  });
+
+  it("a sixth talk_turn in 10 minutes is not stored", async () => {
+    const f = fakeDb(1, { counts: [{ site_id: "mx", n: 5 }] });
+    const res = await (await start({ db: f.db }))({ events: [ev("talk_turn")] });
+    expect(res.status).toBe(202);
+    expect(await res.json()).toEqual({ accepted: 0 });
+    expect(f.calls).toHaveLength(0);
+    expect(f.all[0]!.params).toEqual(["anon:test", new Date(NOW.getTime() - 600_000).toISOString()]);
+  });
+
+  it("a batch with no talk_turn runs one query", async () => {
+    const f = fakeDb();
+    await (await start({ db: f.db }))({ events: [ev("wake")] });
+    expect(f.all).toHaveLength(1);
+  });
+
+  it("a failing count query answers 503", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    const f = fakeDb(1, { countFails: true });
+    const res = await (await start({ db: f.db }))({ events: [ev("talk_turn")] });
+    expect(res.status).toBe(503);
+    expect(await res.json()).toEqual({ error: "unavailable" });
+    expect(f.calls).toHaveLength(0);
   });
 
   it("INSERT_EVENTS joins sites and sets no lang, mode or props", () => {
