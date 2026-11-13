@@ -1,22 +1,29 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { Button, Notice } from "../components";
+import { openRearCamera, type CameraResult } from "../sensors/camera";
+import { ColourLens } from "./ColourLens";
 import { track } from "../events";
 import { requestCompass, type CompassStatus } from "../sensors/primer";
 import type { PhoneSite } from "../sites/sites";
 import { DemoBadge } from "./DemoBadge";
 import { GlowMark } from "./GlowMark";
+import { applyPane, emptyWindow } from "./panes";
 import { RoseWindow } from "./RoseWindow";
 import styles from "./SiteView.module.css";
 import { useSiteGlow } from "./useSiteGlow";
 
-const EMPTY_PANES: null[] = Array(48).fill(null);
 const CONNECT_WAIT_MS = 8000;
 
 /** Site view (DESIGN.md 7.2). Action buttons have no action yet. */
 export function SiteView({ site, demo, remote, notice, compass }: { site: PhoneSite; demo: boolean; remote: boolean; notice?: ReactNode; compass: CompassStatus }) {
   const [compassDenied, setCompassDenied] = useState(compass === "denied");
-  const { glow, connected } = useSiteGlow(site.id);
+  const live = useSiteGlow(site.id);
+  const { glow, connected } = live;
+  // Remote: the phone joins no gallery room, so the mini window holds only the visitor's own pane.
+  const [local, setLocal] = useState(emptyWindow);
   const [waited, setWaited] = useState(false);
+  const [camera, setCamera] = useState<Promise<CameraResult> | null>(null);
+  const [view, setView] = useState<"site" | "lens">("site");
 
   useEffect(() => {
     track("wake", site.id);
@@ -28,6 +35,20 @@ export function SiteView({ site, demo, remote, notice, compass }: { site: PhoneS
     return () => clearTimeout(t);
   }, [glow]);
 
+  if (view === "lens" && camera) {
+    return (
+      <ColourLens
+        site={site}
+        remote={remote}
+        demo={demo}
+        camera={camera}
+        onBack={() => setView("site")}
+        panes={remote ? local : live.panes}
+        addPane={remote ? (p) => setLocal((s) => applyPane(s, p)) : live.addPane}
+      />
+    );
+  }
+
   return (
     <main className={styles.page}>
       <div className={styles.top}>{demo && <DemoBadge />}</div>
@@ -38,12 +59,22 @@ export function SiteView({ site, demo, remote, notice, compass }: { site: PhoneS
       <h1 className={styles.name}>{site.name}</h1>
       <GlowMark siteName={site.name} glow={glow} connected={connected} />
       <div className={styles.visual}>
-        <RoseWindow name={site.name} size="l" filled={EMPTY_PANES} glow={glow !== null && glow >= 0.15 ? glow : undefined} />
+        <RoseWindow name={site.name} size="l" filled={live.panes.filled} glow={glow !== null && glow >= 0.15 ? glow : undefined} />
       </div>
       <div className={styles.actions}>
         <Button variant="primary" size="l" block>Talk</Button>
         <div className={styles.grid}>
-          <Button variant="secondary" size="l" block>Catch a colour</Button>
+          <Button
+            variant="secondary"
+            size="l"
+            block
+            onClick={() => {
+              setCamera(openRearCamera()); // inside the tap: iOS needs it before any await
+              setView("lens");
+            }}
+          >
+            Catch a colour
+          </Button>
           {site.lamp && !remote && <Button variant="secondary" size="l" block>Raise a lamp</Button>}
           <Button variant="secondary" size="l" block>Leave an echo</Button>
         </div>

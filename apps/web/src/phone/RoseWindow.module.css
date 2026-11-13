@@ -5,3 +5,17 @@
 /* the leading: a --bg stroke around every pane */
 .pane { fill: var(--surface-2); stroke: var(--bg); stroke-width: 1.5px; vector-effect: non-scaling-stroke; }
 .halo { stop-color: var(--lamp); }
+.pane { transition: fill var(--dur-base) var(--ease-out); }
+/* 5.5: 600ms up, 1200ms hold, 1600ms settle back to the resting halo */
+.flare { animation: flare 3400ms linear forwards; }
+@keyframes flare {
+  0% { opacity: 0; animation-timing-function: var(--ease-out); }
+  17.65% { opacity: 1; }
+  52.94% { opacity: 1; animation-timing-function: var(--ease-out); }
+  100% { opacity: var(--rest); }
+}
+/* 5.6: one 600ms opacity flash */
+@media (prefers-reduced-motion: reduce) {
+  .flare { animation: flash 600ms linear forwards; }
+  @keyframes flash { 0% { opacity: 0; } 50% { opacity: 1; } 100% { opacity: var(--rest); } }
+}

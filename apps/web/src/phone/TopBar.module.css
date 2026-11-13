@@ -1,0 +1,13 @@
+.bar {
+  position: relative;
+  z-index: var(--z-topbar);
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  height: calc(56px + env(safe-area-inset-top, 0px));
+  padding: env(safe-area-inset-top, 0px) var(--space-xs) 0;
+  background: var(--bg);
+}
+.name { font: var(--type-label); color: var(--text-2); text-align: center; }
+.end { justify-self: end; }
