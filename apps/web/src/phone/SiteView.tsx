@@ -1,4 +1,5 @@
 import { useEffect, useState, type ReactNode } from "react";
+import { caughtClink, readingTone, windowChord } from "../audio/note";
 import { useBed } from "../audio/useBed";
 import { Button, Notice } from "../components";
 import { openRearCamera, type CameraResult } from "../sensors/camera";
@@ -60,6 +61,9 @@ export function SiteView({ site, demo, remote, notice, compass, primer, arrived 
         demo={demo}
         camera={camera}
         onBack={() => setView("site")}
+        onReading={readingTone}
+        onCaught={(reading) => caughtClink(reading)}
+        onComplete={() => windowChord((remote ? local : live.panes).filled)}
         onSayWhy={() => {
           setEchoPrompt("Why this colour?");
           setView("echo");
