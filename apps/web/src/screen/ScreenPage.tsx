@@ -4,8 +4,10 @@ import { Button } from "../components";
 import { DemoBadge } from "../phone/DemoBadge";
 import { isDemo } from "../sensors/demo";
 import { startCanvas } from "./canvas";
+import { layout, SITE_RADIUS } from "./projection";
 import { QRBlock } from "./QRBlock";
 import styles from "./ScreenPage.module.css";
+import { Subtitle } from "./Subtitle";
 import { Ticker } from "./Ticker";
 import { useScreenSocket } from "./useScreenSocket";
 
@@ -13,15 +15,17 @@ const RECONNECT_NOTICE_MS = 3000;
 // Module scope keeps one array identity, so renders never reconnect the socket.
 const COLOUR_SITE_IDS = sites.filter((s) => !s.is_memorial).map((s) => s.id);
 const SITE_NAMES = Object.fromEntries(sites.map((s) => [s.id, s.name]));
+const PLACED = new Map(layout(sites, MAP_LINES).map((p) => [p.id, p]));
 
 function LivingMap({ demo }: { demo: boolean }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const { glowRef, windowsRef, effectsRef, connected, coloursToday, events } = useScreenSocket(COLOUR_SITE_IDS, demo);
+  const { glowRef, windowsRef, effectsRef, candlesRef, connected, coloursToday, events, subtitles } = useScreenSocket(COLOUR_SITE_IDS, demo);
   const [reconnecting, setReconnecting] = useState(false);
 
   useEffect(
-    () => (canvasRef.current ? startCanvas(canvasRef.current, sites, MAP_LINES, { glowRef, windowsRef, effectsRef }) : undefined),
-    [glowRef, windowsRef, effectsRef],
+    () =>
+      canvasRef.current ? startCanvas(canvasRef.current, sites, MAP_LINES, { glowRef, windowsRef, effectsRef, candlesRef }) : undefined,
+    [glowRef, windowsRef, effectsRef, candlesRef],
   );
 
   useEffect(() => {
@@ -37,6 +41,22 @@ function LivingMap({ demo }: { demo: boolean }) {
     <>
       <div className={styles.map}>
         <canvas ref={canvasRef} className={styles.canvas} aria-hidden="true" />
+        {subtitles.map((s) => {
+          const p = PLACED.get(s.siteId);
+          return (
+            p && (
+              <Subtitle
+                key={`${s.siteId}-${s.at}`}
+                x={p.x}
+                y={p.y}
+                r={SITE_RADIUS}
+                labelBelow={p.label === "below"}
+                text={s.text}
+                lang={s.lang}
+              />
+            )
+          );
+        })}
         <p className={styles.credit}>© OpenStreetMap contributors</p>
         {demo && (
           <div className={styles.demo}>

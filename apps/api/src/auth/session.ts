@@ -10,12 +10,22 @@ const TTL_SECONDS = 24 * 60 * 60;
 // Env is read per request so tests can set it after import.
 const sessionKey = () => new TextEncoder().encode(process.env.SESSION_SECRET);
 
+/** The anonymous session check: a valid, unexpired HS256 token signed with SESSION_SECRET whose sub starts with `anon:`. */
+export async function verifyAnon(token: string): Promise<string | null> {
+  try {
+    const { payload } = await jwtVerify(token, sessionKey(), { algorithms: ["HS256"] });
+    return typeof payload.sub === "string" && payload.sub.startsWith("anon:") ? payload.sub : null;
+  } catch {
+    return null;
+  }
+}
+
 async function verify(token: string, getAuth0Key: JWTVerifyGetKey): Promise<Visitor> {
   const { alg } = decodeProtectedHeader(token);
   if (alg === "HS256") {
-    const { payload } = await jwtVerify(token, sessionKey(), { algorithms: ["HS256"] });
-    if (typeof payload.sub !== "string") throw new Error("no sub");
-    return { sub: payload.sub, kind: "anon", permissions: [] };
+    const sub = await verifyAnon(token);
+    if (!sub) throw new Error("invalid anonymous token");
+    return { sub, kind: "anon", permissions: [] };
   }
   const domain = process.env.AUTH0_DOMAIN;
   if (alg === "RS256" && domain) {

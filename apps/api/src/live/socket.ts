@@ -40,6 +40,7 @@ export function attachLive(server: HttpServer, { origin, latestGlow, latestLamps
       const parsed = WindowCompleteMessage.parse(message);
       live.to(paneRooms(parsed.siteId)).emit(SocketMessage.enum.window_complete, parsed);
     },
+    emit: (room, message, payload) => void live.to(room).emit(message, payload),
     emitLamps: (message) => void live.emit(SocketMessage.enum.lamps, LampsMessage.parse(message)),
     emitCandle: (message) => {
       const parsed = CandleMessage.parse(message);

@@ -1,17 +1,26 @@
-import { PaneMessage, SocketMessage, WindowCompleteMessage } from "@lampa/shared";
+import { CandleMessage, PaneMessage, ScreenState, SocketMessage, WindowCompleteMessage } from "@lampa/shared";
 import { useEffect, useRef, useState, type RefObject } from "react";
 import { io } from "socket.io-client";
-import { DEMO_GLOW, DEMO_PANE_MS, nextDemoMessage } from "./demoFeed";
+import { applyCandle, applyCandleState, candleDecay, CANDLE_MIN_DECAY, type Candle } from "./candles";
+import { DEMO_CANDLE_MS, DEMO_GLOW, DEMO_PANE_MS, nextDemoCandle, nextDemoMessage } from "./demoFeed";
 import { applyGlow } from "./glow";
+import { addTickerEvent, parseEcho } from "./tickerCopy";
 import { applyPane, applyState, applyWindowComplete, emptyWindows, type WindowsState } from "./windows";
 
 export type ScreenEffect =
   | { kind: "pane"; siteId: string; slot: number; hex: string; at: number }
-  | { kind: "complete"; siteId: string; panes: (string | null)[]; at: number };
+  | { kind: "complete"; siteId: string; panes: (string | null)[]; at: number }
+  | { kind: "echo"; siteId: string; at: number };
 
-export type ScreenEvent = { kind: "pane"; siteId: string; hex: string; at: number } | { kind: "complete"; siteId: string; at: number };
+export type ScreenEvent =
+  | { kind: "pane"; siteId: string; hex: string; at: number }
+  | { kind: "complete"; siteId: string; at: number }
+  | { kind: "echo"; siteId: string; at: number }
+  | { kind: "candle"; at: number };
 
-const MAX_EVENTS = 6;
+export type ScreenSubtitle = { siteId: string; text: string; lang: string | null; at: number };
+
+const SUBTITLE_CHARS = 90;
 
 /** `siteIds` must keep its identity across renders: a new array reconnects the socket. */
 export function useScreenSocket(
@@ -21,21 +30,26 @@ export function useScreenSocket(
   glowRef: RefObject<Record<string, number>>;
   windowsRef: RefObject<WindowsState>;
   effectsRef: RefObject<ScreenEffect[]>;
+  candlesRef: RefObject<Candle[]>;
   connected: boolean;
   coloursToday: number | null;
   events: ScreenEvent[];
+  subtitles: ScreenSubtitle[];
 } {
   const glowRef = useRef<Record<string, number>>({});
   const windowsRef = useRef<WindowsState>(emptyWindows(siteIds));
   const effectsRef = useRef<ScreenEffect[]>([]);
+  const candlesRef = useRef<Candle[]>([]);
   const [connected, setConnected] = useState(false);
   const [coloursToday, setColoursToday] = useState<number | null>(null);
   const [events, setEvents] = useState<ScreenEvent[]>([]);
+  const [subtitles, setSubtitles] = useState<ScreenSubtitle[]>([]);
 
   useEffect(() => {
     windowsRef.current = emptyWindows(siteIds);
     effectsRef.current = [];
-    const addEvent = (event: ScreenEvent) => setEvents((list) => [event, ...list].slice(0, MAX_EVENTS));
+    candlesRef.current = [];
+    const addEvent = (event: ScreenEvent) => setEvents((list) => addTickerEvent(list, event));
 
     const onPane = (message: unknown) => {
       const before = windowsRef.current;
@@ -56,6 +70,25 @@ export function useScreenSocket(
       effectsRef.current.push({ kind: "complete", siteId, panes: before.windows[siteId].panes, at: performance.now() });
       addEvent({ kind: "complete", siteId, at: Date.now() });
     };
+    const onCandle = (message: unknown) => {
+      const before = candlesRef.current;
+      const after = applyCandle(before, message, Date.now());
+      if (after === before) return;
+      candlesRef.current = after;
+      // A candle already past the minimum decay only prunes the list: it gets no ticker line.
+      if (after.some((c) => c.id === CandleMessage.parse(message).id)) addEvent({ kind: "candle", at: Date.now() });
+    };
+    const onEcho = (message: unknown) => {
+      const echo = parseEcho(message, siteIds);
+      if (!echo) return;
+      const { siteId, transcript, lang } = echo;
+      const at = Date.now();
+      effectsRef.current.push({ kind: "echo", siteId, at: performance.now() });
+      addEvent({ kind: "echo", siteId, at });
+      if (transcript === null) return;
+      const text = [...transcript].slice(0, SUBTITLE_CHARS).join("");
+      setSubtitles((list) => [...list.filter((s) => s.siteId !== siteId), { siteId, text, lang, at }]);
+    };
 
     if (demo) {
       glowRef.current = { ...DEMO_GLOW };
@@ -65,7 +98,12 @@ export function useScreenSocket(
         onPane(pane);
         if (complete) onComplete(complete);
       }, DEMO_PANE_MS);
-      return () => clearInterval(timer);
+      let candles = 0;
+      const candleTimer = setInterval(() => onCandle(nextDemoCandle(++candles, Date.now())), DEMO_CANDLE_MS);
+      return () => {
+        clearInterval(timer);
+        clearInterval(candleTimer);
+      };
     }
 
     let live = true;
@@ -75,6 +113,8 @@ export function useScreenSocket(
         if (res.status !== 200) return;
         const body: unknown = await res.json();
         if (!live) return;
+        const state = ScreenState.safeParse(body);
+        if (state.success) candlesRef.current = applyCandleState(candlesRef.current, state.data.candles, Date.now());
         const after = applyState(windowsRef.current, body);
         if (after === windowsRef.current) return;
         windowsRef.current = after;
@@ -92,14 +132,18 @@ export function useScreenSocket(
     socket.on("disconnect", () => setConnected(false));
     socket.on(SocketMessage.enum.glow, (message: unknown) => {
       glowRef.current = applyGlow(glowRef.current, message);
+      const now = Date.now();
+      candlesRef.current = candlesRef.current.filter((c) => candleDecay(c.litAt, now) >= CANDLE_MIN_DECAY);
     });
     socket.on(SocketMessage.enum.pane, onPane);
     socket.on(SocketMessage.enum.window_complete, onComplete);
+    socket.on(SocketMessage.enum.candle, onCandle);
+    socket.on(SocketMessage.enum.echo_approved, onEcho);
     return () => {
       live = false;
       socket.close();
     };
   }, [siteIds, demo]);
 
-  return { glowRef, windowsRef, effectsRef, connected, coloursToday, events };
+  return { glowRef, windowsRef, effectsRef, candlesRef, connected, coloursToday, events, subtitles };
 }

@@ -1,0 +1,21 @@
+.page {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  max-width: var(--column-wide);
+  margin: 0 auto;
+  padding: env(safe-area-inset-top) var(--space-m) calc(var(--space-l) + env(safe-area-inset-bottom));
+  animation: open var(--dur-base) var(--ease-out);
+  transition: opacity var(--dur-fast);
+}
+.dim { opacity: 0.6; }
+@keyframes open { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) {
+  .page { animation-name: openfade; }
+  @keyframes openfade { from { opacity: 0; } to { opacity: 1; } }
+}
+.top { display: flex; justify-content: flex-end; align-items: center; min-height: var(--tap-primary); z-index: var(--z-demo); }
+.notice { margin-top: var(--space-s); }
+.centre { flex: 1; display: grid; place-items: center; }
+.actions { display: flex; flex-direction: column; gap: var(--space-s); }
