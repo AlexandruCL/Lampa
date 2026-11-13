@@ -1,3 +1,1 @@
-export default function Screen() {
-  return <>Screen</>;
-}
+export { default } from "../screen/ScreenPage";

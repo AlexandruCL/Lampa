@@ -1,0 +1,10 @@
+import type { Site } from "@lampa/shared";
+
+// shortcut: approximate coordinates until packages/shared/sites.json lands; swap the import in ScreenPage.tsx then
+export const sites: Site[] = [
+  { id: "mx", name: "Muzeul MX Corneliu Miklosi", lat: 45.761, lng: 21.248, is_memorial: false },
+  { id: "unirii", name: "Piața Unirii", lat: 45.7579, lng: 21.229, is_memorial: false },
+  { id: "victoriei", name: "Piața Victoriei", lat: 45.7537, lng: 21.2253, is_memorial: false },
+  { id: "bastion", name: "Theresia Bastion", lat: 45.7573, lng: 21.234, is_memorial: false },
+  { id: "cathedral", name: "Metropolitan Cathedral", lat: 45.7507, lng: 21.2243, is_memorial: true },
+];
