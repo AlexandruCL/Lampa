@@ -113,7 +113,8 @@ export function startCanvas(
     // The canvas spans the 1380-unit map area, so one design unit is canvas.width / 1380 device pixels.
     const s = canvas.width / MAP_WIDTH;
     ctx.globalAlpha = 1;
-    ctx.drawImage(art, 0, 0);
+    // drawImage throws on a 0-size source, which the map is while hidden below 1024px.
+    if (art.width && art.height) ctx.drawImage(art, 0, 0);
     for (const p of placed) {
       const site = byId.get(p.id)!;
       const [x, y, r] = [p.x * s, p.y * s, SITE_RADIUS * s];
