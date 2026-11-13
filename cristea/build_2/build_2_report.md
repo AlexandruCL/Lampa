@@ -33,7 +33,7 @@ Nothing from the cut order was cut: the QR code, the flare, the pane ring and th
 ## Blocked
 
 - **Live Talk (Checkpoint 2, lines 3 and 4):** the env vars are on Render and the deployed route returns a signed URL.
-  - The tap-to-ask fallback with the key removed works (reported by Cristea). Left: one live session with Patrick (a client tool fires). Patrick turns on the four overrides before `getPersona` lands.
+  - Left, once Patrick's phone Talk is on `main` (today the Talk button has no handler): one live session with a client tool firing, then the tap-to-ask fallback with the key removed. Patrick turns on the four overrides before `getPersona` lands.
 - **Live panes (Checkpoint 2, lines 1 and 2):** waiting for Fabi's `/live`, `POST /panes` and `GET /screen/state`.
 - **Schemas:** the team still has to agree `PaneMessage`, `WindowCompleteMessage`, `ScreenState`, `AgentSession` and `AgentLang`.
 - **Patrick's lane:**
