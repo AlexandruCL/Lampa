@@ -11,6 +11,7 @@ Hour 0: 2026-11-13 13:21 (+0200).
 | S-1.c.1 | `apps/web/src/api/client.ts`: `API_URL`, `SESSION_KEY`, `ApiError`, `api()`, `Health`, `getHealth()`; 6 client tests with `fetch` and `localStorage` stubbed (agent `ionut-api`) | `npm run test -w @lampa/web -- src/api && npm run typecheck -w @lampa/web` → `Tests  6 passed (6)`; exit 0. Returning the JSON without `schema.parse` fails `rejects a 200 body that fails the schema` | 15801e4 | 0 |
 | S-last | Integrated: branch already on `origin/main` (`9603702`, nothing to rebase); PR #3 open; both verify commands re-run; both rule-break checks fail as expected; dev `/screen` reload → `Screen`; `getHealth()` from the dev page console → `{ ok: true }` against the local API started with `WEB_ORIGIN=http://localhost:5173` | `npm run typecheck && npm run build && npm test` → `✓ built in 129ms`; `Test Files  2 passed (2)`, `Tests  7 passed (7)`; exit 0. `npm ci` not run (see Changes) | cc0b795 | 0 |
 | S-last (iPhone) | Ionut's check on the iPhone after PR #3 merged and Vercel deployed `main`: `https://lampa-timisoara.vercel.app` over HTTPS shows `Landing`; `/s/abc` → `Site abc`; `/screen`, `/pulse`, `/curate` show their names after a reload; `/nope` → `/` | Ionut's report: "the iPhone check passed, all routes work" | 4991605 (deployed) | 0 |
+| S-last (Android, contract) | Setup close-out: a teammate's Android route check passed (reported by Ionut, hour 1); the team agreed the contract as it stands in `packages/shared`, enum names and no payloads (`cristea/GLOSSARY.md`, Decisions, hour 0). Setup is closed; the clean `npm ci` run is still listed under Changes | Ionut's report; Cristea's glossary | this commit | 1 |
 
 ## Changes
 Anything that differs from the plan, `DESIGN.md` or the contract, and any file outside this lane that was touched.
@@ -37,12 +38,24 @@ The owner's answers only.
 | 0 | Setup: if the block runs late, the client tests are cut first, then `getHealth()`. The routes and a running Vitest are never cut | Other lanes build on them |
 | 0 | No Vercel access for Ionut: Ionut's PRs get no Vercel preview (the check fails with "Git author … must have access"), and Cristea merges every team PR. PR #3 was merged by Ionut before this | The team's Vercel is on a free plan |
 | 0 | Devices for Ionut's checks: an iPhone. No Android phone. The team's 30-minute contract session has not happened yet | Ionut's answer |
+| 1 | Build 1: `EventIn` `{ kind, siteId, at }`, `EventBatch` `{ events: 1 to 50 }` and `EventsAccepted` `{ accepted }` go into `packages/shared/src/contract.ts` as the first commit of `ionut/b1-events`. `POST /events` answers 202 with `EventsAccepted`. Ionut takes them to Fabi | `POST /events` had no body schema to code against |
+| 1 | Build 1: the phone sites live in `apps/web/src/sites/sites.ts` with Cristea's ids and coordinates and a local `lamp` flag, true for the four colour sites, false for the Cathedral, until `sites.json` lands | `sites.json` has not landed |
+| 1 | Build 1: Ionut's lane owns the one `AudioContext` (`apps/web/src/audio/context.ts`, `getAudioContext`, `unlockAudio`); Patrick's engine imports it and plays the beds | The primer must resume it inside the tap |
+| 1 | Build 1: geofence per concept section 9.7 (pasted by Ionut): enter under r + min(accuracy, 30 m), exit over r + 25 m, ignore accuracy over 60 m; r = 40 m for every site; a QR open (`/s/:siteId`) counts as inside until a real GPS exit | Section 9.7 gives no r |
+| 1 | Build 1: compass gets the 9.7 low-pass filter (alpha 0.2, wrap-safe); the GPS course blend waits for Build 3 | Between sites uses it there |
+| 1 | Build 1: demo mode is URL params only: `?demo=1` sits on the route site, else `&at=<siteId>`, else `mx`; `&heading=<deg>`, 0 when absent. In demo the tap only unlocks audio and asks for no permission | Judges see no prompt on stage |
+| 1 | Build 1: the primer waits at most 8 s for a first position; a timeout counts as granted and the watch keeps trying | Indoors the button would hang |
+| 1 | Build 1: phone glow over Socket.IO `/live` with `query: { room: "site:<id>" }`, using `socket.io-client` 4.8.4 (approved by Cristea for `apps/web`) | Same transport as `/screen` |
+| 1 | Build 1: `api()` switches to Cristea's `authFetch` once `cristea/b1-session` is on `main`; not cuttable, because `POST /events` sits behind `requireVisitor` | Cristea's Hand-off |
+| 1 | Build 1: three subagents and branches: `ionut-sensors` (opus, `ionut/b1-sensors`), `ionut-api` (opus, `ionut/b1-events`), `ionut-screens` (sonnet, `ionut/b1-screens`). Screens start from a local merge of the two Ionut branches and `cristea/b1-foundation` once all three are pushed | Cristea merges every PR and is over budget |
+| 1 | Build 1 cut order: RoseWindow to 48 plain panes with no halo, then GlowMark word only, then demo `&heading`. Never cut: the primer tap, the sensor hooks, the geo tests, `wake` batching | Ionut's answer |
+| 1 | Build 1: the four interaction buttons render with their final labels and no action; "Raise a lamp" shows at the four colour sites, hidden in remote mode | Features land in Builds 2 and 3 |
+| 1 | Build 1: a failed event send (network, 5xx, 401, 429) is retried on the next 2 s tick; other 4xx drop the batch; queue capped at 200, oldest dropped; no storage | Ionut's answer |
+| 1 | Build 1: the tap on `/` goes to `/s/mx`; the Cathedral's "Listen" tap shows a plain memorial stub (name, "Memorial", "Listen" and "Light a candle" with no action, no `wake`) | Between sites and the memorial view come later |
 
 ## Blocked
 | Since hour | ID | Question | Recommendation | Waiting on |
 |---|---|---|---|---|
-| 0 | S-last | The team's 30-minute contract session: payloads of the 8 event kinds and 7 socket messages as Zod schemas in `packages/shared` | Hold it before Build 1 starts; Fabi's `POST /events` is due by hour 6 | Ionut and the team |
-| 0 | S-last | The same check on the team's Android phone | Ask the teammate with the Android to run it | A teammate |
 
 ## Hand-offs
 What other lanes can use now: endpoints, hooks, socket messages, scripts, env vars.
