@@ -34,8 +34,9 @@ describe("from connecting", () => {
 });
 
 describe("from live", () => {
-  it("error goes to fallback, resting", () => expect(step("live", { type: "error" })).toEqual(to("fallback", "resting")));
-  it("disconnected with reason error goes to fallback, resting", () =>
+  it("error goes to fallback, resting, and ends the session", () =>
+    expect(step("live", { type: "error" })).toEqual(to("fallback", "resting", null, true)));
+  it("disconnected with reason error goes to fallback, resting, without ending the session", () =>
     expect(step("live", { type: "disconnected", reason: "error" })).toEqual(to("fallback", "resting")));
   it("disconnected with reason agent goes to timeup with the caption and no notice", () =>
     expect(step("live", { type: "disconnected", reason: "agent" })).toEqual(to("timeup", null, "timeup")));

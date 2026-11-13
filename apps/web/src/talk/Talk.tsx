@@ -51,19 +51,14 @@ function TalkScreen({ site, demo, remote, mic, onBack, panes, addPane }: Props) 
   }, [live, micOn]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const state = !live ? "connecting" : held ? "listening" : conversation.isSpeaking ? "speaking" : micOn ? "listening" : "idle";
-  // shortcut: hands-free "Tap to start" / "Tap to end" are placeholder copy from DESIGN 6.4's prose, until Patrick sets them
   const label =
-    live && handsFree && state !== "listening"
-      ? open ? "Tap to end" : "Tap to start"
+    live && handsFree
+      ? open ? "Tap to stop" : "Tap to talk"
       : { connecting: "Connecting", listening: "Listening", speaking: "Hold to interrupt", idle: "Hold to talk" }[state];
 
   const leave = () => {
     conversation.endSession();
     onBack();
-  };
-  const closeLens = (answer: string) => {
-    talk.settleCatch(answer);
-    setCamera(null);
   };
 
   // tap-to-ask: one answer at a time; `turn` drops results of a stopped answer (a cancel resolves speak "failed")
@@ -103,7 +98,7 @@ function TalkScreen({ site, demo, remote, mic, onBack, panes, addPane }: Props) 
       <main className={styles.page}>
         <TopBar siteName={site.name} onBack={leave} demo={demo} />
         <div className={styles.body}>
-          <Captions name={site.name} lines={talk.lines} timeUp={talk.timeUp} />
+          <Captions name={site.name} lines={talk.lines} timeUp={talk.timeUp} tapToAsk={mode === "fallback" || mode === "timeup"} />
           <div className={styles.actions}>
             {live && talk.catchWaiting && !camera && (
               <Button
@@ -162,8 +157,12 @@ function TalkScreen({ site, demo, remote, mic, onBack, panes, addPane }: Props) 
           remote={remote}
           demo={demo}
           camera={camera}
-          onCaught={(reading) => closeLens(caughtLine(reading.hex))}
-          onBack={() => closeLens(LENS_CLOSED)}
+          // the lens stays open on a catch; Back closes it and settles only a call still waiting
+          onCaught={(reading) => talk.settleCatch(caughtLine(reading.hex))}
+          onBack={() => {
+            talk.settleCatch(LENS_CLOSED);
+            setCamera(null);
+          }}
           panes={panes}
           addPane={addPane}
         />
@@ -194,7 +193,13 @@ export function TapToAsk({
   return (
     <div className={styles.questions}>
       {notice && questions.length === 0 ? (
-        <Notice variant="info">Live conversation is resting. Try again in a few minutes.</Notice>
+        notice === "mic_off" ? (
+          <Notice variant="error">
+            The microphone is off, so the monument cannot hear you. Allow the microphone in your browser settings, then try again.
+          </Notice>
+        ) : (
+          <Notice variant="info">Live conversation is resting. Try again in a few minutes.</Notice>
+        )
       ) : (
         notice && <Notice variant={notice === "resting" ? "info" : "error"}>{NOTICE[notice]}</Notice>
       )}

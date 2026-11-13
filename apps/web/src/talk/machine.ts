@@ -24,6 +24,8 @@ export function step(mode: TalkMode, event: TalkEvent): TalkStep {
       if (event.type === "connected") return stay("live");
       return stay(mode);
     case "live":
+      // an error may leave the socket open, so end it; a disconnect is already closed
+      if (event.type === "error") return { ...resting, endSession: true };
       if (failed) return resting;
       // SDK: reason "agent" is a close with code 1000 or end_call, which this agent lacks, so it is the 120 s cap.
       if (event.type === "disconnected" && event.reason === "agent") return { ...stay("timeup"), caption: "timeup" };

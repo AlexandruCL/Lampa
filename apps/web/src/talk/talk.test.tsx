@@ -37,12 +37,30 @@ describe("TapToAsk", () => {
     expect(out).toContain('role="alert"');
     expect(count(out, "<button")).toBe(3);
   });
+
+  it("mic off with no questions shows the allow-microphone notice", () => {
+    const out = renderToStaticMarkup(<TapToAsk questions={[]} notice="mic_off" playing={null} failed={false} onTap={noop} />);
+    expect(out).toContain(
+      "The microphone is off, so the monument cannot hear you. Allow the microphone in your browser settings, then try again.",
+    );
+    expect(out).toContain('role="alert"');
+    expect(out).not.toContain("resting");
+    expect(out).not.toContain("<button");
+  });
 });
 
 describe("Captions", () => {
   it("shows the empty state with the site name", () => {
-    const out = renderToStaticMarkup(<Captions name="Piața Unirii" lines={[]} timeUp={false} />);
+    const out = renderToStaticMarkup(<Captions name="Piața Unirii" lines={[]} timeUp={false} tapToAsk={false} />);
     expect(out).toContain("Piața Unirii is listening. Hold the button and ask anything.");
+  });
+
+  it("fallback and timeup show the tap-a-question empty state", () => {
+    for (const timeUp of [false, true]) {
+      const out = renderToStaticMarkup(<Captions name="Piața Unirii" lines={[]} timeUp={timeUp} tapToAsk />);
+      expect(out).toContain("Tap a question to hear the answer.");
+      expect(out).not.toContain("is listening");
+    }
   });
 
   it("labels the visitor once and the AI voice once", () => {
@@ -54,6 +72,7 @@ describe("Captions", () => {
           { key: "user-2", role: "user", text: "When did the trams come?" },
         ]}
         timeUp={false}
+        tapToAsk={false}
       />,
     );
     expect(count(out, ">You<")).toBe(1);
@@ -62,7 +81,7 @@ describe("Captions", () => {
   });
 
   it("is a labelled region, not a live region", () => {
-    const out = renderToStaticMarkup(<Captions name="Piața Unirii" lines={[]} timeUp={false} />);
+    const out = renderToStaticMarkup(<Captions name="Piața Unirii" lines={[]} timeUp={false} tapToAsk={false} />);
     expect(out).toContain('aria-label="Captions"');
     expect(out).not.toContain("aria-live");
   });
