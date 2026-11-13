@@ -12,10 +12,10 @@ interactions: [talk, colours, lamp, echo]
 is_memorial: false
 glow_k: 5
 persona:
-  voice: ""
+  voice: "QtObtrglHRaER8xlDZsr"
   traits: ""
 facts: []
-sound_bed: ""
+sound_bed: "Baroque cobbled city square at dusk: gentle fountain trickle, pigeons fluttering softly, distant footsteps on cobblestones, faint low murmur of a cafe terrace far away with no words, calm warm steady ambient loop, no speech, no music"
 directions_hint: {}
 active:
   from: null

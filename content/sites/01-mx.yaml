@@ -12,10 +12,10 @@ interactions: [talk, colours, lamp, echo]
 is_memorial: false
 glow_k: 5
 persona:
-  voice: ""
+  voice: "2V7k6GOisfFlHlBdz8ec"
   traits: ""
 facts: []
-sound_bed: ""
+sound_bed: "Old tram depot at dusk: soft hum of overhead electric wires, faint metallic creaks of resting tram cars, a tram bell far down the street, light evening breeze, calm steady ambient loop, no speech, no music"
 directions_hint: {}
 active:
   from: null

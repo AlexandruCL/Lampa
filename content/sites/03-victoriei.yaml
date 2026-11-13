@@ -12,10 +12,10 @@ interactions: [talk, colours, lamp, echo]
 is_memorial: false
 glow_k: 5
 persona:
-  voice: ""
+  voice: "X6vOWkVPB3AcILSfttxa"
   traits: ""
 facts: []
-sound_bed: ""
+sound_bed: "Wide pedestrian boulevard in a city centre at dusk: steady soft footsteps on stone paving, light breeze in the trees, a tram passing far off, low distant city hum, gently lively steady ambient loop, no speech, no music"
 directions_hint: {}
 active:
   from: null

@@ -1,4 +1,5 @@
 import { useEffect, useState, type ReactNode } from "react";
+import { useBed } from "../audio/useBed";
 import { Button, Notice } from "../components";
 import { openRearCamera, type CameraResult } from "../sensors/camera";
 import { ColourLens } from "./ColourLens";
@@ -19,6 +20,7 @@ export function SiteView({ site, demo, remote, notice, compass }: { site: PhoneS
   const [compassDenied, setCompassDenied] = useState(compass === "denied");
   const live = useSiteGlow(site.id);
   const { glow, connected } = live;
+  useBed(site.id, glow);
   // Remote: the phone joins no gallery room, so the mini window holds only the visitor's own pane.
   const [local, setLocal] = useState(emptyWindow);
   const [waited, setWaited] = useState(false);

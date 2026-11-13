@@ -12,10 +12,10 @@ interactions: [talk, colours, lamp, echo]
 is_memorial: false
 glow_k: 5
 persona:
-  voice: ""
+  voice: "hcmdinlbP4xfFoWIJ1KV"
   traits: ""
 facts: []
-sound_bed: ""
+sound_bed: "Inside an 18th-century brick fortress passage at dusk: low hollow room tone, soft wind through a stone archway, faint echo of distant footsteps on brick, muffled city hum beyond thick walls, calm steady ambient loop, no speech, no music"
 directions_hint: {}
 active:
   from: null

@@ -87,7 +87,7 @@ export default function Join({ siteId }: { siteId?: string }) {
     );
     const remote = new URLSearchParams(search).get("mode") === "remote";
     return memorial ? (
-      <MemorialStub name={name!} demo={demo} notice={notice || undefined} />
+      <MemorialStub siteId={site!.id} name={name!} demo={demo} notice={notice || undefined} />
     ) : (
       <SiteView site={site!} demo={demo} remote={remote} notice={notice || undefined} compass={result.compass} />
     );
