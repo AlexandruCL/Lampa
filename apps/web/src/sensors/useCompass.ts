@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import type { Demo } from "./demo";
 
 export type CompassSource = "ios" | "absolute" | "none";
 export type OrientationReading = { alpha: number | null; webkitCompassHeading?: number };
@@ -18,13 +19,17 @@ export function smoothHeading(prev: number | null, next: number, k: number): num
   return (prev + k * diff + 360) % 360;
 }
 
-export function useCompass(): { heading: number | null; source: CompassSource } {
+/** With `demo` it reads no sensor and returns the injected heading. */
+export function useCompass(demo?: Demo | null): { heading: number | null; source: CompassSource } {
   const [compass, setCompass] = useState<{ heading: number | null; source: CompassSource }>({
     heading: null,
     source: "none",
   });
 
+  const on = !!demo;
+
   useEffect(() => {
+    if (on) return;
     const source = "ondeviceorientationabsolute" in window ? "absolute" : "ios";
     const type = source === "absolute" ? "deviceorientationabsolute" : "deviceorientation";
     const onReading = (e: Event) => {
@@ -33,7 +38,7 @@ export function useCompass(): { heading: number | null; source: CompassSource } 
     };
     window.addEventListener(type, onReading);
     return () => window.removeEventListener(type, onReading);
-  }, []);
+  }, [on]);
 
-  return compass;
+  return demo ? { heading: demo.heading, source: "none" } : compass;
 }

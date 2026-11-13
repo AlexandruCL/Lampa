@@ -1,5 +1,5 @@
-import { describe, expect, it } from "vitest";
-import { requestCompass, requestLocation } from "./primer";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { primeDevice, requestCompass, requestLocation } from "./primer";
 import { headingFromEvent, smoothHeading } from "./useCompass";
 
 /** A fake Geolocation whose getCurrentPosition answers with `answer`, or never when it is undefined. */
@@ -11,6 +11,8 @@ const fakeGeo = (answer?: { code: number }) =>
   }) as unknown as Geolocation;
 
 describe("sensors", () => {
+  afterEach(() => vi.unstubAllGlobals());
+
   it("ios heading is taken from webkitCompassHeading", () => {
     expect(headingFromEvent({ alpha: 10, webkitCompassHeading: 123 }, "ios")).toBe(123);
     expect(headingFromEvent({ alpha: 10 }, "ios")).toBeNull(); // relative alpha never counts on iOS
@@ -39,6 +41,23 @@ describe("sensors", () => {
     expect(await requestLocation(fakeGeo(), 5)).toBe("granted");
     expect(await requestLocation(fakeGeo({ code: 1 }), 5)).toBe("denied");
     expect(await requestLocation(fakeGeo({ code: 2 }), 5)).toBe("granted"); // only a denial is "denied"
+  });
+
+  it("demo priming asks for no location or motion permission", async () => {
+    const getCurrentPosition = vi.fn();
+    const watchPosition = vi.fn();
+    const requestPermission = vi.fn(() => Promise.resolve("granted"));
+    const resume = vi.fn(() => Promise.resolve());
+    vi.stubGlobal("navigator", { geolocation: { getCurrentPosition, watchPosition } });
+    vi.stubGlobal("window", { DeviceOrientationEvent: { requestPermission } });
+    vi.stubGlobal("DeviceOrientationEvent", { requestPermission });
+    vi.stubGlobal("AudioContext", class { state = "running"; resume = resume; });
+
+    expect(await primeDevice({ demo: true })).toEqual({ location: "granted", compass: "granted", audio: "running" });
+    expect(getCurrentPosition).not.toHaveBeenCalled();
+    expect(watchPosition).not.toHaveBeenCalled();
+    expect(requestPermission).not.toHaveBeenCalled();
+    expect(resume).toHaveBeenCalledOnce();
   });
 
   it("smoothing from 350 toward 10 crosses north, not south", () => {

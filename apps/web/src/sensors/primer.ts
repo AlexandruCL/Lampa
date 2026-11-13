@@ -41,8 +41,9 @@ export function requestLocation(
   });
 }
 
-/** Call inside the tap handler. Never asks for camera or microphone. */
-export async function primeDevice(): Promise<PrimerResult> {
+/** Call inside the tap handler. Never asks for camera or microphone; in demo it asks for nothing (DESIGN.md 7.16). */
+export async function primeDevice({ demo = false }: { demo?: boolean } = {}): Promise<PrimerResult> {
+  if (demo) return { location: "granted", compass: "granted", audio: await unlockAudio() };
   // iOS honours these only inside the tap, so all three start before the first await.
   const location = requestLocation();
   const compass = requestCompass();
