@@ -142,3 +142,19 @@ export const SiteDetail = Site.extend({
   glow: z.number().min(0).max(1),
 });
 export type SiteDetail = z.infer<typeof SiteDetail>;
+
+/**
+ * POST /echoes is multipart/form-data. The file field is "audio" (audio/webm or audio/mp4).
+ * These are its text fields. The phone sends only with consent, so consent is always "true".
+ */
+export const EchoFields = z.object({
+  siteId: z.string(),
+  consent: z.literal("true"),
+  durationMs: z.coerce.number().int().min(1000).max(20000),
+  prompt: z.string().optional(),
+});
+export type EchoFields = z.infer<typeof EchoFields>;
+
+/** POST /echoes answers 201 with this. Errors: 400 (bad form), 413 (file too large), 429 with Retry-After. */
+export const EchoAccepted = z.object({ id: z.string(), status: z.literal("pending") });
+export type EchoAccepted = z.infer<typeof EchoAccepted>;
