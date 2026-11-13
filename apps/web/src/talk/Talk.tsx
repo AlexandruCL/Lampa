@@ -1,6 +1,7 @@
 import { ConversationProvider } from "@elevenlabs/react";
 import { useEffect, useRef, useState, type ComponentProps } from "react";
 import { playClip, stopClip } from "../audio/clip";
+import { caughtClink, readingTone, windowChord } from "../audio/note";
 import { Button, Notice, RoundControl } from "../components";
 import { ColourLens } from "../phone/ColourLens";
 import type { WindowPanes } from "../phone/panes";
@@ -157,8 +158,13 @@ function TalkScreen({ site, demo, remote, mic, onBack, panes, addPane }: Props) 
           remote={remote}
           demo={demo}
           camera={camera}
+          onReading={readingTone}
           // the lens stays open on a catch; Back closes it and settles only a call still waiting
-          onCaught={(reading) => talk.settleCatch(caughtLine(reading.hex))}
+          onCaught={(reading) => {
+            caughtClink(reading);
+            talk.settleCatch(caughtLine(reading.hex));
+          }}
+          onComplete={() => windowChord(panes.filled)}
           onBack={() => {
             talk.settleCatch(LENS_CLOSED);
             setCamera(null);

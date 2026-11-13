@@ -36,6 +36,12 @@ Hour 0: 2026-11-13 13:21 (+0200).
 | B2-1.d.1 | `SiteView.tsx`: static `Talk` import, mic promise opened inside the tap, `view` "talk", same panes logic as the lens. Ionut agreed (Decisions, hour 11) | typecheck, build green; web 229 passed; diff `SiteView.tsx` only, 40 insertions, 2 deletions | a268d00 | 11 |
 | B2-2.c | Unirii clips: 2 greetings and 6 answers in `eleven_v3`. Meter (`character_count`) 14,887 before, 15,171 after (116,113 → 115,829 left). Patrick listened and accepted all eight | dry run → ten `exists`, `total new 0 credits`; `clips.json` unirii → `2 3 3` | af11704 | 11 |
 | B2-3.a.1 | `note.ts` bodies, `chordRates`, `shouldPlay`. Changing `TONE_GAP_MS` or the 0.35 boundary fails a test (agent's check). Playback unheard: the clink may click on headphones; tones asked before the context unlocks may sound together | web 229 passed; typecheck exit 0 | e89d726 | 11 |
+| B2-last (PR 1) | #38 `patrick/b2-talk` merged. Rebased twice on `main` (conflicts in `apps/web/package.json`, `package-lock.json`, `SiteView.tsx` kept both sides). The column fix pushed after the merge is carried in PR 2 | `npm run typecheck` exit 0; `npm run build` ok; `npm test` api 222, web 321 passed on the PR branch | 3896c0d | 12 |
+| B2-1.f | Patrick's iPhone smoke test on the deployed build: the persona answered, captions worked, `start_colour_catch` opened the lens. Whether the caught colour reached the conversation was not reported. Patrick's report, not this session's | Patrick's report | none (phone) | 12 |
+| B2-2.c (fix) | The `column` answer said the column was raised here in 1740; the Heritage of Timișoara page says it was first erected elsewhere (likely near the Transylvania Gate), foundation stone 21 Nov 1740, re-erected 1755. Now "begun in 1740" in ro and en. Two clips remade, 244 credits (meter lagged: 115,635 before, unchanged after). Patrick listened and accepted | dry run → every item `exists`, `total new 0 credits`; `clips.json` unirii → `2 3 3` | 3fdf650 | 12 |
+| B2-3.b.1 | `SiteView.tsx` and `Talk.tsx` pass `onReading={readingTone}`, `caughtClink` on catch (before Talk resolves the tool) and `windowChord(panes.filled)` on complete. The chord may lack the completing pane: `ColourLens` fires `onComplete` before the panes re-render | typecheck exit 0; build ok; `npm test` api 261, web 334 passed; diff: the two files, 11 insertions, 1 deletion | f467531 | 12 |
+| B2-5.a | Beds levelled in place to RMS −24 dBFS, peak cap −3 dBFS (the generator's output was 1% to 5% of full scale; cathedral and bastion were nearly inaudible; gains 4x to 29x, unirii limited by peak, cathedral take 2 limited by peak). Bastion and cathedral remade with audible sources (2,400 credits; meter 114,027 left, lagging). Cathedral prompt now has a faint distant church bell (Patrick's request). Patrick picked mx 1, unirii 1, victoriei 2, bastion 1, cathedral 2; Patrick's listening | `node -e` over `picks.json` → `true`; `npm test -w @lampa/web` 334 passed; `npm run publish:site -- --site all` → `total new 0 credits` | 5fd6a60 | 12 |
+| B2-4.a | Batch dry run for all sites: every bed and the eight unirii clips `exists`; the other persona sites and the Cathedral plan no speech item (content missing, Blocked). Nothing run | `npm run publish:site -- --site all` → `total new 0 credits` | none | 12 |
 
 ## Changes
 Anything that differs from the plan, `DESIGN.md` or the contract, and any file outside this lane that was touched.
@@ -72,6 +78,7 @@ Anything that differs from the plan, `DESIGN.md` or the contract, and any file o
 | 11 | B2-1.a.1 | `@elevenlabs/react` 1.22.0 added; `rxjs` and `tslib` in the lock changed from `dev` to `devOptional` by npm | `apps/web/package.json`, `package-lock.json` | Approved dependency; the flag change is npm's |
 | 11 | B2-1.d.1 | Talk wiring and the mic promise | `apps/web/src/phone/SiteView.tsx` | Ionut agreed; Ionut reviews the lines in the PR |
 | 11 | B2-2.0 | `persona` keys of unirii | `content/sites/02-unirii.yaml` | Patrick's content. The column's 1740 date was not checked against a primary source before the paid run (Decisions, hour 10 asked for it) |
+| 12 | B2-5.a | The ten bed WAVs were rewritten in place (new level), and four new bastion and cathedral beds replace the old ones. `sound_bed` of bastion and cathedral changed | `apps/web/public/audio/`, `apps/web/src/audio/clips.json`, `content/sites/04-bastion.yaml`, `content/sites/05-cathedral.yaml` | Outside this lane's files; the team's site files carry only the `sound_bed` line. Cathedral bed now has a faint bell, against the earlier "no bells" |
 
 ## Decisions
 The owner's answers only.
@@ -160,6 +167,8 @@ The owner's answers only.
 | 10 | B2-2.0: Patrick asked this session to draft the unirii text and accepted the draft as written; the concept's dates (column 1740) are to be checked against a primary source before the paid run | Patrick: "help me with 3"; concept 5.2 asks for the check |
 | 11 | Hands-free labels "Tap to talk" (muted) and "Tap to stop" (open); a catch resolves `start_colour_catch` but leaves the lens open until Back; a live `error` ends the session; mic denied at a site with no questions shows "The microphone is off, so the monument cannot hear you. Allow the microphone in your browser settings, then try again."; fallback captions say "Tap a question to hear the answer." | Patrick: "implement everything you recommended" |
 | 11 | Ionut's yes for the `SiteView.tsx` lines; paid Unirii run go; the eight clips are fine | Patrick's words in this session |
+| 12 | Level every bed to a common loudness (option 1); remake bastion and cathedral beds with the proposed prompts plus a faint distant bell in the cathedral; go for the 2,400 credits; go for the 244-credit column remake | Patrick's words in this session |
+| 12 | Bed picks: mx 1, unirii 1, victoriei 2, bastion 1, cathedral 2 | Patrick, after listening |
 
 ## Blocked
 | Since hour | ID | Question | Recommendation | Waiting on |
