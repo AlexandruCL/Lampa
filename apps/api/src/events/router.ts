@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { EventBatch, EventsAccepted, type EventKind } from "@lampa/shared";
-import type { Db } from "../seam.js";
+import type { Db, OnEventsStored } from "../seam.js";
 import { requireVisitor, visitorLimiter, type Visitor } from "../auth/session.js";
 import { CLIENT_KINDS, WEIGHTS } from "./weights.js";
 
@@ -23,7 +23,7 @@ export function toRows(batch: EventBatch, now: Date): { ts: string; siteId: stri
 
 export const userSub = (visitor: Visitor): string | null => (visitor.kind === "auth0" ? visitor.sub : null);
 
-export function createEventsRouter(deps: { db?: Db; onStored?: () => void; now?: () => Date }): Router {
+export function createEventsRouter(deps: { db?: Db; onStored?: OnEventsStored; now?: () => Date }): Router {
   const router = Router();
   router.post("/events", requireVisitor, visitorLimiter, async (req, res) => {
     const parsed = EventBatch.safeParse(req.body);
@@ -42,7 +42,7 @@ export function createEventsRouter(deps: { db?: Db; onStored?: () => void; now?:
         rows.map((r) => r.weight),
       ]);
       const accepted = result.rowCount ?? 0;
-      if (accepted > 0) deps.onStored?.();
+      if (accepted > 0) deps.onStored?.([]);
       res.status(202).json(EventsAccepted.parse({ accepted }));
     } catch (err) {
       console.error("events insert failed: " + (err instanceof Error ? err.message : "unknown"));

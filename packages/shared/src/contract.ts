@@ -68,11 +68,16 @@ export const WindowCompleteMessage = z.object({ siteId: z.string(), windowId: z.
 export type WindowCompleteMessage = z.infer<typeof WindowCompleteMessage>;
 
 // GET /screen/state, public, fetched by /screen on every socket connect
+// candle on /live (Fabi's Build 3 row), and the candles in GET /screen/state
+export const CandleMessage = z.object({ id: z.string(), siteId: z.string(), litAt: z.string() });
+export type CandleMessage = z.infer<typeof CandleMessage>;
+
 export const ScreenState = z.object({
   windows: z.array(
     z.object({ siteId: z.string(), windowId: z.string(), panes: z.array(Hex.nullable()).length(48) }),
   ),
   coloursToday: z.number().int().min(0),
+  candles: z.array(CandleMessage).default([]),
 });
 export type ScreenState = z.infer<typeof ScreenState>;
 
@@ -142,3 +147,18 @@ export const SiteDetail = Site.extend({
   glow: z.number().min(0).max(1),
 });
 export type SiteDetail = z.infer<typeof SiteDetail>;
+
+/** The lamps goal of the night of 12 November 1884. */
+export const LAMP_TARGET = 731;
+
+/** `lamps` on /live, to every socket: `lamp` events since local midnight city-wide, and for each lamp site the distinct sessions with a `lamp` there in the last 90 s. */
+export const LampsMessage = z.object({
+  litToday: z.number().int().min(0),
+  target: z.literal(LAMP_TARGET),
+  sites: z.array(z.object({ siteId: z.string(), lightingNow: z.number().int().min(0) })),
+});
+export type LampsMessage = z.infer<typeof LampsMessage>;
+
+/** GET /time, public: the server clock in epoch milliseconds. */
+export const TimeNow = z.object({ now: z.number().int() });
+export type TimeNow = z.infer<typeof TimeNow>;

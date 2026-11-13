@@ -1,11 +1,11 @@
-import { GlowMessage } from "@lampa/shared";
+import { GlowMessage, type LampsMessage } from "@lampa/shared";
 import type { Db, GlowLoop } from "../seam.js";
 import { glowSql } from "./glow.js";
 
 export const GLOW_INTERVAL_MS = 5000;
 export const NUDGE_MIN_GAP_MS = 1000;
 
-export function startGlowLoop(deps: { db: Db; emit: (message: GlowMessage) => void; intervalMs?: number; now?: () => Date }): GlowLoop {
+export function startGlowLoop(deps: { db: Db; emit: (message: GlowMessage) => void; emitLamps?: (message: LampsMessage) => void; intervalMs?: number; now?: () => Date }): GlowLoop {
   const now = deps.now ?? (() => new Date());
   let latest: GlowMessage | null = null;
   let running: Promise<void> | null = null;
@@ -51,6 +51,7 @@ export function startGlowLoop(deps: { db: Db; emit: (message: GlowMessage) => vo
     tick,
     nudge,
     latest: () => latest,
+    latestLamps: () => null,
     stop: () => {
       stopped = true;
       clearInterval(interval);

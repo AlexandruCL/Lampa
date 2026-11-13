@@ -2,7 +2,7 @@ import type { Server as HttpServer } from "node:http";
 import { GlowMessage, PaneMessage, SocketMessage, sites, WindowCompleteMessage } from "@lampa/shared";
 import { Server } from "socket.io";
 import { GALLERY_SITE_ID } from "../panes/slots.js";
-import type { LatestGlow, Live } from "../seam.js";
+import type { LatestGlow, LatestLamps, Live } from "../seam.js";
 
 /** Always "city"; plus "screen" or "site:<id>" for a known id. Anything else, an array included, adds nothing. */
 export function roomsFor(room: unknown, siteIds: string[]): string[] {
@@ -16,7 +16,8 @@ export function paneRooms(siteId: string): string[] {
   return siteId === GALLERY_SITE_ID ? ["screen"] : ["site:" + siteId, "screen"];
 }
 
-export function attachLive(server: HttpServer, { origin, latestGlow }: { origin: string | undefined; latestGlow: LatestGlow }): Live {
+// latestLamps is optional so the existing socket tests compile unchanged.
+export function attachLive(server: HttpServer, { origin, latestGlow, latestLamps }: { origin: string | undefined; latestGlow: LatestGlow; latestLamps?: LatestLamps }): Live {
   const io = new Server(server, { cors: { origin } });
   const live = io.of("/live");
   const ids = sites.map((s) => s.id);
@@ -36,6 +37,12 @@ export function attachLive(server: HttpServer, { origin, latestGlow }: { origin:
     emitWindowComplete: (message) => {
       const parsed = WindowCompleteMessage.parse(message);
       live.to(paneRooms(parsed.siteId)).emit(SocketMessage.enum.window_complete, parsed);
+    },
+    emitLamps: () => {
+      throw new Error("emitLamps is not implemented");
+    },
+    emitCandle: () => {
+      throw new Error("emitCandle is not implemented");
     },
     close: () => io.close(),
   };

@@ -8,6 +8,7 @@ import { createPanesRouter } from "./panes/router.js";
 import { createScreenStateRouter } from "./panes/state.js";
 import { createSitesRouter } from "./sites/router.js";
 import { createGetSiteStats } from "./stats/stats.js";
+import { createTimeRouter } from "./time/router.js";
 import { createToolsRouter } from "./tools/router.js";
 import type { AppDeps } from "./seam.js";
 
@@ -27,6 +28,7 @@ export function createApp(deps: AppDeps = {}): Express {
   app.use(createPanesRouter({ tx: deps.tx, onPane: deps.onPane }));
   app.use(createScreenStateRouter({ db: deps.db }));
   app.use(createToolsRouter({ db: deps.db, getSiteStats }));
+  app.use(createTimeRouter());
   app.get("/health", (_req, res) => {
     res.json({ ok: true });
   });
