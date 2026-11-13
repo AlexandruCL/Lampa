@@ -48,14 +48,14 @@ async function main(): Promise<void> {
       const t = await client.query(
         `SELECT count(*)::int AS n FROM information_schema.tables
          WHERE table_schema = 'public' AND table_name = ANY($1)`,
-        [["sites", "windows", "panes", "echoes", "blobs", "interaction_events"]],
+        [["sites", "windows", "panes", "echoes", "blobs", "interaction_events", "colour_readings"]],
       );
       const h = await client.query(
         `SELECT count(*)::int AS n FROM timescaledb_information.hypertables
-         WHERE hypertable_name = 'interaction_events'`,
+         WHERE hypertable_name IN ('interaction_events', 'colour_readings')`,
       );
       const s = await client.query("SELECT count(*)::int AS n FROM sites");
-      console.log(`db:reset done: ${t.rows[0].n} tables, ${h.rows[0].n} hypertable, ${s.rows[0].n} sites`);
+      console.log(`db:reset done: ${t.rows[0].n} tables, ${h.rows[0].n} hypertables, ${s.rows[0].n} sites`);
     } finally {
       client.release();
     }

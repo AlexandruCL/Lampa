@@ -22,6 +22,12 @@ export function attachLive(server: HttpServer, { origin, latestGlow }: { origin:
   return {
     // Both clients drop a bad message silently, so parse throws before anything is sent.
     emitGlow: (message) => void live.emit(SocketMessage.enum.glow, GlowMessage.parse(message)),
+    emitPane: () => {
+      throw new Error("emitPane is not implemented");
+    },
+    emitWindowComplete: () => {
+      throw new Error("emitWindowComplete is not implemented");
+    },
     close: () => io.close(),
   };
 }
