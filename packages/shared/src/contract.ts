@@ -160,6 +160,39 @@ export const EchoFields = z.object({
 });
 export type EchoFields = z.infer<typeof EchoFields>;
 
-/** POST /echoes answers 201 with this. Errors: 400 (bad form), 413 (file too large), 429 with Retry-After. */
+// POST /echoes, multipart fields: siteId, consent ("true"), audio (audio/webm or audio/mp4, at most 2 MB). 201:
 export const EchoAccepted = z.object({ id: z.string(), status: z.literal("pending") });
 export type EchoAccepted = z.infer<typeof EchoAccepted>;
+
+// GET /echoes?status=pending (needs moderate:echo), oldest first
+export const PendingEcho = z.object({
+  id: z.string(),
+  siteId: z.string(),
+  createdAt: z.string(),
+  lang: z.string().nullable(),
+  transcript: z.string().nullable(),
+  audioUrl: z.string(), // "/blob/<key>", relative to the API
+});
+export type PendingEcho = z.infer<typeof PendingEcho>;
+export const PendingEchoes = z.object({ echoes: z.array(PendingEcho) });
+export type PendingEchoes = z.infer<typeof PendingEchoes>;
+
+// echo_approved on /live, rooms "screen" and "site:<id>"
+export const EchoApprovedMessage = z.object({
+  echoId: z.string(),
+  siteId: z.string(),
+  audioUrl: z.string(),
+  transcript: z.string().nullable(),
+  lang: z.string().nullable(),
+});
+export type EchoApprovedMessage = z.infer<typeof EchoApprovedMessage>;
+
+// POST /me/claim with an Auth0 token; anonToken is the visitor's anonymous token
+export const ClaimIn = z.object({ anonToken: z.string().min(1) });
+export type ClaimIn = z.infer<typeof ClaimIn>;
+export const ClaimResult = z.object({
+  panes: z.number().int().min(0),
+  echoes: z.number().int().min(0),
+  events: z.number().int().min(0),
+});
+export type ClaimResult = z.infer<typeof ClaimResult>;
