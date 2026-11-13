@@ -8,7 +8,7 @@ export const EXIT_MARGIN_M = 25;
 export const MAX_ACCURACY_M = 60;
 
 export type FenceState = { insideId: string | null };
-export type Fix = LatLng & { accuracy: number };
+export type Fix = LatLng & { accuracy: number; course?: number | null; speed?: number | null };
 type FenceSite = LatLng & { id: string };
 
 /** A QR open of `/s/:siteId` starts inside that site whatever GPS says. */
