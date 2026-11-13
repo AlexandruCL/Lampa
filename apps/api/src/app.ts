@@ -4,6 +4,8 @@ import { makeGetPersona } from "./agent/persona.js";
 import { createAgentRouter } from "./agent/session.js";
 import { sessionRouter } from "./auth/session.js";
 import { createEventsRouter } from "./events/router.js";
+import { createPanesRouter } from "./panes/router.js";
+import { createScreenStateRouter } from "./panes/state.js";
 import { createSitesRouter } from "./sites/router.js";
 import type { AppDeps } from "./seam.js";
 
@@ -19,6 +21,8 @@ export function createApp(deps: AppDeps = {}): Express {
   app.use(createAgentRouter({ getPersona: deps.db && makeGetPersona(deps.db) }));
   app.use(createEventsRouter({ db: deps.db, onStored: deps.onEventsStored }));
   app.use(createSitesRouter({ db: deps.db, latestGlow: deps.latestGlow ?? (() => null) }));
+  app.use(createPanesRouter({ tx: deps.tx, onPane: deps.onPane }));
+  app.use(createScreenStateRouter({ db: deps.db }));
   app.get("/health", (_req, res) => {
     res.json({ ok: true });
   });
