@@ -74,7 +74,8 @@ export function startCanvas(
     for (const [str, f, family, color] of lines) {
       ctx.font = `${f.weight} ${f.size * s}px ${family}`;
       ctx.fillStyle = color;
-      ctx.fillText(str, x, top + (f.line * s) / 2);
+      const half = Math.min(ctx.measureText(str).width / 2, canvas.width / 2);
+      ctx.fillText(str, Math.min(Math.max(x, half), canvas.width - half), top + (f.line * s) / 2);
       top += f.line * s;
     }
   };

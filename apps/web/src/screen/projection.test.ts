@@ -75,8 +75,17 @@ it("when two labels overlap the lower site's label goes above", () => {
   expect(
     labelSides([
       { id: "upper", x: 600, y: 500 },
-      { id: "lower", x: 700, y: 540 },
-      { id: "far", x: 1100, y: 540 },
+      { id: "lower", x: 840, y: 540 },
+      { id: "far", x: 1200, y: 540 },
     ]),
   ).toEqual({ upper: "below", lower: "above", far: "below" });
+});
+
+it("a label that would cross another site's circle moves to the clear side", () => {
+  expect(
+    labelSides([
+      { id: "upper", x: 600, y: 400 },
+      { id: "lower", x: 600, y: 640 },
+    ]),
+  ).toEqual({ upper: "above", lower: "below" });
 });
