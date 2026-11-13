@@ -10,6 +10,7 @@ import { createPanesRouter } from "./panes/router.js";
 import { createScreenStateRouter } from "./panes/state.js";
 import { createSitesRouter } from "./sites/router.js";
 import { createGetSiteStats } from "./stats/stats.js";
+import { createTimeRouter } from "./time/router.js";
 import { createToolsRouter } from "./tools/router.js";
 import type { AppDeps } from "./seam.js";
 
@@ -31,6 +32,7 @@ export function createApp(deps: AppDeps = {}): Express {
   app.use(createToolsRouter({ db: deps.db, getSiteStats }));
   app.use(createEchoesRouter({ db: deps.db, tx: deps.tx, onStored: deps.onEventsStored, emit: deps.emit }));
   app.use(createClaimRouter({ tx: deps.tx }));
+  app.use(createTimeRouter());
   app.get("/health", (_req, res) => {
     res.json({ ok: true });
   });

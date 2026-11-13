@@ -1,7 +1,8 @@
-import type { GlowMessage } from "@lampa/shared";
+import type { GlowMessage, LampsMessage } from "@lampa/shared";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { Db, GlowLoop } from "../seam.js";
 import { glowSql } from "./glow.js";
+import { LAMPS_SQL } from "./lamps.js";
 import { startGlowLoop } from "./loop.js";
 
 type Row = { site_id: string; glow: unknown };
@@ -148,5 +149,83 @@ describe("glow loop", () => {
     await vi.advanceTimersByTimeAsync(20000);
     await l.tick();
     expect(query).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("lamps in the loop", () => {
+  let lampRows: { site_id: string; lit_today: unknown; lighting_now: unknown }[];
+  let emitLamps: ReturnType<typeof vi.fn<(message: LampsMessage) => void>>;
+  const lampsOf = (litToday: number): LampsMessage => ({ litToday, target: 731, sites: [{ siteId: "mx", lightingNow: 0 }] });
+  const startWithLamps = () => (loop = startGlowLoop({ db: { query }, emit, emitLamps }));
+
+  beforeEach(() => {
+    rows = [{ site_id: "opera", glow: 0.5 }];
+    lampRows = [{ site_id: "mx", lit_today: 3, lighting_now: 0 }];
+    // Answers by SQL text, so a test can fail one query and not the other.
+    query.mockImplementation(async (text) => (text === LAMPS_SQL ? { rows: lampRows, rowCount: lampRows.length } : { rows, rowCount: rows.length }));
+    emitLamps = vi.fn<(message: LampsMessage) => void>();
+  });
+
+  it("a tick emits glow, then lamps", async () => {
+    const order: string[] = [];
+    emit.mockImplementation(() => void order.push("glow"));
+    emitLamps.mockImplementation(() => void order.push("lamps"));
+    await startWithLamps().tick();
+    expect(order).toEqual(["glow", "lamps"]);
+    expect(query.mock.calls.map(([text]) => text)).toEqual([glowSql(), LAMPS_SQL]);
+    expect(emitLamps).toHaveBeenCalledWith(lampsOf(3));
+  });
+
+  it("a failed lamps query still emits glow", async () => {
+    query.mockImplementation(async (text) => {
+      if (text === LAMPS_SQL) throw new Error("lamps gone");
+      return { rows, rowCount: rows.length };
+    });
+    const l = startWithLamps();
+    await l.tick();
+    expect(emit).toHaveBeenCalledWith({ sites: [{ siteId: "opera", glow: 0.5 }] });
+    expect(l.latest()).toEqual({ sites: [{ siteId: "opera", glow: 0.5 }] });
+    expect(emitLamps).not.toHaveBeenCalled();
+    expect(l.latestLamps()).toBeNull();
+    expect(errors).toHaveBeenCalledWith("lamps tick failed: lamps gone");
+  });
+
+  it("a failed glow query still emits lamps", async () => {
+    query.mockImplementation(async (text) => {
+      if (text !== LAMPS_SQL) throw new Error("glow gone");
+      return { rows: lampRows, rowCount: lampRows.length };
+    });
+    const l = startWithLamps();
+    await l.tick();
+    expect(errors).toHaveBeenCalledWith("glow tick failed: glow gone");
+    expect(emit).not.toHaveBeenCalled();
+    expect(emitLamps).toHaveBeenCalledWith(lampsOf(3));
+    expect(l.latestLamps()).toEqual(lampsOf(3));
+  });
+
+  it("latestLamps is null before the first tick and the last message after", async () => {
+    const l = startWithLamps();
+    expect(l.latestLamps()).toBeNull();
+    await l.tick();
+    expect(l.latestLamps()).toEqual(lampsOf(3));
+    lampRows = [{ site_id: "mx", lit_today: 5, lighting_now: 0 }];
+    await vi.advanceTimersByTimeAsync(5000);
+    expect(l.latestLamps()).toEqual(lampsOf(5));
+    // An emitLamps that throws keeps the last message sent.
+    emitLamps.mockImplementationOnce(() => {
+      throw new Error("socket gone");
+    });
+    lampRows = [{ site_id: "mx", lit_today: 9, lighting_now: 0 }];
+    await l.tick();
+    expect(errors).toHaveBeenCalledWith("lamps tick failed: socket gone");
+    expect(l.latestLamps()).toEqual(lampsOf(5));
+  });
+
+  it("no emitLamps runs no lamps query", async () => {
+    const l = start();
+    await l.tick();
+    await vi.advanceTimersByTimeAsync(5000);
+    expect(query.mock.calls.map(([text]) => text)).toEqual([glowSql(), glowSql()]);
+    expect(l.latestLamps()).toBeNull();
   });
 });

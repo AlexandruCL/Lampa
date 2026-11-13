@@ -196,3 +196,18 @@ export const ClaimResult = z.object({
   events: z.number().int().min(0),
 });
 export type ClaimResult = z.infer<typeof ClaimResult>;
+
+/** The lamps goal of the night of 12 November 1884. */
+export const LAMP_TARGET = 731;
+
+/** `lamps` on /live, to every socket: `lamp` events since local midnight city-wide, and for each lamp site the distinct sessions with a `lamp` there in the last 90 s. */
+export const LampsMessage = z.object({
+  litToday: z.number().int().min(0),
+  target: z.literal(LAMP_TARGET),
+  sites: z.array(z.object({ siteId: z.string(), lightingNow: z.number().int().min(0) })),
+});
+export type LampsMessage = z.infer<typeof LampsMessage>;
+
+/** GET /time, public: the server clock in epoch milliseconds. */
+export const TimeNow = z.object({ now: z.number().int() });
+export type TimeNow = z.infer<typeof TimeNow>;

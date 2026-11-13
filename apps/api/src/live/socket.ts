@@ -1,8 +1,8 @@
 import type { Server as HttpServer } from "node:http";
-import { GlowMessage, PaneMessage, SocketMessage, sites, WindowCompleteMessage } from "@lampa/shared";
+import { CandleMessage, GlowMessage, LampsMessage, PaneMessage, SocketMessage, sites, WindowCompleteMessage } from "@lampa/shared";
 import { Server } from "socket.io";
 import { GALLERY_SITE_ID } from "../panes/slots.js";
-import type { LatestGlow, Live } from "../seam.js";
+import type { LatestGlow, LatestLamps, Live } from "../seam.js";
 
 /** Always "city"; plus "screen" or "site:<id>" for a known id. Anything else, an array included, adds nothing. */
 export function roomsFor(room: unknown, siteIds: string[]): string[] {
@@ -16,7 +16,8 @@ export function paneRooms(siteId: string): string[] {
   return siteId === GALLERY_SITE_ID ? ["screen"] : ["site:" + siteId, "screen"];
 }
 
-export function attachLive(server: HttpServer, { origin, latestGlow }: { origin: string | undefined; latestGlow: LatestGlow }): Live {
+// latestLamps is optional so the existing socket tests compile unchanged.
+export function attachLive(server: HttpServer, { origin, latestGlow, latestLamps }: { origin: string | undefined; latestGlow: LatestGlow; latestLamps?: LatestLamps }): Live {
   const io = new Server(server, { cors: { origin } });
   const live = io.of("/live");
   const ids = sites.map((s) => s.id);
@@ -24,6 +25,8 @@ export function attachLive(server: HttpServer, { origin, latestGlow }: { origin:
     socket.join(roomsFor(socket.handshake.query.room, ids));
     const latest = latestGlow();
     if (latest !== null) socket.emit(SocketMessage.enum.glow, latest);
+    const lamps = latestLamps?.() ?? null;
+    if (lamps !== null) socket.emit(SocketMessage.enum.lamps, lamps);
   });
   return {
     // Both clients drop a bad message silently, so parse throws before anything is sent.
@@ -38,6 +41,11 @@ export function attachLive(server: HttpServer, { origin, latestGlow }: { origin:
       live.to(paneRooms(parsed.siteId)).emit(SocketMessage.enum.window_complete, parsed);
     },
     emit: (room, message, payload) => void live.to(room).emit(message, payload),
+    emitLamps: (message) => void live.emit(SocketMessage.enum.lamps, LampsMessage.parse(message)),
+    emitCandle: (message) => {
+      const parsed = CandleMessage.parse(message);
+      live.to(["site:" + parsed.siteId, "screen"]).emit(SocketMessage.enum.candle, parsed);
+    },
     close: () => io.close(),
   };
 }
