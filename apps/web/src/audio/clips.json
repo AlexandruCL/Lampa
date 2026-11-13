@@ -82,8 +82,8 @@
     },
     "bastion": {
       "beds": [
-        "bastion/bed-1-1c110a9e8c7f.wav",
-        "bastion/bed-2-cc9f328214a4.wav"
+        "bastion/bed-1-f5242a3cb1b1.wav",
+        "bastion/bed-2-0f52d18daccf.wav"
       ],
       "greeting": {},
       "answers": {},
@@ -92,8 +92,8 @@
     },
     "cathedral": {
       "beds": [
-        "cathedral/bed-1-0669be93afde.wav",
-        "cathedral/bed-2-45e1c30854d4.wav"
+        "cathedral/bed-1-2e0734b512aa.wav",
+        "cathedral/bed-2-4502fb3ca8be.wav"
       ],
       "greeting": {},
       "answers": {},
