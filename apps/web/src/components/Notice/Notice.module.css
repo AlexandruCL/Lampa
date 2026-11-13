@@ -1,0 +1,27 @@
+.notice {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-xs) var(--space-s);
+  padding: var(--space-s) var(--space-m);
+  border-radius: var(--radius-s);
+  background: var(--surface-2);
+  color: var(--text);
+  font: var(--type-body);
+  transition: opacity var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-out);
+}
+@starting-style {
+  .notice { opacity: 0; transform: translateY(var(--notice-shift)); }
+}
+.icon { align-self: flex-start; margin-top: 1px; display: inline-flex; }
+.text { flex: 1 1 12rem; margin: 0; min-width: 0; }
+.action { margin: calc(var(--space-s) * -1) calc(var(--space-xs) * -1) calc(var(--space-s) * -1) auto; }
+.connection .icon { color: var(--text-2); }
+.error .icon { color: var(--danger); }
+
+/* DESIGN.md 5.6: notices appear by opacity only */
+@media (prefers-reduced-motion: reduce) {
+  @starting-style {
+    .notice { transform: none; }
+  }
+}

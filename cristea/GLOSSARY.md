@@ -15,6 +15,7 @@ Hours below marked "pre-0" were recorded on 2026-11-13, before the start.
 | S-last | Branch on top of `main`; fresh-clone verify green; PR #1 open; glossary complete for this block | fresh clone of the branch: `npm ci && npm run typecheck && npm run build && npm test` → exit 0 | this commit | 0 |
 | S-last checks | Phone checks on iPhone and Android; contract session | Reported by Cristea: phone checks work; the team agrees the contract | none | 0 |
 | B1-1.a.1 | Tokens copied to `apps/web/src/styles/tokens.css`, phone baseline meta tags, Atkinson 400/600/700 and Piazzolla 600 imported before the tokens in `main.tsx` | `cmp design/css/tokens.css apps/web/src/styles/tokens.css && npm run typecheck -w @lampa/web && npm run build -w @lampa/web && ls apps/web/dist/assets \| grep -c woff2` → cmp silent, `✓ built in 213ms`, `13` | this commit | 2 |
+| B1-1.b.1 | `Icon` (nine names), `Button` (primary, secondary, quiet, icon; extras shipped: danger, loading), `Notice` (info, error; extra shipped: connection), reduced motion drops scale and translate | `npm run typecheck -w @lampa/web && npm run build -w @lampa/web` → exit 0, `✓ built in 253ms`; hex grep over the modules prints nothing | this commit | 3 |
 
 ## Changes
 Anything that differs from the plan, `DESIGN.md` or the contract, and any file outside this lane that was touched.
