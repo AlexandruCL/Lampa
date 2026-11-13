@@ -36,3 +36,18 @@ export const Site = z.object({
   is_memorial: z.boolean(),
 });
 export type Site = z.infer<typeof Site>;
+
+export const EventIn = z.object({
+  kind: EventKind,
+  siteId: z.string(),
+  at: z.string().datetime(),
+});
+export type EventIn = z.infer<typeof EventIn>;
+
+export const EventBatch = z.object({
+  events: z.array(EventIn).min(1).max(50),
+});
+export type EventBatch = z.infer<typeof EventBatch>;
+
+export const EventsAccepted = z.object({ accepted: z.number().int().min(0) });
+export type EventsAccepted = z.infer<typeof EventsAccepted>;

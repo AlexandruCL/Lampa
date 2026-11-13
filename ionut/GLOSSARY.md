@@ -39,6 +39,7 @@ The owner's answers only.
 | 0 | Setup: branch `ionut/setup-routes-client`, one PR, opened as soon as the verify commands pass. `ionut/` goes to `main` first as a separate docs commit. The branch starts from `main` and does not wait for Cristea's PR #1 | Ionut's answer |
 | 0 | Setup: two subagents in parallel, `ionut-routes` on `sonnet` and `ionut-api` on `opus`. The session commits the dependencies and the Vitest script itself before starting them | Ionut's answer |
 | 0 | Setup: if the block runs late, the client tests are cut first, then `getHealth()`. The routes and a running Vitest are never cut | Other lanes build on them |
+| 0 | No Vercel access for Ionut: Ionut's PRs get no Vercel preview (the check fails with "Git author … must have access"), and Cristea merges every team PR. PR #3 was merged by Ionut before this | The team's Vercel is on a free plan |
 | 0 | Devices for Ionut's checks: an iPhone. No Android phone. The team's 30-minute contract session has not happened yet | Ionut's answer |
 | 1 | B1-1.b.1: a `requestPermission()` that rejects or throws maps to `compass: "denied"`; B1-3 adds a retry tap that calls `requestCompass()` again | A call outside a tap is rejected and a second tap fixes that; a real "Don't Allow" needs a reload or cleared website data |
 | 1 | B1-1.b.1: `useCompass` `source` leaves `"none"` at the first reading, together with the heading | Desktop Chrome has the absolute event type but sends no readings |
@@ -49,10 +50,6 @@ The owner's answers only.
 ## Blocked
 | Since hour | ID | Question | Recommendation | Waiting on |
 |---|---|---|---|---|
-| 0 | S-last | The team's 30-minute contract session: payloads of the 8 event kinds and 7 socket messages as Zod schemas in `packages/shared` | Hold it before Build 1 starts; Fabi's `POST /events` is due by hour 6 | Ionut and the team |
-| 0 | S-last | Vercel did not build a preview of PR #3: "Git author ionutT77 must have access to the project on Vercel to create deployments." The `main` deploy after merge is not affected by this check | Cristea adds `ionutT77` to the Vercel project | Cristea |
-| 0 | S-last | iPhone check after merge and Vercel deploy: `/` → `Landing`, `/s/abc` → `Site abc`, `/screen`, `/pulse`, `/curate` after a reload, `/nope` → `/` | Run it right after the merge | Ionut |
-| 0 | S-last | The same check on the team's Android phone | Ask the teammate with the Android to run it | A teammate |
 
 ## Hand-offs
 What other lanes can use now: endpoints, hooks, socket messages, scripts, env vars.
