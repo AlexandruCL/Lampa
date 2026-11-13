@@ -101,3 +101,24 @@ export const AgentSession = z.object({
   }),
 });
 export type AgentSession = z.infer<typeof AgentSession>;
+
+/** POST /panes body. siteId is "gallery" in remote mode. bin null is night glass. */
+export const PaneIn = z.object({
+  siteId: z.string(),
+  hue: z.number().min(0).max(360),
+  saturation: z.number().min(0).max(1),
+  lightness: z.number().min(0).max(1),
+  hex: z.string().regex(/^#[0-9a-f]{6}$/),
+  bin: z.number().int().min(0).max(11).nullable(),
+  at: z.string().datetime(),
+});
+export type PaneIn = z.infer<typeof PaneIn>;
+
+/** POST /panes answers 201 with this. A rate limit answers 429 with Retry-After. */
+export const PaneAccepted = z.object({
+  windowId: z.string(),
+  slot: z.number().int().min(0).max(47),
+  count: z.number().int().min(1).max(48),
+  completed: z.boolean(),
+});
+export type PaneAccepted = z.infer<typeof PaneAccepted>;
