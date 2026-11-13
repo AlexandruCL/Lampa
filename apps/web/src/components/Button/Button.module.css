@@ -1,0 +1,73 @@
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2xs);
+  min-height: var(--tap-min);
+  padding: var(--space-xs) var(--space-m);
+  box-sizing: border-box;
+  border: var(--border-control) solid transparent;
+  border-radius: var(--radius-m);
+  background: transparent;
+  color: var(--text);
+  font: var(--type-label);
+  text-align: center;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+  transition:
+    background-color var(--dur-press) var(--ease-out),
+    color var(--dur-press) var(--ease-out),
+    transform var(--dur-press) var(--ease-out);
+}
+.l { min-height: var(--tap-primary); padding: var(--space-xs) var(--space-l); }
+.block { display: flex; width: 100%; }
+.button:active { transform: scale(var(--press-scale)); }
+
+.primary { background: var(--lamp); color: var(--on-lamp); }
+.primary:active { background: var(--lamp-pressed); }
+
+.secondary { border-color: var(--line-strong); }
+.secondary:active { background: var(--surface-2); }
+
+.quiet { color: var(--text-2); text-decoration: underline; text-underline-offset: 4px; }
+.quiet:active { color: var(--text); }
+
+.danger { border-color: var(--danger); color: var(--danger); }
+.danger:active { background: var(--surface-2); }
+
+.icon { width: var(--tap-min); height: var(--tap-min); padding: 0; border-radius: var(--radius-round); }
+.icon:active { background: var(--surface-2); }
+
+/* disabled wins over pressed: keep these after the pressed rules */
+.button:disabled { cursor: default; transform: none; }
+.primary:disabled { background: var(--surface-2); color: var(--text-3); }
+.secondary:disabled,
+.danger:disabled { background: transparent; border-color: var(--line); color: var(--text-3); }
+.quiet:disabled { color: var(--text-3); text-decoration: none; }
+.icon:disabled { background: transparent; color: var(--text-3); }
+
+.button[aria-busy="true"] { pointer-events: none; }
+
+.spinner {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  box-sizing: border-box;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: var(--radius-round);
+  animation: lampa-spin 800ms linear infinite;
+}
+@keyframes lampa-spin { to { transform: rotate(360deg); } }
+
+@media (hover: hover) and (pointer: fine) {
+  .primary:hover:not(:disabled) { background: var(--lamp-pressed); }
+  .secondary:hover:not(:disabled) { background: var(--surface); }
+  .quiet:hover:not(:disabled) { color: var(--text); }
+}
+
+/* DESIGN.md 5.6: no scale, no translate; the spinner is a rotation and stays */
+@media (prefers-reduced-motion: reduce) {
+  .button:active { transform: none; }
+}
