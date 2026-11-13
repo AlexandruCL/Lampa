@@ -7,6 +7,7 @@ import { track } from "../events";
 import { requestCompass, type CompassStatus } from "../sensors/primer";
 import type { PhoneSite } from "../sites/sites";
 import { DemoBadge } from "./DemoBadge";
+import { EchoRecorder } from "./EchoRecorder";
 import { GlowMark } from "./GlowMark";
 import { applyPane, emptyWindow } from "./panes";
 import { RoseWindow } from "./RoseWindow";
@@ -25,7 +26,8 @@ export function SiteView({ site, demo, remote, notice, compass }: { site: PhoneS
   const [local, setLocal] = useState(emptyWindow);
   const [waited, setWaited] = useState(false);
   const [camera, setCamera] = useState<Promise<CameraResult> | null>(null);
-  const [view, setView] = useState<"site" | "lens">("site");
+  const [view, setView] = useState<"site" | "lens" | "echo">("site");
+  const [echoPrompt, setEchoPrompt] = useState<string | undefined>();
 
   useEffect(() => {
     track("wake", site.id);
@@ -45,10 +47,18 @@ export function SiteView({ site, demo, remote, notice, compass }: { site: PhoneS
         demo={demo}
         camera={camera}
         onBack={() => setView("site")}
+        onSayWhy={() => {
+          setEchoPrompt("Why this colour?");
+          setView("echo");
+        }}
         panes={remote ? local : live.panes}
         addPane={remote ? (p) => setLocal((s) => applyPane(s, p)) : live.addPane}
       />
     );
+  }
+
+  if (view === "echo") {
+    return <EchoRecorder site={site} demo={demo} prompt={echoPrompt} onBack={() => setView("site")} />;
   }
 
   return (
@@ -78,7 +88,17 @@ export function SiteView({ site, demo, remote, notice, compass }: { site: PhoneS
             Catch a colour
           </Button>
           {site.lamp && !remote && <Button variant="secondary" size="l" block>Raise a lamp</Button>}
-          <Button variant="secondary" size="l" block>Leave an echo</Button>
+          <Button
+            variant="secondary"
+            size="l"
+            block
+            onClick={() => {
+              setEchoPrompt(undefined);
+              setView("echo");
+            }}
+          >
+            Leave an echo
+          </Button>
         </div>
         <Button variant="quiet">Next site</Button>
         {compassDenied && (
