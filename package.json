@@ -1,0 +1,13 @@
+{
+  "name": "lampa",
+  "private": true,
+  "workspaces": ["apps/*", "packages/*"],
+  "engines": { "node": "26.x" },
+  "scripts": {
+    "dev": "concurrently \"npm run dev -w @lampa/api\" \"npm run dev -w @lampa/web\"",
+    "build": "npm run build --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present"
+  },
+  "devDependencies": { "concurrently": "10.0.7" }
+}

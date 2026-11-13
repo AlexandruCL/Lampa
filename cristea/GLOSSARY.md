@@ -7,11 +7,15 @@ Hours below marked "pre-0" were recorded on 2026-11-13, before the start.
 ## Done
 | ID | What | Verify summary | Commit | Hour |
 |---|---|---|---|---|
+| S-0 | Preflight: baseline `001923e` with 9 tracked files; hour 0 and the five values recorded; Node majors looked up; Vercel CLI 65.15.0 and Render CLI 2.36.0 installed | `vercel whoami` → `alexandrucl`; `render whoami` → Alexandru Cristea; Render workspace set to Alexandru's workspace | 337752f | 0 |
+| S-1.a.1 | Workspace scaffold with a health endpoint | fresh clone: `npm ci && npm run typecheck && npm run build && npm test` → exit 0, `✓ built in 131ms`; `GET /health` → `200 {"ok":true}` | `chore(setup) added the npm workspaces for web, api and shared` | 0 |
 
 ## Changes
 Anything that differs from the plan, `DESIGN.md` or the contract, and any file outside this lane that was touched.
 | Hour | ID | What changed | Files | Why |
 |---|---|---|---|---|
+| 0 | S-1.a.1 | Added `@vitejs/plugin-react` and `@types/*` dev dependencies, which plan section 3 does not name | `apps/web/package.json`, `apps/api/package.json`, `package-lock.json` | Vite needs the plugin for JSX, and typecheck needs the types. Approved by Cristea |
+| 0 | S-1.a.1 | npm blocks the `esbuild` postinstall script (`allowScripts`); build and API work without it. No `.gitattributes`, so git converts LF to CRLF on Windows | none | Noted for the team; nothing changed |
 
 ## Decisions
 The owner's answers only.
@@ -40,6 +44,7 @@ The owner's answers only.
 | 0 | Setup: Node major 26 (`engines.node` `26.x`; `NODE_VERSION=26` on Render). Vercel supports 26.x (default), 24.x, 22.x. Render lists no majors, resolves any version and defaults to 24.22.1 | Vercel's default and the local version (26.7.0) |
 | 0 | Setup: approved `concurrently` 10.0.7 (MIT, released 2026-11-07) as a root dev dependency. Root `dev` = `concurrently "npm run dev -w @lampa/api" "npm run dev -w @lampa/web"` | npm runs scripts in cmd.exe on Windows, where `&` runs them one after the other |
 | 0 | Setup: `cristea/` goes into git as a separate docs commit on `main` before the scaffold. Later glossary lines go on the lane's branches | Cristea's answer |
+| 0 | Setup: approved dev dependencies `@vitejs/plugin-react` 6.3.0, `@types/react` 19.3.0, `@types/react-dom` 19.3.0, `@types/express` 5.0.6, `@types/cors` 2.8.19, `@types/node` 26.6.6 | Standard companions of Vite, React and Express in TypeScript; none ships in the bundle |
 
 ## Blocked
 | Since hour | ID | Question | Recommendation | Waiting on |
@@ -49,3 +54,5 @@ The owner's answers only.
 What other lanes can use now: endpoints, hooks, socket messages, scripts, env vars.
 | Hour | Name | Where | Used by |
 |---|---|---|---|
+| 0 | Workspaces `@lampa/web`, `@lampa/api`, `@lampa/shared`; root scripts `dev`, `build`, `typecheck`, `test`; Node 26 | root `package.json` | all |
+| 0 | `GET /health` → `{"ok":true}`, local API on port 3000 (`PORT` overrides), CORS from `WEB_ORIGIN` | `apps/api/src/index.ts` | all |

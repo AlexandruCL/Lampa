@@ -1,3 +1,9 @@
 .claude/
 graphify-out/
 LAMPA_Hackathon_Concept_Timisoara_*.pdf
+node_modules
+dist
+.env
+.env.*
+!.env.example
+.vercel
