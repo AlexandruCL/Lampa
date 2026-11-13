@@ -89,7 +89,7 @@ describe("POST /panes", () => {
     const res = await (await start({ tx: f.tx, onPane }))(pane());
     expect(await res.json()).toEqual({ windowId: "w-1", slot: 47, count: 48, completed: true });
     expect(f.find(/UPDATE windows/)!.params).toEqual(["w-1"]);
-    expect(onPane).toHaveBeenCalledWith({ siteId: "mx", windowId: "w-1", slot: 47, hex: "#4080bf" }, true);
+    expect(onPane).toHaveBeenCalledWith({ siteId: "mx", windowId: "w-1", slot: 47, hex: "#4080bf", bin: null }, true);
   });
 
   it("no open window inserts one with the site id", async () => {
@@ -165,6 +165,15 @@ describe("POST /panes", () => {
     vi.spyOn(console, "error").mockImplementation(() => {});
     const res = await (await start({ tx: fakeTx().tx, onPane: () => { throw new Error("socket"); } }))(pane());
     expect(res.status).toBe(201);
+  });
+
+  it("onPane receives the bin of the pane", async () => {
+    const onPane = vi.fn();
+    const send = await start({ tx: fakeTx().tx, onPane });
+    await send({ ...pane(), bin: 7 });
+    await send({ ...pane(), bin: null });
+    expect(onPane.mock.calls[0]![0].bin).toBe(7);
+    expect(onPane.mock.calls[1]![0].bin).toBeNull();
   });
 
   it("an anonymous visitor's sub goes to anon_id in the pane insert", async () => {

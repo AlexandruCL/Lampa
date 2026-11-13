@@ -71,7 +71,7 @@ export function createPanesRouter(deps: PanesDeps): Router {
     }
     res.status(201).json(out.body);
     try {
-      deps.onPane?.({ siteId: pane.siteId, windowId: out.body.windowId, slot: out.body.slot, hex: pane.hex }, out.body.completed);
+      deps.onPane?.({ siteId: pane.siteId, windowId: out.body.windowId, slot: out.body.slot, hex: pane.hex, bin: pane.bin }, out.body.completed);
     } catch (err) {
       console.error("onPane failed: " + (err instanceof Error ? err.message : "unknown"));
     }

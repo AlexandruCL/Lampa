@@ -59,6 +59,8 @@ export const PaneMessage = z.object({
   windowId: z.string(),
   slot: z.number().int().min(0).max(47),
   hex: Hex,
+  // The hue bin of the catch (null for a night-glass catch); optional so older senders still parse.
+  bin: z.number().int().min(0).max(11).nullable().optional(),
 });
 export type PaneMessage = z.infer<typeof PaneMessage>;
 

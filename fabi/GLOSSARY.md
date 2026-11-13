@@ -68,6 +68,7 @@ Anything that differs from the plan, `DESIGN.md` or the contract, and any file o
 | 7 | B2 prompt | The talk-turn cap of 5 per conversation moves from Build 2 to Build 3 | none | It needs a conversation id that `EventIn` does not have; Fabi's decision, hour 7 |
 | 7 | B2 prompt | Build 2 will edit Cristea's `apps/api/src/app.ts` (panes, screen state and tools routers; `getSiteStats` into `createAgentRouter`), `apps/api/src/index.ts`, `apps/api/src/db/reset.ts` (the done line counts 7 tables and 2 hypertables) and the root `package.json` (`simulate:crowd`) | `fabi/build_2/build_2_prompt.md` | Approved by Fabi, hour 7 (Decisions) |
 | 8 | B2-1.a | Edited Cristea's `apps/api/src/app.ts` (panes and screen state routers after the sites router) and `apps/api/src/index.ts` (`tx`, `onPane`), and `apps/api/src/db/reset.ts` (`colour_readings` in the table list, two hypertables, `hypertables` in the done line) | `apps/api/src/app.ts`, `apps/api/src/index.ts`, `apps/api/src/db/reset.ts` | Approved by Fabi, hour 7 |
+| 8 | B2-1.b.1 | `bin: z.number().int().min(0).max(11).nullable().optional()` added to `PaneMessage` (optional, not required as Ionut asked, so Cristea's `demoFeed.ts` still typechecks); `POST /panes` copies `bin` from `PaneIn` into the `pane` message; one test case added by `fabi-api` | `packages/shared/src/contract.ts`, `apps/api/src/panes/router.ts`, `router.test.ts` | Cristea handed the contract line to Fabi; Fabi's decision, hour 8 |
 
 ## Decisions
 The owner's answers only.
@@ -118,6 +119,8 @@ The owner's answers only.
 | 7 | Block end hour 14 (2026-11-14 03:21). Simulator fills: saturation 0.8, lightness 0.5, random hue; sessions in batches of 10 every 61 s; a `/session/anon` failure other than 429, or a `Retry-After` past `--seconds`, means that session is not created and counts as an error; exit 0 only if at least one pane was accepted | Fabi accepted the recommended fills |
 | 7 | Site stats: `glow` = the loop's latest value for the site; `coloursToday` = panes in that site's windows since local midnight; `lampsToday` = `lamp` events city-wide since local midnight. The tool answers `{ glow, colours_today, lamps_lit_today }`; the Cathedral or an unknown site → 404. `get_recent_echo`: the newest approved echo with a transcript at the site, any age, `{ echo: { transcript, lang, created_at } }` or `{ echo: null }` | The persona talks about its own square; the lamps counter is the city's |
 | 7 | Simulator: `npm run simulate:crowd -- --api <url> --sessions 12 --seconds 120 --site <id>` (defaults local API, 12, 120, sessions spread over the four colour sites); at most 10 sessions per 61 s; each session every 2 s sends one `wake` and one random vivid pane until a 429; prints completions and a summary, never tokens | Fabi accepted the recommended interface |
+| 8 | `bin` on `PaneMessage`: this lane adds it as nullable and optional, and `POST /panes` always sends it. Cristea had asked Fabi to add it | A required field would break Cristea's `demoFeed.ts`, outside this lane |
+| 8 | The team heads-up before `db:reset` is posted (plan update, `bin`, the wipe) | Fabi's answer; B2-2.b runs |
 
 ## Blocked
 | Since hour | ID | Question | Recommendation | Waiting on |
