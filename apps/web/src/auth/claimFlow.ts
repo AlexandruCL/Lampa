@@ -4,6 +4,18 @@ import { authApi } from "./authApi";
 
 export const CLAIM_RETURN_KEY = "lampa.claimReturnTo";
 export const CLAIM_RESULT_KEY = "lampa.claimResult";
+export const SIGN_IN_RETURN_KEY = "lampa.signInReturnTo";
+
+const AUTH_ERROR_PARAMS = ["error", "error_description", "state", "iss"];
+
+/** Where a cancelled or denied sign-in goes back to, or null when the URL is not an Auth0 error return. */
+export function cancelledReturn(currentUrl: string, stored: string | null): string | null {
+  const current = new URL(currentUrl);
+  if (!current.searchParams.has("error") || !current.searchParams.has("state")) return null;
+  const target = new URL(stored ?? current.pathname + current.search, current.origin);
+  for (const name of AUTH_ERROR_PARAMS) target.searchParams.delete(name);
+  return target.pathname + target.search + target.hash;
+}
 
 // sessionStorage can throw (blocked storage, some private modes); a failed read is null, a failed write is false.
 export function readSession(key: string): string | null {

@@ -1,7 +1,15 @@
 import { useAuth0 } from "@auth0/auth0-react";
 import { useEffect, useState } from "react";
 import { Button, Notice } from "../components";
-import { CLAIM_RESULT_KEY, claimAnonymous, readSession, requireToken, writeSession } from "./claimFlow";
+import {
+  CLAIM_RESULT_KEY,
+  SIGN_IN_RETURN_KEY,
+  claimAnonymous,
+  readSession,
+  requireToken,
+  writeSession,
+} from "./claimFlow";
+import styles from "./KeepMyColours.module.css";
 
 type Outcome = "saved" | "failed";
 
@@ -28,29 +36,28 @@ export function KeepMyColours() {
       .finally(() => setRetrying(false));
   };
 
-  if (isLoading) return null;
+  const signIn = () => {
+    const returnTo = location.pathname + location.search;
+    // A cancelled sign-in brings no appState back, so ClaimOnReturn finds the page here.
+    writeSession(SIGN_IN_RETURN_KEY, returnTo);
+    void loginWithRedirect({ appState: { claim: true, returnTo } });
+  };
 
-  if (!isAuthenticated) {
-    return (
-      <Button
-        variant="quiet"
-        block
-        onClick={() =>
-          loginWithRedirect({ appState: { claim: true, returnTo: location.pathname + location.search } })
-        }
-      >
-        Keep my colours
-      </Button>
-    );
-  }
+  if (isLoading || (isAuthenticated && !outcome)) return null;
 
-  if (outcome === "saved") return <Notice variant="info">Saved. Your colours stay with your account.</Notice>;
-  if (outcome === "failed") {
-    return (
-      <Notice variant="error" action={{ label: "Try again", onClick: retry }}>
-        You are signed in, but your colours did not move to your account.
-      </Notice>
-    );
-  }
-  return null;
+  return (
+    <div className={styles.root}>
+      {!isAuthenticated ? (
+        <Button variant="quiet" block onClick={signIn}>
+          Keep my colours
+        </Button>
+      ) : outcome === "saved" ? (
+        <Notice variant="info">Saved. Your colours stay with your account.</Notice>
+      ) : (
+        <Notice variant="error" action={{ label: "Try again", onClick: retry }}>
+          You are signed in, but your colours did not move to your account.
+        </Notice>
+      )}
+    </div>
+  );
 }

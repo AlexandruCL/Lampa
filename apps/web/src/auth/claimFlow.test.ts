@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { z } from "zod";
 import { API_URL, ApiError, SESSION_KEY } from "../api/client";
-import { claimAnonymous, nextClaimStep } from "./claimFlow";
+import { cancelledReturn, claimAnonymous, nextClaimStep } from "./claimFlow";
 
 const auth0Token = async () => "auth0tok";
 
@@ -43,6 +43,15 @@ describe("claimAnonymous", () => {
   it("a result that fails ClaimResult throws", async () => {
     stubFetch(new Response(JSON.stringify({ panes: -1, echoes: 0, events: 0 })));
     await expect(claimAnonymous(auth0Token)).rejects.toThrow(z.ZodError);
+  });
+});
+
+describe("cancelledReturn", () => {
+  it("a cancelled sign-in returns to the stored page without the error parameters", () => {
+    const back = "http://localhost:5173/?error=access_denied&error_description=Cancelled&state=abc&iss=https%3A%2F%2Ft";
+    expect(cancelledReturn(back, "/s/piata-unirii?lang=ro")).toBe("/s/piata-unirii?lang=ro");
+    expect(cancelledReturn("http://localhost:5173/curate?error=access_denied&state=abc", null)).toBe("/curate");
+    expect(cancelledReturn("http://localhost:5173/s/piata-unirii", "/s/piata-unirii")).toBeNull();
   });
 });
 

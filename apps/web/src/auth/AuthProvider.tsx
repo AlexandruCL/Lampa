@@ -3,6 +3,8 @@ import { useEffect, useRef, type ReactNode } from "react";
 import {
   CLAIM_RESULT_KEY,
   CLAIM_RETURN_KEY,
+  SIGN_IN_RETURN_KEY,
+  cancelledReturn,
   claimAnonymous,
   nextClaimStep,
   readSession,
@@ -10,10 +12,20 @@ import {
   writeSession,
 } from "./claimFlow";
 
-/** After a Keep my colours sign-in: claim once, keep the outcome for KeepMyColours, then go back to the page. */
+/**
+ * After a Keep my colours sign-in: claim once, keep the outcome for KeepMyColours, then go back to the page.
+ * After a cancelled or denied sign-in: go back to the page with no message.
+ */
 function ClaimOnReturn() {
   const { isAuthenticated, getAccessTokenSilently } = useAuth0();
   const started = useRef(false);
+
+  useEffect(() => {
+    const target = cancelledReturn(window.location.href, readSession(SIGN_IN_RETURN_KEY));
+    if (!target) return;
+    writeSession(SIGN_IN_RETURN_KEY, null);
+    window.location.replace(target);
+  }, []);
 
   useEffect(() => {
     const returnTo = readSession(CLAIM_RETURN_KEY);
@@ -48,6 +60,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       cacheLocation="localstorage"
       useRefreshTokens
       onRedirectCallback={(appState) => {
+        writeSession(SIGN_IN_RETURN_KEY, null);
         const returnTo = appState?.returnTo ?? window.location.pathname;
         // A claim stays on this page until ClaimOnReturn has run; if storage is blocked, skip the claim and go back.
         if (appState?.claim && writeSession(CLAIM_RETURN_KEY, returnTo)) return;
