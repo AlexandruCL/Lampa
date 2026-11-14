@@ -2,7 +2,7 @@ import type { Server } from "node:http";
 import type { AddressInfo } from "node:net";
 import express from "express";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { RECENT_ECHO_SQL, createToolsRouter } from "./router.js";
+import { RECENT_ECHO_SQL, TOOL_SITE_SQL, createToolsRouter } from "./router.js";
 
 const SECRET = "tool-secret";
 let servers: Server[] = [];
@@ -14,7 +14,16 @@ afterEach(async () => {
 });
 process.env.AGENT_TOOL_SECRET = SECRET;
 
-async function start(deps: Parameters<typeof createToolsRouter>[0]) {
+const KNOWN = new Set(["mx", "added"]);
+const siteDb = (inner?: { query: (t: string, p?: unknown[]) => Promise<any> }) => ({
+  query: async (text: string, params?: unknown[]) =>
+    text === TOOL_SITE_SQL
+      ? { rows: KNOWN.has(params?.[0] as string) ? [{ "?column?": 1 }] : [], rowCount: 0 }
+      : inner!.query(text, params),
+});
+
+async function start(deps: Parameters<typeof createToolsRouter>[0], wrap = true) {
+  if (wrap) deps = { ...deps, db: siteDb(deps.db) };
   vi.spyOn(console, "error").mockImplementation(() => {});
   const app = express();
   app.use(express.json());
@@ -84,6 +93,23 @@ describe("body", () => {
     expect(await res.json()).toEqual({ error: "unknown_site" });
   });
 
+  it("a draft place is 404 unknown_site", async () => {
+    const post = await start({ getSiteStats: okStats });
+    const res = await post("get_site_stats", { site_id: "draft-place" });
+    expect(res.status).toBe(404);
+    expect(await res.json()).toEqual({ error: "unknown_site" });
+  });
+
+  it("a failed site query is 503", async () => {
+    const post = await start({
+      getSiteStats: okStats,
+      db: { query: async () => { throw new Error("down"); } },
+    }, false);
+    const res = await post("get_site_stats", { site_id: "mx" });
+    expect(res.status).toBe(503);
+    expect(await res.json()).toEqual({ error: "unavailable" });
+  });
+
   it("an unknown site answers 404", async () => {
     const post = await start({ getSiteStats: okStats });
     const res = await post("get_site_stats", { site_id: "nowhere" });
@@ -95,6 +121,13 @@ describe("get_site_stats", () => {
   it("get_site_stats answers glow, colours_today and lamps_lit_today", async () => {
     const post = await start({ getSiteStats: okStats });
     const res = await post("get_site_stats", { site_id: "mx" });
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({ glow: 0.5, colours_today: 7, lamps_lit_today: 11 });
+  });
+
+  it("an added published place gets stats", async () => {
+    const post = await start({ getSiteStats: okStats });
+    const res = await post("get_site_stats", { site_id: "added" });
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual({ glow: 0.5, colours_today: 7, lamps_lit_today: 11 });
   });

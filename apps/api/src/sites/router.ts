@@ -81,7 +81,7 @@ export function createSitesRouter(deps: { db?: Db; latestGlow: LatestGlow }): Ro
     const keys = await run(deps.db, SELECT_SITE_KEYS, [siteKeyPrefix(r.id)]);
     res.json(SiteDetail.parse({
       ...(keys && greetingsOf(r.id, keys.map((k) => k.key))),
-      id: r.id, name: r.name[lang], lat: r.lat, lng: r.lng, is_memorial: r.is_memorial,
+      id: r.id, name: r.name[lang] ?? r.name.en, lat: r.lat, lng: r.lng, is_memorial: r.is_memorial,
       radius_m: r.radius_m, interactions: r.interactions, facts: r.facts,
       directions_hint: r.directions_hint?.[lang] ?? r.directions_hint?.en ?? "",
       glow: glowOf(r.id),

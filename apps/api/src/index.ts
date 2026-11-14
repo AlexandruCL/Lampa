@@ -26,6 +26,6 @@ const onEventsStored: OnEventsStored = (candles = []) => {
   loop?.nudge();
 };
 const server = createServer(createApp({ db, tx, onEventsStored, onPane, latestGlow, emit: (...a) => live.emit(...a) }));
-const live = attachLive(server, { origin: process.env.WEB_ORIGIN, latestGlow, latestLamps });
+const live = attachLive(server, { origin: process.env.WEB_ORIGIN, latestGlow, latestLamps, db });
 if (db) loop = startGlowLoop({ db, emit: live.emitGlow, emitLamps: live.emitLamps });
 server.listen(port, () => console.log(`api listening on ${port}`));
