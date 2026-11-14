@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { Clips, SiteClips } from "./clips";
-import { bedGain, bedUrl } from "./engine";
+import { bedGain, bedUrl, healStep } from "./engine";
 
 const site = (beds: string[]): SiteClips => ({ beds, greeting: {}, answers: {}, narrations: {}, tapToAsk: [] });
 const c: Clips = {
@@ -44,5 +44,29 @@ describe("bedUrl", () => {
   it("bedUrl is null for a site without beds", () => {
     expect(bedUrl("b", c, {})).toBeNull();
     expect(bedUrl("unknown", c, {})).toBeNull();
+  });
+});
+
+describe("healStep", () => {
+  it("rebuilds once when the context runs again after a lapse", () => {
+    let s = healStep(false, "running", false);
+    expect(s).toEqual({ lapsed: false, rebuild: false });
+    for (const state of ["suspended", "interrupted"]) {
+      s = healStep(s.lapsed, state, false);
+      expect(s).toEqual({ lapsed: true, rebuild: false });
+    }
+    s = healStep(s.lapsed, "running", false);
+    expect(s).toEqual({ lapsed: false, rebuild: true });
+    // The visibilitychange after the statechange must not rebuild a second time.
+    expect(healStep(s.lapsed, "running", false)).toEqual({ lapsed: false, rebuild: false });
+  });
+
+  it("a hidden page counts as a lapse", () => {
+    // iOS may report "running" throughout; hiding alone marks the lapse, and only the return heals.
+    let s = healStep(false, "running", true);
+    expect(s).toEqual({ lapsed: true, rebuild: false });
+    s = healStep(s.lapsed, "running", false);
+    expect(s).toEqual({ lapsed: false, rebuild: true });
+    expect(healStep(s.lapsed, "running", false)).toEqual({ lapsed: false, rebuild: false });
   });
 });
