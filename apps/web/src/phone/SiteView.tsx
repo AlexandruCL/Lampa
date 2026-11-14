@@ -3,6 +3,7 @@ import { caughtClink, readingTone, windowChord } from "../audio/note";
 import { useBed } from "../audio/useBed";
 import { useWhispers } from "../audio/useWhispers";
 import { Button, Notice } from "../components";
+import { siteName, t } from "../i18n/t";
 import { openRearCamera, type CameraResult } from "../sensors/camera";
 import { Between } from "./Between";
 import { ColourLens } from "./ColourLens";
@@ -26,6 +27,8 @@ export const ARRIVED_LINE_MS = 4000;
 
 /** Site view (DESIGN.md 7.2). Action buttons have no action yet. */
 export function SiteView({ site, demo, remote, notice, compass, primer, arrived }: { site: PhoneSite; demo: boolean; remote: boolean; notice?: ReactNode; compass: CompassStatus; primer: PrimerResult; arrived: boolean }) {
+  // A fetched place lists what it offers; a bundled site shows everything.
+  const has = (i: string) => !site.interactions || site.interactions.includes(i);
   const [compassDenied, setCompassDenied] = useState(compass === "denied");
   const live = useSiteGlow(site.id);
   const { glow, connected } = live;
@@ -71,7 +74,7 @@ export function SiteView({ site, demo, remote, notice, compass, primer, arrived 
         onCaught={(reading) => caughtClink(reading)}
         onComplete={() => windowChord((remote ? local : live.panes).filled)}
         onSayWhy={() => {
-          setEchoPrompt("Why this colour?");
+          setEchoPrompt(t("echo.why_colour"));
           setView("echo");
         }}
         panes={remote ? local : live.panes}
@@ -113,17 +116,17 @@ export function SiteView({ site, demo, remote, notice, compass, primer, arrived 
       <div className={styles.top}>{demo && <DemoBadge />}</div>
       {notice ??
         (glow === null && waited && (
-          <Notice variant="connection">Still connecting to the city. You can already listen.</Notice>
+          <Notice variant="connection">{t("site.connecting")}</Notice>
         ))}
-      <h1 className={styles.name}>{site.name}</h1>
-      {arrivedLine && <p className={styles.arrived}>{site.name} is waking.</p>}
-      <GlowMark siteName={site.name} glow={glow} connected={connected} />
+      <h1 className={styles.name}>{siteName(site)}</h1>
+      {arrivedLine && <p className={styles.arrived}>{t("site.waking", { name: siteName(site) })}</p>}
+      <GlowMark siteName={siteName(site)} glow={glow} connected={connected} />
       {site.lamp && !remote && <LampCounter lamps={live.lamps} connected={connected} size="s" />}
       <div className={styles.visual}>
-        <RoseWindow name={site.name} size="l" filled={live.panes.filled} glow={glow !== null && glow >= 0.15 ? glow : undefined} />
+        <RoseWindow name={siteName(site)} size="l" filled={live.panes.filled} glow={glow !== null && glow >= 0.15 ? glow : undefined} />
       </div>
       <div className={styles.actions}>
-        <Button
+        {has("talk") && <Button
           variant="primary"
           size="l"
           block
@@ -144,10 +147,10 @@ export function SiteView({ site, demo, remote, notice, compass, primer, arrived 
             setView("talk");
           }}
         >
-          Talk
-        </Button>
+          {t("site.talk")}
+        </Button>}
         <div className={styles.grid}>
-          <Button
+          {has("colours") && <Button
             variant="secondary"
             size="l"
             block
@@ -156,8 +159,8 @@ export function SiteView({ site, demo, remote, notice, compass, primer, arrived 
               setView("lens");
             }}
           >
-            Catch a colour
-          </Button>
+            {t("site.catch")}
+          </Button>}
           {site.lamp && !remote && (
             <Button
               variant="secondary"
@@ -170,10 +173,10 @@ export function SiteView({ site, demo, remote, notice, compass, primer, arrived 
                 setView("lamp");
               }}
             >
-              Raise a lamp
+              {t("site.lamp")}
             </Button>
           )}
-          <Button
+          {!site.interactions && <Button
             variant="secondary"
             size="l"
             block
@@ -182,8 +185,8 @@ export function SiteView({ site, demo, remote, notice, compass, primer, arrived 
               setView("echo");
             }}
           >
-            Leave an echo
-          </Button>
+            {t("site.echo")}
+          </Button>}
         </div>
         <Button
           variant="quiet"
@@ -194,11 +197,11 @@ export function SiteView({ site, demo, remote, notice, compass, primer, arrived 
             setView("between");
           }}
         >
-          Next site
+          {t("next_site")}
         </Button>
         {compassDenied && (
           <Button variant="quiet" onClick={() => requestCompass().then((s) => setCompassDenied(s !== "granted"))}>
-            Use the compass
+            {t("site.compass")}
           </Button>
         )}
       </div>

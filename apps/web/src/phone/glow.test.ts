@@ -1,7 +1,14 @@
 import { describe, expect, it } from "vitest";
-import { siteGlow } from "./glow";
+import { glowLine, siteGlow } from "./glow";
 
 const msg = { sites: [{ siteId: "mx", glow: 0.4 }, { siteId: "unirii", glow: 0.9 }] };
+
+describe("glowLine", () => {
+  it("glowLine prints Awake, 72% and Trezit, 72% in ro", () => {
+    expect(glowLine(0.72, "en")).toBe("Awake, 72%");
+    expect(glowLine(0.72, "ro")).toBe("Trezit, 72%");
+  });
+});
 
 describe("siteGlow", () => {
   it("siteGlow reads the value for its site", () => expect(siteGlow(msg, "unirii")).toBe(0.9));

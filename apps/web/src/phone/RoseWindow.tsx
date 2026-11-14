@@ -1,4 +1,5 @@
 import type { CSSProperties } from "react";
+import { t } from "../i18n/t";
 import styles from "./RoseWindow.module.css";
 
 type Props = {
@@ -53,7 +54,7 @@ export function RoseWindow({ name, size, filled, glow, flare }: Props) {
       className={`${styles.window} ${size === "l" ? styles.l : styles.s}`}
       viewBox={`${-R - 4} ${-R - 4} ${2 * R + 8} ${2 * R + 8}`}
       role="img"
-      aria-label={`${name} window, ${count} of 48 panes`}
+      aria-label={t("rose.label", { name, count })}
     >
       {(flare || (glow !== undefined && g > 0)) && (
         <>

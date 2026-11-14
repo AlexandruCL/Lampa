@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Button, Icon, Notice, RoundControl } from "../components";
+import { siteName, t } from "../i18n/t";
 import { ECHO_MAX_MS, canRecord, openMicrophone, secondsLeft, startRecording } from "../echo/recorder";
 import type { Recording } from "../echo/recording";
 import { sendEcho, toEchoForm } from "../echo/upload";
@@ -138,25 +139,26 @@ export function EchoRecorder({ site, demo, prompt, onBack, onSent }: { site: Pho
     setPlaying(!playing);
   };
 
+  const name = siteName(site);
   const leave = () => (recording && phase !== "sent" ? setLeaving(true) : onBack());
   const back = (
     <Button variant="secondary" size="l" block onClick={leave}>
-      Back to {site.name}
+      {t("back_to", { name })}
     </Button>
   );
   const elapsed = Math.min(ECHO_MAX_MS, Math.max(0, now - startedAt));
-  const off = <RoundControl state="disabled" label="Microphone is off" />;
+  const off = <RoundControl state="disabled" label={t("echo.mic_off")} />;
 
   let body;
   let bottom = null;
   if (phase === "sent") {
-    body = <p className={styles.prompt} role="status">Sent. A curator listens to it before it plays here.</p>;
-    bottom = <Button variant="primary" size="l" block onClick={onBack}>Back to {site.name}</Button>;
+    body = <p className={styles.prompt} role="status">{t("echo.sent")}</p>;
+    bottom = <Button variant="primary" size="l" block onClick={onBack}>{t("back_to", { name })}</Button>;
   } else if (phase === "unavailable") {
     body = (
       <>
         {off}
-        <p className={styles.line}>This browser cannot record an echo.</p>
+        <p className={styles.line}>{t("echo.unavailable")}</p>
       </>
     );
     bottom = back;
@@ -164,55 +166,55 @@ export function EchoRecorder({ site, demo, prompt, onBack, onSent }: { site: Pho
     body = (
       <>
         {off}
-        <p className={styles.line}>LAMPA needs the microphone to record an echo. Allow the microphone in your browser settings, then try again.</p>
+        <p className={styles.line}>{t("echo.denied")}</p>
       </>
     );
     bottom = (
       <>
-        <Button variant="secondary" size="l" block onClick={begin}>Try again</Button>
+        <Button variant="secondary" size="l" block onClick={begin}>{t("try_again")}</Button>
         {back}
       </>
     );
   } else {
     body = (
       <>
-        <p className={styles.prompt}>{prompt ?? "Leave a memory of this place. Up to 20 seconds."}</p>
-        {failed && <Notice variant="error">Your echo did not send. It is still here.</Notice>}
+        <p className={styles.prompt}>{prompt ?? t("echo.prompt")}</p>
+        {failed && <Notice variant="error">{t("echo.failed")}</Notice>}
         {phase === "recorded" && recording ? (
           <div className={styles.preview}>
-            <Button variant="icon" icon={playing ? "pause" : "play"} aria-label={playing ? "Pause echo" : "Play echo"} onClick={togglePlay} />
+            <Button variant="icon" icon={playing ? "pause" : "play"} aria-label={t(playing ? "echo.pause" : "echo.play")} onClick={togglePlay} />
             <span className={styles.duration}>{clock(recording.durationMs)}</span>
           </div>
         ) : phase === "recording" ? (
           <RoundControl
             state="recording"
-            status="Recording"
-            label={`Recording, ${secondsLeft(elapsed)} s left`}
+            status={t("echo.recording")}
+            label={t("echo.recording_left", { s: secondsLeft(elapsed) })}
             progress={elapsed / ECHO_MAX_MS}
             onPress={() => ctl.current?.stop()}
           />
         ) : (
-          <RoundControl state="idle" label="Tap to record" onPress={begin} />
+          <RoundControl state="idle" label={t("echo.tap_record")} onPress={begin} />
         )}
-        {short && phase === "idle" && <p className={styles.short}>That was too short to send. Record again.</p>}
+        {short && phase === "idle" && <p className={styles.short}>{t("echo.short")}</p>}
         <label className={styles.consent}>
           <span className={styles.box}>
             <input type="checkbox" checked={consent} disabled={sending} onChange={(e) => setConsent(e.target.checked)} />
             <span className={styles.tick}><Icon name="check" /></span>
           </span>
-          Play my voice here in public after a curator listens to it.
+          {t("echo.consent")}
         </label>
-        <Button variant="quiet" aria-haspopup="dialog" onClick={() => setInfo(true)}>What happens to my voice</Button>
+        <Button variant="quiet" aria-haspopup="dialog" onClick={() => setInfo(true)}>{t("echo.what_happens")}</Button>
       </>
     );
     if (phase === "recorded") {
       bottom = (
         <>
           <Button variant="primary" size="l" block loading={sending} disabled={!consent && !sending} aria-describedby={consent ? undefined : "echo-hint"} onClick={send}>
-            {sending ? "Sending" : failed ? "Try again" : "Send echo"}
+            {sending ? t("echo.sending") : failed ? t("try_again") : t("echo.send")}
           </Button>
-          {!consent && <p id="echo-hint" className={styles.hint}>Tick the box to send.</p>}
-          <Button variant="secondary" size="l" block disabled={sending} onClick={begin}>Record again</Button>
+          {!consent && <p id="echo-hint" className={styles.hint}>{t("echo.tick_hint")}</p>}
+          <Button variant="secondary" size="l" block disabled={sending} onClick={begin}>{t("echo.record_again")}</Button>
           {back}
         </>
       );
@@ -222,22 +224,22 @@ export function EchoRecorder({ site, demo, prompt, onBack, onSent }: { site: Pho
   return (
     <>
     <main className={styles.view}>
-      <TopBar siteName={site.name} onBack={leave} demo={demo} />
+      <TopBar siteName={name} onBack={leave} demo={demo} />
       <div className={styles.body}>{body}</div>
       {bottom && <div className={styles.bottom}>{bottom}</div>}
     </main>
       {info && (
-        <Sheet title="What happens to my voice" onClose={() => setInfo(false)}>
+        <Sheet title={t("echo.what_happens")} onClose={() => setInfo(false)}>
           <p className={styles.info}>
-            Your recording is stored on our server and transcribed. A curator listens to it. If approved, visitors here hear it in your voice. If rejected, it never plays. We do not ask for your name.
+            {t("echo.info")}
           </p>
         </Sheet>
       )}
       {leaving && (
-        <Sheet title="Discard this echo?" onClose={() => setLeaving(false)}>
+        <Sheet title={t("echo.discard_title")} onClose={() => setLeaving(false)}>
           <div className={styles.row}>
-            <Button variant="danger" onClick={onBack}>Discard</Button>
-            <Button variant="secondary" onClick={() => setLeaving(false)}>Keep recording</Button>
+            <Button variant="danger" onClick={onBack}>{t("echo.discard")}</Button>
+            <Button variant="secondary" onClick={() => setLeaving(false)}>{t("echo.keep")}</Button>
           </div>
         </Sheet>
       )}

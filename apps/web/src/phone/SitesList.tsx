@@ -1,3 +1,4 @@
+import { LANG, siteName, t } from "../i18n/t";
 import type { Ranked } from "../nav/score";
 import { Sheet } from "./Sheet";
 import { SiteRow } from "./SiteRow";
@@ -15,9 +16,9 @@ type Props = {
 
 /** DESIGN.md 7.9, in a Sheet. The loading and error states are not built: the five sites ship with the app. */
 export function SitesList({ ranked, glow, connected, allVisited, fromId, remote, onPick, onClose }: Props) {
-  const rows = remote ? [...ranked].sort((a, b) => a.site.name.localeCompare(b.site.name)) : ranked;
+  const rows = remote ? [...ranked].sort((a, b) => siteName(a.site).localeCompare(siteName(b.site), LANG)) : ranked;
   return (
-    <Sheet title="Sites" onClose={onClose}>
+    <Sheet title={t("sites.title")} onClose={onClose}>
       {rows.map((entry) => (
         <SiteRow
           key={entry.site.id}

@@ -302,10 +302,10 @@ Runs on `ionut/b4-lang`, made from `ionut/b4-memorial` after B4-2.c.1 is committ
 
 **B4-1.b.1** `nav/format.ts` through `t()` (Ionut's decision, hour 23). Subagent: `ionut-sensors`. Files: `apps/web/src/nav/format.ts`, `apps/web/src/nav/format.test.ts`, `apps/web/src/i18n/en.json`, `apps/web/src/i18n/ro.json`.
 
-- [ ] Every user-visible string `format.ts` builds (distance words, "about N min walk", the eight compass words, the spoken directions of the hour 7 decision, the spoken line) comes from a `nav.*` key; each exported function that returns text gains a last parameter `lang: Lang = LANG`, so callers do not change. Numbers keep their format; the Romanian decimal separator is a comma ("1,2 km"; Ionut's decision, hour 23). Tests pass `lang` explicitly and never rely on `LANG`.
-- [ ] The ro values are drafted by this agent from the en values and marked for Ionut's review in its report (B4-1.d). Site names come from `siteName(site, lang)` and stay in the nominative: a sentence that needs another case is rephrased ("spre {site}", "la {site}").
-- [ ] The score tags `"nearest"` and `"going dark"` stay as values in `score.ts`; their display text gets `nav.tag_nearest` and `nav.tag_going_dark` keys here, used by `SiteRow` in B4-1.c.1.
-- [ ] Every existing `format.test.ts` case still passes unchanged for en; new ro cases: one per function, including "1,2 km" and one spoken line.
+- [x] Every user-visible string `format.ts` builds (distance words, "about N min walk", the eight compass words, the spoken directions of the hour 7 decision, the spoken line) comes from a `nav.*` key; each exported function that returns text gains a last parameter `lang: Lang = LANG`, so callers do not change. Numbers keep their format; the Romanian decimal separator is a comma ("1,2 km"; Ionut's decision, hour 23). Tests pass `lang` explicitly and never rely on `LANG`.
+- [x] The ro values are drafted by this agent from the en values and marked for Ionut's review in its report (B4-1.d). Site names come from `siteName(site, lang)` and stay in the nominative: a sentence that needs another case is rephrased ("spre {site}", "la {site}").
+- [x] The score tags `"nearest"` and `"going dark"` stay as values in `score.ts`; their display text gets `nav.tag_nearest` and `nav.tag_going_dark` keys here, used by `SiteRow` in B4-1.c.1.
+- [x] Every existing `format.test.ts` case still passes unchanged for en; new ro cases: one per function, including "1,2 km" and one spoken line.
 - Verify: `npm run test -w @lampa/web -- src/nav src/i18n && npm run typecheck -w @lampa/web`. Paste the summary line.
 - Done when: every case passes, and the key-parity test of B4-1.a.1 passes with the new keys.
 
@@ -313,11 +313,11 @@ Runs on `ionut/b4-lang`, made from `ionut/b4-memorial` after B4-2.c.1 is committ
 
 **B4-1.c.1** Phone strings to `t()`. Subagent: `ionut-screens`. Files: every `apps/web/src/phone/*.tsx` except `Memorial.tsx`, `Testimony.tsx` and `Candle.tsx`; `apps/web/src/phone/glow.ts`, `glow.test.ts`; `apps/web/src/i18n/en.json`, `apps/web/src/i18n/ro.json`.
 
-- [ ] `glow.ts`: `glowWord` keeps its English union as values (code compares them); the GlowMark shows it through `glow.asleep`, `glow.waking`, `glow.awake`, `glow.fully_lit`; `glowLine` gains a last parameter `lang: Lang = LANG`; existing glow tests pass unchanged, plus one ro case with `lang` passed explicitly.
+- [x] `glow.ts`: `glowWord` keeps its English union as values (code compares them); the GlowMark shows it through `glow.asleep`, `glow.waking`, `glow.awake`, `glow.fully_lit`; `glowLine` gains a last parameter `lang: Lang = LANG`; existing glow tests pass unchanged, plus one ro case with `lang` passed explicitly.
 
-- [ ] Every user-visible string and accessible name in those files goes through `t()`, with flat keys named `<screen>.<what>` (`join.wake`, `lens.point`, `echo.sent`). Site names come from `siteName(site)`; colour names from `colourName(bin, LANG)`; the score tags from `nav.tag_nearest` and `nav.tag_going_dark`. Existing English wording does not change.
-- [ ] The ro values: `DESIGN.md` 7.0 and 6.22 where they give one; otherwise drafted by this agent and listed in its report for Ionut's review. Site names stay in the nominative: "Culoarea ta e în vitraliul de la {site}. {count} din 48." replaces the 7.0 genitive (Ionut's decision, hour 23). No em dashes, no exclamation marks, the 7.0 memorial voice at the Cathedral.
-- [ ] `<html lang>` is already set from `LANG` by `t.ts` (seam); nothing to add.
+- [x] Every user-visible string and accessible name in those files goes through `t()`, with flat keys named `<screen>.<what>` (`join.wake`, `lens.point`, `echo.sent`). Site names come from `siteName(site)`; colour names from `colourName(bin, LANG)`; the score tags from `nav.tag_nearest` and `nav.tag_going_dark`. Existing English wording does not change.
+- [x] The ro values: `DESIGN.md` 7.0 and 6.22 where they give one; otherwise drafted by this agent and listed in its report for Ionut's review. Site names stay in the nominative: "Culoarea ta e în vitraliul de la {site}. {count} din 48." replaces the 7.0 genitive (Ionut's decision, hour 23). No em dashes, no exclamation marks, the 7.0 memorial voice at the Cathedral.
+- [x] `<html lang>` is already set from `LANG` by `t.ts` (seam); nothing to add.
 - Verify: `npm run typecheck -w @lampa/web && npm run build -w @lampa/web && npm test -w @lampa/web`, then `grep -nE '>[A-Z][a-z]+[^<{]*<|aria-label="[A-Za-z]|`[A-Z][a-z]+ ' apps/web/src/phone/*.tsx apps/web/src/phone/glow.ts` → no hit that is UI text (list any hit that is not, with its line). Paste the summary lines.
 - Session browser check (headless Chrome with `--lang=ro-RO`, then `--lang=en-US`): `/s/unirii?demo=1` join and Site view, the lens with a red canvas camera, the echo recorder, `/` Between sites and the Sites list, `/s/cathedral?demo=1`: every visible string is Romanian with `ro-RO` and unchanged English with `en-US`.
 - Done when: the verify lines pass and both browser runs show one language each, with no key names on screen.
@@ -334,9 +334,9 @@ Runs on `ionut/b4-new-place`, made from `ionut/b4-lang` after B4-1 is committed.
 
 **B4-3.a.1** `fetchSite`. Subagent: `ionut-api`. Files: `apps/web/src/api/sites.ts`, `apps/web/src/api/sites.test.ts`, `apps/web/src/sites/sites.ts`.
 
-- [ ] `sites.ts`: `PhoneSite` becomes `Site & { lamp: boolean; interactions?: string[] }`; `interactions` is set only for a fetched place, so the bundled sites do not change.
-- [ ] `api/sites.ts`: `fetchSite(id: string, lang: Lang = LANG): Promise<PhoneSite | null>` calls `api(`/sites/${encodeURIComponent(id)}?lang=${lang}`, { schema: SiteDetail })` and returns `{ id, name, lat, lng, is_memorial, lamp: interactions.includes("lamp"), interactions }`; an `ApiError` with status 404 → `null`; any other error is thrown unchanged.
-- [ ] Tests by name (`fetch` and `localStorage` stubbed, as `client.test.ts` does; `lang` passed explicitly): "a SiteDetail becomes a PhoneSite with its interactions"; "lamp is true only when interactions list lamp"; "a 404 gives null"; "a 503 throws ApiError 503"; "a network error throws"; "the path encodes the id and carries lang".
+- [x] `sites.ts`: `PhoneSite` becomes `Site & { lamp: boolean; interactions?: string[] }`; `interactions` is set only for a fetched place, so the bundled sites do not change.
+- [x] `api/sites.ts`: `fetchSite(id: string, lang: Lang = LANG): Promise<PhoneSite | null>` calls `api(`/sites/${encodeURIComponent(id)}?lang=${lang}`, { schema: SiteDetail })` and returns `{ id, name, lat, lng, is_memorial, lamp: interactions.includes("lamp"), interactions }`; an `ApiError` with status 404 → `null`; any other error is thrown unchanged.
+- [x] Tests by name (`fetch` and `localStorage` stubbed, as `client.test.ts` does; `lang` passed explicitly): "a SiteDetail becomes a PhoneSite with its interactions"; "lamp is true only when interactions list lamp"; "a 404 gives null"; "a 503 throws ApiError 503"; "a network error throws"; "the path encodes the id and carries lang".
 - Verify: `npm run test -w @lampa/web -- src/api && npm run typecheck -w @lampa/web`. Paste the summary line.
 - Done when: every case passes, and returning `null` for every `ApiError` fails "a 503 throws ApiError 503".
 
@@ -344,10 +344,10 @@ Runs on `ionut/b4-new-place`, made from `ionut/b4-lang` after B4-1 is committed.
 
 **B4-3.b.1** Join fallback and the new place's buttons. Subagent: `ionut-screens`. Files: `apps/web/src/phone/Join.tsx`, `apps/web/src/phone/SiteView.tsx`, `apps/web/src/i18n/en.json`, `apps/web/src/i18n/ro.json`.
 
-- [ ] `Join.tsx`: when `siteId` is given and `findSite` misses, `fetchSite(siteId)` runs on mount. While it runs: the join layout with the line `join.looking` "Looking for this place…" and no button. `null` (404) → the existing "We could not find this place." view, unchanged. Any other failure → an error `Notice` `join.unreachable` "We could not reach LAMPA. Check your connection, then try again." with a secondary L `join.try_again` "Try again" that fetches again (Ionut's decision, hour 37). A found place renders exactly as a bundled site from then on (join tap, `SiteView`). A bundled site never fetches.
-- [ ] `SiteView.tsx`, only when `site.interactions` is set (a fetched place; Ionut's decision, hour 37): "Talk" only when it lists `talk`, "Catch a colour" only when it lists `colours`, "Raise a lamp" from `site.lamp` as today, "Leave an echo" never (`POST /echoes` answers 404 for it). Bundled sites show what they show today.
-- [ ] The states above follow `DESIGN.md` 7.1 and 7.2 as updated at hour 37.
-- [ ] New strings through `t()`; their ro values drafted by this agent and listed in its report. Ionut reviews them before the `ionut/b4-new-place` PR, the same way as B4-1.d.
+- [x] `Join.tsx`: when `siteId` is given and `findSite` misses, `fetchSite(siteId)` runs on mount. While it runs: the join layout with the line `join.looking` "Looking for this place…" and no button. `null` (404) → the existing "We could not find this place." view, unchanged. Any other failure → an error `Notice` `join.unreachable` "We could not reach LAMPA. Check your connection, then try again." with a secondary L `join.try_again` "Try again" that fetches again (Ionut's decision, hour 37). A found place renders exactly as a bundled site from then on (join tap, `SiteView`). A bundled site never fetches.
+- [x] `SiteView.tsx`, only when `site.interactions` is set (a fetched place; Ionut's decision, hour 37): "Talk" only when it lists `talk`, "Catch a colour" only when it lists `colours`, "Raise a lamp" from `site.lamp` as today, "Leave an echo" never (`POST /echoes` answers 404 for it). Bundled sites show what they show today.
+- [x] The states above follow `DESIGN.md` 7.1 and 7.2 as updated at hour 37.
+- [x] New strings through `t()`; their ro values drafted by this agent and listed in its report. Ionut reviews them before the `ionut/b4-new-place` PR, the same way as B4-1.d.
 - Verify: `npm run typecheck -w @lampa/web && npm run build -w @lampa/web && npm test -w @lampa/web`. Paste the summary lines.
 - Session browser check (headless Chrome, 390×844, `GET /sites/:id` routed by Playwright): `/s/newplace` with a 200 `SiteDetail` whose `interactions` are `["colours", "lamp"]` → "Looking for this place…", then the join view with its name, the tap, then the Site view with "Catch a colour" and "Raise a lamp" only; 404 → "We could not find this place."; 503 then 200 → the Notice, "Try again", then the join view; `/s/unirii` → no request to `/sites/unirii`; on the fetched place no page error, "Talk" hidden and "Next site" opens Between sites.
 - Done when: the verify lines pass and the browser check passes.
@@ -358,9 +358,9 @@ Ionut's check. Do not mark it done. After Cristea merges and redeploys the web a
 
 ### B4-last Integrate and hand over (last, this session)
 
-- [ ] The three branches of this block merged into a local throwaway branch, `npm run typecheck && npm run build && npm test` green on it.
-- [ ] Push each branch and open its PR, in this order: `ionut/b4-memorial`, then `ionut/b4-lang`, then `ionut/b4-new-place`. Each PR lists what was verified, what waits for a phone, and that the web app needs Cristea's manual redeploy.
-- [ ] Glossary complete: every ID of this prompt is under Done or Blocked; Hand-offs lists `t()`, `LANG`, `Lang`, the dictionary files, `Memorial`, `setBedMuted`, `testimoniesFor`, the `testimonies` field, `siteName`, `fetchSite` and `PhoneSite.interactions`; and for Cristea: `/s/<id>` of a published place opens on a phone.
+- [x] The three branches of this block merged into a local throwaway branch, `npm run typecheck && npm run build && npm test` green on it.
+- [x] Push each branch and open its PR, in this order: `ionut/b4-memorial`, then `ionut/b4-lang`, then `ionut/b4-new-place`. Each PR lists what was verified, what waits for a phone, and that the web app needs Cristea's manual redeploy.
+- [x] Glossary complete: every ID of this prompt is under Done or Blocked; Hand-offs lists `t()`, `LANG`, `Lang`, the dictionary files, `Memorial`, `setBedMuted`, `testimoniesFor`, the `testimonies` field, `siteName`, `fetchSite` and `PhoneSite.interactions`; and for Cristea: `/s/<id>` of a published place opens on a phone.
 - [ ] Ionut's checks on real phones, listed and not claimed: B4-2.d per phone; a phone set to Romanian shows the join, Site view, lens, echo, Between sites and memorial in Romanian, and an English phone in English; the Freeze line (full demo script, twice per phone) with the Build 4 items that survived.
 - Done when: every box is ticked or listed as Ionut's, and the report below is posted.
 

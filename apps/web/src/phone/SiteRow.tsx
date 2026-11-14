@@ -1,3 +1,4 @@
+import { siteName, t } from "../i18n/t";
 import { metaLine } from "../nav/format";
 import type { Ranked } from "../nav/score";
 import styles from "./SiteRow.module.css";
@@ -16,18 +17,20 @@ type Props = {
 /** DESIGN.md 6.9. */
 export function SiteRow({ entry, glow, connected, here, remote, allVisited = false, onPick }: Props) {
   const { site, distanceM, tag } = entry;
-  const meta = remote ? null : here ? "You are here" : distanceM === null ? "Distance unknown" : metaLine(distanceM);
+  const meta = remote ? null : here ? t("site_row.here") : distanceM === null ? t("compass.unknown") : metaLine(distanceM);
   const tagText =
-    remote || !tag ? null : allVisited && tag === "going dark" ? "Going dark" : `Suggested: ${tag}`;
+    remote || !tag ? null : allVisited && tag === "going dark"
+      ? t("site_row.going_dark")
+      : t("site_row.suggested", { tag: t(tag === "nearest" ? "nav.tag_nearest" : "nav.tag_going_dark") });
   return (
     <button type="button" className={styles.row} onClick={onPick}>
       {site.is_memorial ? (
-        <span className={styles.memorial}>Memorial</span>
+        <span className={styles.memorial}>{t("memorial.word")}</span>
       ) : (
-        <GlowMark siteName={site.name} glow={glow} connected={connected} size="s" />
+        <GlowMark siteName={siteName(site)} glow={glow} connected={connected} size="s" />
       )}
       <span className={styles.text}>
-        <span className={styles.name}>{site.name}</span>
+        <span className={styles.name}>{siteName(site)}</span>
         {meta && <span className={styles.meta}>{meta}</span>}
       </span>
       {tagText && <span className={styles.tag}>{tagText}</span>}

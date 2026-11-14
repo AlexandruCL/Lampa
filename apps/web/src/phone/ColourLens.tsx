@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { Button, Notice, Ring } from "../components";
 import { HOLD_MS, ROTATION_MAX_DPS, initialHold, isHolding, stepHold } from "../colour/hold";
 import { colourName } from "../colour/names";
+import { LANG, siteName, t } from "../i18n/t";
 import { GALLERY_ID, createPaneSender, sendPane, toPaneIn, type PaneStatus } from "../colour/panes";
 import type { Reading } from "../colour/reading";
 import { openRearCamera, stopCamera, type CameraResult } from "../sensors/camera";
@@ -59,7 +60,8 @@ export function ColourLens({ site, remote, demo, camera, onBack, onReading, onCa
   const lensRef = useRef<HTMLDivElement>(null);
   const miniRef = useRef<HTMLDivElement>(null);
   const sender = useRef<ReturnType<typeof createPaneSender> | null>(null);
-  const where = remote ? "Gallery" : site.name;
+  const name = siteName(site);
+  const where = remote ? t("lens.gallery") : name;
 
   useEffect(() => {
     let live = true;
@@ -180,7 +182,7 @@ export function ColourLens({ site, remote, demo, camera, onBack, onReading, onCa
 
   return (
     <div className={styles.view}>
-      <TopBar siteName={site.name} onBack={onBack} demo={demo} />
+      <TopBar siteName={name} onBack={onBack} demo={demo} />
       {ready && <video ref={setVideo} className={styles.camera} autoPlay muted playsInline onLoadedData={() => setHasData(true)} />}
       <div className={styles.scrim} />
       <div className={styles.top} ref={miniRef}>
@@ -203,88 +205,88 @@ export function ColourLens({ site, remote, demo, camera, onBack, onReading, onCa
         {showCaught && status?.state !== "rate_limited" && (
           <div className={styles.ring}>
             {caught ? (
-              <Ring progress={1} size={ring} label="Colour caught" />
+              <Ring progress={1} size={ring} label={t("lens.caught_label")} />
             ) : isHolding(hold) ? (
-              <Ring filling holdMs={HOLD_MS} progress={1} size={ring} label="Hold still" />
+              <Ring filling holdMs={HOLD_MS} progress={1} size={ring} label={t("lens.hold")} />
             ) : (
-              <Ring progress={0} size={ring} label="Hold still" />
+              <Ring progress={0} size={ring} label={t("lens.hold")} />
             )}
           </div>
         )}
       </div>
       <div className={styles.sr} role="status">
-        {status?.state === "sent" && `Colour caught. ${status.accepted.count} of 48 in the ${where} window.`}
+        {status?.state === "sent" && t("lens.sr_caught", { count: status.accepted.count, where })}
       </div>
       <div className={styles.column}>
       <div className={styles.below}>
         {showCaught ? (
           <>
             {caught ? (
-              <CaughtLines status={status} where={where} offlineShown={offlineShown} />
+              <CaughtLines status={status} where={where} remote={remote} offlineShown={offlineShown} />
             ) : (
-              <p className={styles.line}>{everHeld && !spinning ? "Hold still" : "Point at a colour and hold still"}</p>
+              <p className={styles.line}>{t(everHeld && !spinning ? "lens.hold" : "lens.point")}</p>
             )}
-            {!caught && privacy && <p className={styles.privacy}>Only the colour leaves your phone, never the picture.</p>}
+            {!caught && privacy && <p className={styles.privacy}>{t("lens.privacy")}</p>}
             {shown && (
               <span className={`${styles.reading} ${caught ? styles.readingCaught : ""}`}>
                 <span className={styles.swatch} style={{ backgroundColor: shown.hex }} />
-                {colourName(shown.bin)}
+                {colourName(shown.bin, LANG)}
               </span>
             )}
           </>
         ) : result?.status === "denied" ? (
-          <p className={styles.line}>LAMPA needs the camera to read a colour. Only the colour leaves your phone. Allow the camera in your browser settings, then try again.</p>
+          <p className={styles.line}>{t("lens.denied")}</p>
         ) : result?.status === "unavailable" ? (
-          <p className={styles.line}>This device has no camera we can use. Try on your phone.</p>
+          <p className={styles.line}>{t("lens.unavailable")}</p>
         ) : (
-          <p className={styles.line}>Starting the camera</p>
+          <p className={styles.line}>{t("lens.starting")}</p>
         )}
       </div>
       <div className={styles.bottom}>
         {!caught && (result?.status === "denied" || stopped) && (
           <Button variant="secondary" size="l" block onClick={retry}>
-            Try again
+            {t("try_again")}
           </Button>
         )}
         {onSayWhy && status?.state === "sent" && (
           <Button variant="secondary" size="l" block onClick={onSayWhy}>
-            Say why
+            {t("lens.say_why")}
           </Button>
         )}
-        <Button variant={caught ? "primary" : "secondary"} size="l" block onClick={onBack}>{`Back to ${site.name}`}</Button>
+        <Button variant={caught ? "primary" : "secondary"} size="l" block onClick={onBack}>{t("back_to", { name })}</Button>
       </div>
       </div>
     </div>
   );
 }
 
-function CaughtLines({ status, where, offlineShown }: { status: PaneStatus | null; where: string; offlineShown: boolean }) {
+function CaughtLines({ status, where, remote, offlineShown }: { status: PaneStatus | null; where: string; remote: boolean; offlineShown: boolean }) {
   switch (status?.state) {
     case "sending":
-      return <p className={styles.line}>Sending your colour</p>;
+      return <p className={styles.line}>{t("lens.sending")}</p>;
     case "sent":
       return (
         <p className={styles.line}>
           {status.accepted.completed
-            ? "You completed the window."
-            : where === "Gallery"
-              ? "Your colour is in the Gallery window."
-              : `Your colour is in the ${where} window. ${status.accepted.count} of 48.`}
+            ? t("lens.completed")
+            : remote
+              ? t("lens.in_gallery")
+              : t("lens.in_window", { where, count: status.accepted.count })}
         </p>
       );
     case "waiting":
       return status.offline ? (
         <>
-          <p className={styles.line}>Saved on this phone. It sends when you are back online.</p>
+          <p className={styles.line}>{t("lens.saved")}</p>
           {offlineShown && (
-            <Notice variant="connection">No connection. The sound keeps playing. Your colours send when you are back online.</Notice>
+            <Notice variant="connection">{t("lens.offline")}</Notice>
           )}
         </>
       ) : (
-        <Notice variant="error">Not sent yet. Trying again.</Notice>
+        <Notice variant="error">{t("lens.not_sent")}</Notice>
       );
     case "rate_limited":
-      return <p className={styles.line}>You have given this window enough colours for now. Try another site.</p>;
+      return <p className={styles.line}>{t("lens.rate_limited")}</p>;
     default:
       return null;
   }
