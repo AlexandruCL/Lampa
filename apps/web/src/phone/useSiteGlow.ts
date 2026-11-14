@@ -1,4 +1,4 @@
-import { PaneMessage, SocketMessage } from "@lampa/shared";
+import { LampsMessage, PaneMessage, SocketMessage } from "@lampa/shared";
 import { useCallback, useEffect, useState } from "react";
 import { io } from "socket.io-client";
 import { API_URL } from "../api/client";
@@ -8,10 +8,11 @@ import { applyPane, emptyWindow, type WindowPanes } from "./panes";
 type AddPane = (pane: { windowId: string; slot: number; hex: string }) => void;
 
 /** Live glow and window panes of one site; keeps the last values on disconnect. `glow` is `null` until the first message. */
-export function useSiteGlow(siteId: string): { glow: number | null; connected: boolean; panes: WindowPanes; addPane: AddPane } {
+export function useSiteGlow(siteId: string): { glow: number | null; connected: boolean; panes: WindowPanes; addPane: AddPane; lamps: LampsMessage | null } {
   const [glow, setGlow] = useState<number | null>(null);
   const [connected, setConnected] = useState(false);
   const [panes, setPanes] = useState(emptyWindow);
+  const [lamps, setLamps] = useState<LampsMessage | null>(null);
   const addPane = useCallback<AddPane>((p) => setPanes((s) => applyPane(s, p)), []);
   useEffect(() => {
     const socket = io(`${API_URL}/live`, { query: { room: `site:${siteId}` } });
@@ -25,9 +26,13 @@ export function useSiteGlow(siteId: string): { glow: number | null; connected: b
       const p = PaneMessage.safeParse(m);
       if (p.success && p.data.siteId === siteId) addPane(p.data);
     });
+    socket.on(SocketMessage.enum.lamps, (m: unknown) => {
+      const l = LampsMessage.safeParse(m);
+      if (l.success) setLamps(l.data);
+    });
     return () => {
       socket.close();
     };
   }, [siteId, addPane]);
-  return { glow, connected, panes, addPane };
+  return { glow, connected, panes, addPane, lamps };
 }
