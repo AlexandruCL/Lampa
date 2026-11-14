@@ -14,7 +14,7 @@ import { questionsFor, type Question } from "./questions";
 import { speak, stopSpeaking } from "./speak";
 import styles from "./Talk.module.css";
 import { LENS_CLOSED, caughtLine } from "./tools";
-import { playDuckedClip, useLiveTalk } from "./useLiveTalk";
+import { playDuckedClip, useLiveTalk, type HandOffs } from "./useLiveTalk";
 
 type Props = {
   site: PhoneSite;
@@ -24,7 +24,7 @@ type Props = {
   onBack: () => void;
   panes: WindowPanes;
   addPane: (pane: { windowId: string; slot: number; hex: string }) => void;
-};
+} & HandOffs;
 
 /** DESIGN 7.3. The only place the conversation SDK is rendered. */
 export function Talk(props: Props) {
@@ -35,9 +35,9 @@ export function Talk(props: Props) {
   );
 }
 
-function TalkScreen({ site, demo, remote, mic, onBack, panes, addPane }: Props) {
+function TalkScreen({ site, demo, remote, mic, onBack, panes, addPane, onEcho, onNextSite }: Props) {
   const [lang] = useState(() => visitorLang(navigator.language));
-  const talk = useLiveTalk(site, lang, mic);
+  const talk = useLiveTalk(site, lang, mic, { onEcho, onNextSite });
   const { conversation, mode } = talk;
   const [held, setHeld] = useState(false);
   const [handsFree, setHandsFree] = useState(false);
