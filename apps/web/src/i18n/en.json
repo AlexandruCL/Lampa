@@ -165,5 +165,8 @@
   "lamp_counter.label": "lamps lit today",
   "lamp_counter.last_known": "(last known)",
   "lamp_counter.spoken": "{n} of {target} lamps lit today",
-  "lamp_counter.spoken_last_known": "{n} of {target} lamps lit today, last known"
+  "lamp_counter.spoken_last_known": "{n} of {target} lamps lit today, last known",
+  "finale_line": "12 November 1884. 731 lamps. Tonight, again.",
+  "finale_tap_waltz": "Tap to hear the waltz",
+  "finale_label": "The 1884 moment"
 }
