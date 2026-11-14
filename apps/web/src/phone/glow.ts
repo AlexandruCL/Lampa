@@ -1,10 +1,6 @@
 import { GlowMessage } from "@lampa/shared";
 import { LANG, t, type Key, type Lang } from "../i18n/t";
-
-// shortcut: written here with the DESIGN.md 2.3 thresholds because Cristea's screen/glow.ts is not on main; re-export her glowWord and glowLine when it lands.
-export function glowWord(glow: number): "Asleep" | "Waking" | "Awake" | "Fully lit" {
-  return glow < 0.15 ? "Asleep" : glow < 0.6 ? "Waking" : glow < 1 ? "Awake" : "Fully lit";
-}
+import { glowWord } from "../screen/glow";
 
 const WORD_KEY: Record<ReturnType<typeof glowWord>, Key> = {
   Asleep: "glow.asleep",

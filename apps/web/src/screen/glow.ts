@@ -9,7 +9,7 @@ export function applyGlow(state: Record<string, number>, message: unknown): Reco
   return { ...state, ...Object.fromEntries(parsed.data.sites.map((s) => [s.siteId, s.glow])) };
 }
 
-export function glowWord(glow: number): string {
+export function glowWord(glow: number): "Asleep" | "Waking" | "Awake" | "Fully lit" {
   if (glow < WAKING) return "Asleep";
   if (glow < AWAKE) return "Waking";
   if (glow < 1) return "Awake";
