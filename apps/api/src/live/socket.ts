@@ -1,5 +1,5 @@
 import type { Server as HttpServer } from "node:http";
-import { CandleMessage, GlowMessage, LampsMessage, PaneMessage, SocketMessage, sites, WindowCompleteMessage } from "@lampa/shared";
+import { CandleMessage, FinaleMessage, GlowMessage, LampsMessage, PaneMessage, SocketMessage, sites, WindowCompleteMessage } from "@lampa/shared";
 import { Server } from "socket.io";
 import { GALLERY_SITE_ID } from "../panes/slots.js";
 import type { Db, LatestGlow, LatestLamps, Live } from "../seam.js";
@@ -61,6 +61,8 @@ export function attachLive(server: HttpServer, { origin, latestGlow, latestLamps
       const parsed = CandleMessage.parse(message);
       live.to(["site:" + parsed.siteId, "screen"]).emit(SocketMessage.enum.candle, parsed);
     },
+    // Not replayed on connect: a late joiner does not get the finale (Fabi's decision, hour 27).
+    emitFinale: (message) => void live.emit(SocketMessage.enum.finale, FinaleMessage.parse(message)),
     close: () => io.close(),
   };
 }

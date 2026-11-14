@@ -1,6 +1,6 @@
 import { createServer, type Server as HttpServer } from "node:http";
 import type { AddressInfo } from "node:net";
-import { type CandleMessage, GlowMessage, type LampsMessage, type PaneMessage, SocketMessage, sites, type WindowCompleteMessage } from "@lampa/shared";
+import { type CandleMessage, type FinaleMessage, GlowMessage, type LampsMessage, type PaneMessage, SocketMessage, sites, type WindowCompleteMessage } from "@lampa/shared";
 import { Server, type Namespace } from "socket.io";
 import { io, type Socket } from "socket.io-client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -15,6 +15,7 @@ const paneMx: PaneMessage = { siteId: "mx", windowId: "w-mx", slot: 3, hex: "#a1
 const paneGallery: PaneMessage = { siteId: "gallery", windowId: "w-gallery", slot: 0, hex: "#102030" };
 const completeMx: WindowCompleteMessage = { siteId: "mx", windowId: "w-mx" };
 const candle: CandleMessage = { id: "0123456789abcdef", siteId: "cathedral", litAt: "2026-11-14T18:00:00.000Z" };
+const finale: FinaleMessage = { startAt: Date.parse("2026-11-14T18:00:03Z") };
 const lampsA: LampsMessage = { litToday: 7, target: 731, sites: [{ siteId: "mx", lightingNow: 2 }, { siteId: "unirii", lightingNow: 0 }] };
 
 let http: HttpServer;
@@ -264,6 +265,41 @@ describe("candle", () => {
     // Messages arrive in order: had the invalid candle gone out, it would be first.
     await vi.waitFor(() => expect(kinds(screen.all, SocketMessage.enum.candle)).toHaveLength(1));
     expect(kinds(screen.all, SocketMessage.enum.candle)).toEqual([candle]);
+  });
+});
+
+describe("finale", () => {
+  it("emitFinale reaches a socket in city, one in screen and one in a site room", async () => {
+    const city = await connect();
+    const screen = await connect("screen");
+    const site = await connect("site:mx");
+    live.emitFinale(finale);
+    await barrier(city, screen, site);
+    for (const c of [city, screen, site]) expect(kinds(c.all, SocketMessage.enum.finale)).toEqual([finale]);
+  });
+
+  it("a bad payload throws before anything is sent", async () => {
+    const city = await connect();
+    expect(() => live.emitFinale({ startAt: 1.5 })).toThrow();
+    live.emitFinale(finale);
+    // Messages arrive in order: had the bad finale gone out, it would be first.
+    await vi.waitFor(() => expect(kinds(city.all, SocketMessage.enum.finale)).toHaveLength(1));
+    expect(kinds(city.all, SocketMessage.enum.finale)).toEqual([finale]);
+  });
+
+  it("a socket connecting after a finale gets glow and lamps but no finale", async () => {
+    latest = glowA;
+    latestLamps = lampsA;
+    const early = await connect();
+    live.emitFinale(finale);
+    await vi.waitFor(() => expect(kinds(early.all, SocketMessage.enum.finale)).toEqual([finale]));
+    const late = await connect();
+    await barrier(late);
+    expect(late.all).toEqual([
+      [SocketMessage.enum.glow, glowA],
+      [SocketMessage.enum.lamps, lampsA],
+      [SocketMessage.enum.glow, glowB],
+    ]);
   });
 });
 
