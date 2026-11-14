@@ -16,6 +16,7 @@ import { DemoBadge } from "./DemoBadge";
 import { EchoRecorder } from "./EchoRecorder";
 import { GlowMark } from "./GlowMark";
 import { Lamp } from "../lamp/Lamp";
+import { PaintLight } from "./PaintLight";
 import { LampCounter } from "../lamp/LampCounter";
 import { applyPane, emptyWindow } from "./panes";
 import { PhotoStrip } from "./PhotoStrip";
@@ -39,7 +40,7 @@ export function SiteView({ site, demo, remote, notice, compass, primer, arrived 
   const [waited, setWaited] = useState(false);
   const [camera, setCamera] = useState<Promise<CameraResult> | null>(null);
   const [mic, setMic] = useState<Promise<"granted" | "denied"> | null>(null);
-  const [view, setView] = useState<"site" | "lens" | "echo" | "between" | "talk" | "lamp">("site");
+  const [view, setView] = useState<"site" | "lens" | "echo" | "between" | "talk" | "lamp" | "paint">("site");
   useBed(site.id, glow, view !== "between", site.bed);
   useWhispers(view === "site" ? site.id : null, null, null); // centred, on the Site view only
   const [motion, setMotion] = useState<CompassStatus | null>(null);
@@ -83,6 +84,10 @@ export function SiteView({ site, demo, remote, notice, compass, primer, arrived 
         addPane={remote ? (p) => setLocal((s) => applyPane(s, p)) : live.addPane}
       />
     );
+  }
+
+  if (view === "paint" && camera) {
+    return <PaintLight site={site} demo={demo} camera={camera} onBack={() => setView("site")} />;
   }
 
   if (view === "echo") {
@@ -163,6 +168,17 @@ export function SiteView({ site, demo, remote, notice, compass, primer, arrived 
             }}
           >
             {t("site.catch")}
+          </Button>}
+          {has("colours") && <Button
+            variant="secondary"
+            size="l"
+            block
+            onClick={() => {
+              setCamera(openRearCamera()); // inside the tap: iOS needs it before any await
+              setView("paint");
+            }}
+          >
+            {t("site.paint")}
           </Button>}
           {site.lamp && !remote && (
             <Button
