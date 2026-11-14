@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { TAU_S, WINDOW_MS, glowAt, glowSql } from "./glow.js";
+import { KNEE, SLOW, TAU_S, WINDOW_MS, glowAt, glowSql } from "./glow.js";
 import { KNOWN_ACTIVITY, KNOWN_AT, KNOWN_GLOW, KNOWN_SITES } from "./known.js";
 
 const at = new Date("2026-11-13T20:00:00.000Z");
@@ -17,7 +17,17 @@ describe("glowAt", () => {
   it("after tau times ln 2, about 4 h 9 min, half the light is left", () => {
     const halfLifeMs = TAU_S * Math.LN2 * 1000;
     expect(halfLifeMs / 60_000).toBeCloseTo(249.5, 0);
-    expect(glowAt([{ bucket: ago(halfLifeMs), w: 1 }], 1, at)).toBeCloseTo(0.5, 6);
+    // glow_k 2 keeps both values under the knee
+    expect(glowAt([{ bucket: ago(halfLifeMs), w: 1 }], 2, at)).toBeCloseTo(0.25, 6);
+  });
+
+  it("past the knee each point counts a quarter, and a site is fully lit at 2.65 times glow_k", () => {
+    const glow = (w: number) => glowAt([{ bucket: at, w }], 30, at);
+    expect(glow(13.5)).toBeCloseTo(KNEE, 9);
+    expect(glow(30)).toBeCloseTo(KNEE + (1 - KNEE) / SLOW, 9); // fully lit before the knee, 59% now
+    expect(glow(79)).toBeLessThan(1);
+    expect(glow(79.5)).toBeCloseTo(1, 9);
+    expect(glow(80)).toBe(1);
   });
 
   it("the sum is capped at 1", () => {
@@ -34,12 +44,12 @@ describe("glowAt", () => {
     expect(glowAt([], 5, at)).toBe(0);
   });
 
-  it("the known events give a 0.2, b 0.279660177, c 0 and d 1", () => {
+  it("the known events give a 0.2, b 0.279660177, c 0, d 1 and e 0.6375", () => {
     const glow = Object.fromEntries(KNOWN_SITES.map((s) => [
       s.id,
       glowAt(KNOWN_ACTIVITY.filter((a) => a.site_id === s.id), s.glow_k, KNOWN_AT),
     ]));
-    expect(Object.keys(glow)).toEqual(["a", "b", "c", "d"]);
+    expect(Object.keys(glow)).toEqual(["a", "b", "c", "d", "e"]);
     for (const id of Object.keys(KNOWN_GLOW)) expect(glow[id]).toBeCloseTo(KNOWN_GLOW[id], 6);
   });
 });
@@ -51,6 +61,8 @@ describe("glowSql", () => {
     expect(sql).toContain("a.bucket > $1::timestamptz - INTERVAL '24 hours'");
     expect(sql).toContain("WHERE s.status = 'published'");
     expect(sql).toContain(")::float8 AS glow");
+    expect(sql).toContain("<= 0.45 THEN");
+    expect(sql).toContain("- 0.45) / 4.0 END");
     expect(sql).toContain("FROM sites s\nLEFT JOIN site_activity_1m a ON");
     expect(glowSql("x s", "y a")).toContain("FROM x s\nLEFT JOIN y a ON");
   });

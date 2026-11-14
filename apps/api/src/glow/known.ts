@@ -9,6 +9,7 @@ export const KNOWN_SITES: { id: string; glow_k: number }[] = [
   { id: "b", glow_k: 10 },
   { id: "c", glow_k: 5 },
   { id: "d", glow_k: 5 },
+  { id: "e", glow_k: 10 },
 ];
 
 export const KNOWN_ACTIVITY: { site_id: string; bucket: Date; w: number }[] = [
@@ -17,6 +18,8 @@ export const KNOWN_ACTIVITY: { site_id: string; bucket: Date; w: number }[] = [
   { site_id: "b", bucket: before(6 * HOUR), w: 3 },
   { site_id: "b", bucket: before(1 * HOUR), w: 2 },
   { site_id: "d", bucket: before(60_000), w: 100 },
+  // past the knee: 12 / 10 = 1.2 raw, so 0.45 + 0.75 / 4
+  { site_id: "e", bucket: KNOWN_AT, w: 12 },
 ];
 
-export const KNOWN_GLOW: Record<string, number> = { a: 0.2, b: 0.279660177, c: 0, d: 1 };
+export const KNOWN_GLOW: Record<string, number> = { a: 0.2, b: 0.279660177, c: 0, d: 1, e: 0.6375 };
