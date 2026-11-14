@@ -1,6 +1,6 @@
 /* Ported from design/css/console.css (DESIGN.md 7.15). Nothing animates in the console. */
 
-.console { min-height: 100vh; display: flex; flex-direction: column; background: var(--bg); color: var(--text); font: var(--type-body); }
+.console { min-height: 100vh; box-sizing: border-box; padding-top: env(safe-area-inset-top, 0px); display: flex; flex-direction: column; background: var(--bg); color: var(--text); font: var(--type-body); }
 .consoleNotice { padding: var(--space-m) var(--space-l) 0; }
 .consolePanes { flex: 1; display: flex; min-height: 0; }
 .consoleList { flex: none; width: 360px; margin: 0; padding: 0; list-style: none; border-right: var(--border-divider) solid var(--line); overflow-y: auto; }
