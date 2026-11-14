@@ -1,0 +1,24 @@
+/* /screen finale (DESIGN 7.13, Patrick hour 37): --bg over the map area, in map units as canvas.ts; no z-index, so the OSM credit after it stays on top. */
+.layer { position: absolute; left: 0; top: 0; width: calc(1380 * var(--u)); height: calc(1080 * var(--u)); overflow: visible; pointer-events: none; fill: var(--bg); }
+/* crackle: three dips to 40% brightness in 1.5 s, 500ms each (5.7) */
+.dips { opacity: 0; animation: dips 1500ms ease-in-out both; }
+@keyframes dips {
+  0%, 33.333%, 66.667%, 100% { opacity: 0; }
+  16.667%, 50%, 83.333% { opacity: 0.6; }
+}
+/* reduced motion: a 1500ms fade to dark instead of the dips (5.6) */
+.fade { opacity: 1; animation: to-dark 1500ms linear both; }
+@keyframes to-dark { from { opacity: 0; } }
+/* silence: dark for 2 s */
+.dark { opacity: 1; }
+/* burst: lifts off the map over 800ms */
+.unveil { opacity: 0; animation: unveil 800ms var(--ease-out); }
+@keyframes unveil { from { opacity: 1; } }
+
+.panel { display: flex; flex-direction: column; gap: calc(4 * var(--u)); }
+.count { margin: 0; font: var(--screen-numeral); font-variant-numeric: tabular-nums; color: var(--text-2); }
+.lit { color: var(--lamp); }
+.date { margin: 0; font: var(--screen-meta); color: var(--text-2); }
+/* at the waltz's end: settles back over 4 s */
+.settle { animation: settle 4000ms linear forwards; }
+@keyframes settle { to { opacity: 0; } }

@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { unlockAudio } from "../audio/context";
 import { useRoomSound } from "../audio/room";
 import { Button } from "../components";
+import { FinaleMapLayer, FinalePanel, useScreenFinale } from "../finale/ScreenFinale";
 import { DemoBadge } from "../phone/DemoBadge";
 import { isDemo } from "../sensors/demo";
 import { startCanvas } from "./canvas";
@@ -39,6 +40,7 @@ function LivingMap({ demo }: { demo: boolean }) {
   );
   const [reconnecting, setReconnecting] = useState(false);
   useRoomSound(glowRef, placed, MAP_WIDTH);
+  const finale = useScreenFinale();
 
   useEffect(() => {
     sitesRef.current = allSites;
@@ -67,6 +69,7 @@ function LivingMap({ demo }: { demo: boolean }) {
           const p = placed.find((q) => q.id === s.siteId);
           return p && <Subtitle key={`${s.siteId}-${s.at}`} point={p} others={placed} text={s.text} lang={s.lang} />;
         })}
+        <FinaleMapLayer finale={finale} placed={placed} />
         <p className={styles.credit}>© OpenStreetMap contributors</p>
         {demo && (
           <div className={styles.demo}>
@@ -85,6 +88,7 @@ function LivingMap({ demo }: { demo: boolean }) {
           <p className={styles.statLabel}>Colours caught today</p>
           <p className={styles.number}>{coloursToday ?? "..."}</p>
         </div>
+        <FinalePanel finale={finale} />
         <Ticker events={events} siteNames={siteNames} />
         <p className={styles.status} role="status">
           {reconnecting ? "Reconnecting to the city…" : ""}
