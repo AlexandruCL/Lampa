@@ -28,15 +28,16 @@ export function SiteView({ site, demo, remote, notice, compass, primer, arrived 
   const [compassDenied, setCompassDenied] = useState(compass === "denied");
   const live = useSiteGlow(site.id);
   const { glow, connected } = live;
-  useBed(site.id, glow);
   // Remote: the phone joins no gallery room, so the mini window holds only the visitor's own pane.
   const [local, setLocal] = useState(emptyWindow);
   const [waited, setWaited] = useState(false);
   const [camera, setCamera] = useState<Promise<CameraResult> | null>(null);
   const [mic, setMic] = useState<Promise<"granted" | "denied"> | null>(null);
   const [view, setView] = useState<"site" | "lens" | "echo" | "between" | "talk" | "lamp">("site");
+  useBed(site.id, glow, view !== "between");
   const [motion, setMotion] = useState<CompassStatus | null>(null);
   const [echoPrompt, setEchoPrompt] = useState<string | undefined>();
+  const [nextTarget, setNextTarget] = useState<string | undefined>();
 
   useEffect(() => {
     track("wake", site.id);
@@ -82,7 +83,7 @@ export function SiteView({ site, demo, remote, notice, compass, primer, arrived 
   }
 
   if (view === "between") {
-    return <Between from={site} primer={primer} demo={demo} remote={remote} onBack={() => setView("site")} />;
+    return <Between from={site} primer={primer} demo={demo} remote={remote} initialTarget={nextTarget} onBack={() => setView("site")} />;
   }
 
   if (view === "lamp" && motion) {
@@ -99,6 +100,8 @@ export function SiteView({ site, demo, remote, notice, compass, primer, arrived 
         onBack={() => setView("site")}
         panes={remote ? local : live.panes}
         addPane={remote ? (p) => setLocal((s) => applyPane(s, p)) : live.addPane}
+        onEcho={(p) => { setEchoPrompt(p); setView("echo"); }}
+        onNextSite={(id) => { setNextTarget(id); setView("between"); }}
       />
     );
   }
