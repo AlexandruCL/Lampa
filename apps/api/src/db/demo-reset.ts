@@ -1,5 +1,5 @@
 import { pathToFileURL } from "node:url";
-import { sites } from "@lampa/shared";
+import { bridges, sites } from "@lampa/shared";
 import type { Db, Tx } from "../seam.js";
 import { hslToHex } from "../pulse/colour.js";
 import { asDb, asTx, createPool } from "./pool.js";
@@ -57,7 +57,7 @@ export async function demoReset(db: Db, tx: Tx): Promise<string | null> {
     const c = await t.query(DELETE_ECHOES_SQL);
     const b = await t.query(DELETE_ECHO_BLOBS_SQL);
     const e = await t.query(DELETE_EVENTS_SQL);
-    const d = await t.query(PLACES_TO_DRAFT_SQL, [sites.map((s) => s.id)]);
+    const d = await t.query(PLACES_TO_DRAFT_SQL, [[...sites, ...bridges].map((s) => s.id)]);
 
     const { id } = (await t.query(INSERT_WINDOW_SQL, [DEMO_WINDOW_SITE])).rows[0];
     const panes = demoPanes();

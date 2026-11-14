@@ -1,6 +1,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { caughtClink, readingTone, windowChord } from "../audio/note";
 import { useBed } from "../audio/useBed";
+import { useBottles } from "../audio/useBottles";
 import { useWhispers } from "../audio/useWhispers";
 import { KeepMyColours, KeepPrompt } from "../auth/KeepMyColours";
 import { Button, Notice } from "../components";
@@ -12,7 +13,7 @@ import { ColourLens } from "./ColourLens";
 import { track } from "../events";
 import { markVisited } from "../nav/visited";
 import { requestCompass, type CompassStatus, type PrimerResult } from "../sensors/primer";
-import type { PhoneSite } from "../sites/sites";
+import { BRIDGES, isBridge, type PhoneSite } from "../sites/sites";
 import { DemoBadge } from "./DemoBadge";
 import { EchoRecorder } from "./EchoRecorder";
 import { GlowMark } from "./GlowMark";
@@ -43,7 +44,10 @@ export function SiteView({ site, demo, remote, notice, compass, primer, arrived 
   const [mic, setMic] = useState<Promise<"granted" | "denied"> | null>(null);
   const [view, setView] = useState<"site" | "lens" | "echo" | "between" | "talk" | "lamp" | "paint" | "bells">("site");
   useBed(site.id, glow, view !== "between" && view !== "bells", site.bed); // the bells are heard without the bed
-  useWhispers(view === "site" ? site.id : null, null, null); // centred, on the Site view only
+  const bridge = isBridge(site);
+  useWhispers(view === "site" && !bridge ? site.id : null, null, null); // centred, on the Site view only
+  const listens = bridge && site.id !== BRIDGES[0]!.id; // nothing drifts down to the first bridge
+  const bottlePassing = useBottles(view === "site" && listens ? site.id : null); // a bridge plays only bottles from upstream
   const [motion, setMotion] = useState<CompassStatus | null>(null);
   const [echoPrompt, setEchoPrompt] = useState<string | undefined>();
   const [nextTarget, setNextTarget] = useState<string | undefined>();
@@ -134,9 +138,13 @@ export function SiteView({ site, demo, remote, notice, compass, primer, arrived 
       {arrivedLine && <p className={styles.arrived}>{t("site.waking", { name: siteName(site) })}</p>}
       <GlowMark siteName={siteName(site)} glow={glow} connected={connected} />
       {site.lamp && !remote && <LampCounter lamps={live.lamps} connected={connected} size="s" />}
-      <div className={styles.visual}>
-        <RoseWindow name={siteName(site)} size="l" filled={live.panes.filled} glow={glow !== null && glow >= 0.15 ? glow : undefined} />
-      </div>
+      {bridge ? (
+        listens && <p className={styles.arrived} aria-live="polite">{t(bottlePassing ? "bottle.passing" : "bottle.quiet")}</p>
+      ) : (
+        <div className={styles.visual}>
+          <RoseWindow name={siteName(site)} size="l" filled={live.panes.filled} glow={glow !== null && glow >= 0.15 ? glow : undefined} />
+        </div>
+      )}
       <PhotoStrip siteId={site.id} />
       <div className={styles.actions}>
         {has("talk") && <Button
@@ -161,6 +169,18 @@ export function SiteView({ site, demo, remote, notice, compass, primer, arrived 
           }}
         >
           {t("site.talk")}
+        </Button>}
+        {/* The last bridge has no bridge below it to hear a bottle. */}
+        {bridge && site.id !== BRIDGES.at(-1)!.id && <Button
+          variant="primary"
+          size="l"
+          block
+          onClick={() => {
+            setEchoPrompt(t("bottle.prompt"));
+            setView("echo");
+          }}
+        >
+          {t("site.bottle")}
         </Button>}
         <div className={styles.grid}>
           {has("colours") && <Button

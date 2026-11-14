@@ -36,6 +36,8 @@ export const Site = z.object({
   lat: z.number(),
   lng: z.number(),
   is_memorial: z.boolean(),
+  /** A bridge on the Bega: it offers only the bottle (Message in a Bottle). */
+  is_bridge: z.boolean().optional(),
 });
 export type Site = z.infer<typeof Site>;
 
@@ -199,6 +201,12 @@ export const ApprovedEchoes = z.object({
   echoes: z.array(z.object({ echoId: z.string(), audioUrl: z.string(), lang: z.string().nullable() })),
 });
 export type ApprovedEchoes = z.infer<typeof ApprovedEchoes>;
+
+// GET /echoes/bottles?site=<bridgeId>: approved echoes of the last 24 hours dropped at an upstream bridge and drifting past this one now, oldest first
+export const Bottles = z.object({
+  echoes: z.array(ApprovedEchoes.shape.echoes.element.extend({ fromSiteId: z.string() })),
+});
+export type Bottles = z.infer<typeof Bottles>;
 
 // POST /me/claim with an Auth0 token; anonToken is the visitor's anonymous token
 export const ClaimIn = z.object({ anonToken: z.string().min(1) });

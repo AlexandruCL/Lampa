@@ -1,0 +1,19 @@
+# A bridge on the Bega (Message in a Bottle). Coordinates from OpenStreetMap, 2026-11-14: check them on site.
+id: pod-michelangelo
+city: timisoara
+name:
+  ro: "Podul Michelangelo"
+  en: "Michelangelo Bridge"
+location:
+  lat: 45.75025
+  lng: 21.23475
+radius_m: 40
+interactions: [bottle]
+is_memorial: false
+glow_k: 30
+persona: {}
+facts: []
+directions_hint: {}
+active:
+  from: null
+  until: null

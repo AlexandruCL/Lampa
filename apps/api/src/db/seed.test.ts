@@ -58,11 +58,16 @@ describe("seed", () => {
     expect(toSitesJson([f])[0]!.name).toBe("Demo EN");
   });
 
-  it("the five files in content/sites give mx, unirii, victoriei, bastion, cathedral in order and match packages/shared/sites.json", () => {
+  it("a file that offers the bottle is marked as a bridge", () => {
+    const f = { ...parseSiteFile(minimal), interactions: ["bottle"] };
+    expect(toSitesJson([f])[0]!.is_bridge).toBe(true);
+  });
+
+  it("the files in content/sites give the five sites, then the bridges, in order and match packages/shared/sites.json", () => {
     const dir = join(root, "content", "sites");
     const names = readdirSync(dir).filter((n) => n.endsWith(".yaml")).sort();
     const files = names.map((n) => parseSiteFile(readFileSync(join(dir, n), "utf8")));
-    expect(files.map((f) => f.id)).toEqual(["mx", "unirii", "victoriei", "bastion", "cathedral"]);
+    expect(files.map((f) => f.id)).toEqual(["mx", "unirii", "victoriei", "bastion", "cathedral", "pod-decebal", "pod-michelangelo", "pod-maria"]);
     const onDisk = readFileSync(join(root, "packages", "shared", "sites.json"), "utf8").replace(/\r\n/g, "\n");
     expect(onDisk).toBe(JSON.stringify(toSitesJson(files), null, 2) + "\n");
   });

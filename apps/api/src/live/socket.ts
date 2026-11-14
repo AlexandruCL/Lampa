@@ -1,5 +1,5 @@
 import type { Server as HttpServer } from "node:http";
-import { CandleMessage, FinaleMessage, GlowMessage, LampsMessage, PaneMessage, SocketMessage, sites, WindowCompleteMessage } from "@lampa/shared";
+import { CandleMessage, FinaleMessage, GlowMessage, LampsMessage, PaneMessage, SocketMessage, bridges, sites, WindowCompleteMessage } from "@lampa/shared";
 import { Server } from "socket.io";
 import { GALLERY_SITE_ID } from "../panes/slots.js";
 import type { Db, LatestGlow, LatestLamps, Live } from "../seam.js";
@@ -23,7 +23,7 @@ export const PUBLISHED_IDS_SQL = `SELECT id FROM sites WHERE status = 'published
 export function attachLive(server: HttpServer, { origin, latestGlow, latestLamps, db }: { origin: string | undefined; latestGlow: LatestGlow; latestLamps?: LatestLamps; db?: Db }): Live {
   const io = new Server(server, { cors: { origin } });
   const live = io.of("/live");
-  const seeded = sites.map((s) => s.id);
+  const seeded = [...sites, ...bridges].map((s) => s.id);
   const publishedIds = (d: Db) =>
     d.query(PUBLISHED_IDS_SQL).then(
       (r) => r.rows.map((row: { id: string }) => row.id),

@@ -70,6 +70,7 @@ export function toSitesJson(files: SiteFile[]): Site[] {
     lat: f.location.lat,
     lng: f.location.lng,
     is_memorial: f.is_memorial,
+    ...(f.interactions.includes("bottle") ? { is_bridge: true } : {}),
   }));
 }
 

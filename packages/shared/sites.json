@@ -33,5 +33,29 @@
     "lat": 45.7507,
     "lng": 21.2243,
     "is_memorial": true
+  },
+  {
+    "id": "pod-decebal",
+    "name": "Decebal Bridge",
+    "lat": 45.75607,
+    "lng": 21.24085,
+    "is_memorial": false,
+    "is_bridge": true
+  },
+  {
+    "id": "pod-michelangelo",
+    "name": "Michelangelo Bridge",
+    "lat": 45.75025,
+    "lng": 21.23475,
+    "is_memorial": false,
+    "is_bridge": true
+  },
+  {
+    "id": "pod-maria",
+    "name": "Maria Bridge",
+    "lat": 45.74973,
+    "lng": 21.22097,
+    "is_memorial": false,
+    "is_bridge": true
   }
 ]

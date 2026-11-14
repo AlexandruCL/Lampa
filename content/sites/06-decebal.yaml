@@ -1,0 +1,19 @@
+# A bridge on the Bega (Message in a Bottle). Coordinates from OpenStreetMap, 2026-11-14: check them on site.
+id: pod-decebal
+city: timisoara
+name:
+  ro: "Podul Decebal"
+  en: "Decebal Bridge"
+location:
+  lat: 45.75607
+  lng: 21.24085
+radius_m: 40
+interactions: [bottle]
+is_memorial: false
+glow_k: 30
+persona: {}
+facts: []
+directions_hint: {}
+active:
+  from: null
+  until: null
