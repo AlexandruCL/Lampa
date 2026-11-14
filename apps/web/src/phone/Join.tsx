@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router";
 import { unlockAudio } from "../audio/context";
 import { Button, Icon, Notice } from "../components";
-import { siteName, t } from "../i18n/t";
+import { siteName, t, type Key } from "../i18n/t";
+import { glowWord } from "../screen/glow";
 import { markVisited } from "../nav/visited";
 import { isDemo } from "../sensors/demo";
 import { primeDevice, type PrimerResult } from "../sensors/primer";
@@ -14,6 +15,8 @@ import { Memorial } from "./Memorial";
 import { RoseWindow } from "./RoseWindow";
 import { Between } from "./Between";
 import { SiteView } from "./SiteView";
+import { useCityWindow } from "./useCityWindow";
+import { fetchStoredWindow } from "./useSiteGlow";
 
 // A reload clears this, so history state from before it is ignored: the AudioContext needs a new tap.
 let primedThisLoad = false;
@@ -33,6 +36,29 @@ function Candle() {
         d="M100 82C106 94 109 98 109 103A9 9 0 0 1 91 103C91 98 94 94 100 82Z"
       />
     </svg>
+  );
+}
+
+const CITY_LINE: Record<ReturnType<typeof glowWord>, Key> = {
+  Asleep: "join.city_asleep",
+  Waking: "join.city_waking",
+  Awake: "join.city_awake",
+  "Fully lit": "join.city_fully_lit",
+};
+
+/** The asleep page of `/` (Cristea): the mean glow of the sites in words, and one window of colours from all of them. */
+function CityAsleep({ name }: { name: string }) {
+  const { filled, glow } = useCityWindow();
+  return (
+    <>
+      <p className={styles.line}>
+        {glow === null ? t("join.asleep", { name }) : t(CITY_LINE[glowWord(glow)], { name, pct: Math.round(glow * 100) })}
+      </p>
+      <div className={styles.visual}>
+        {/* As the Site view: no backlight or halo while asleep (under 0.15). */}
+        <RoseWindow name={name} size="l" filled={filled} glow={glow !== null && glow >= 0.15 ? glow : undefined} />
+      </div>
+    </>
   );
 }
 
@@ -68,6 +94,19 @@ export default function Join({ siteId }: { siteId?: string }) {
   useEffect(() => {
     if (result && site?.is_memorial) markVisited(site.id);
   }, [result, site]);
+
+  // DESIGN.md 7.1: the asleep window shows the site's real panes. It starts dark and fills when the API answers.
+  const [asleepPanes, setAsleepPanes] = useState<(string | null)[]>(EMPTY_PANES);
+  const windowSiteId = site && !site.is_memorial ? site.id : undefined;
+  useEffect(() => {
+    setAsleepPanes(EMPTY_PANES);
+    if (windowSiteId === undefined) return;
+    let live = true;
+    void fetchStoredWindow(windowSiteId).then((stored) => live && stored && setAsleepPanes(stored.panes));
+    return () => {
+      live = false;
+    };
+  }, [windowSiteId]);
 
   const top = <div className={styles.top}>{demo && <DemoBadge />}</div>;
 
@@ -169,11 +208,13 @@ export default function Join({ siteId }: { siteId?: string }) {
             <Candle />
           </div>
         </>
+      ) : city ? (
+        <CityAsleep name={name!} />
       ) : (
         <>
           <p className={styles.line}>{t("join.asleep", { name: name! })}</p>
           <div className={styles.visual}>
-            <RoseWindow name={name!} size="l" filled={EMPTY_PANES} />
+            <RoseWindow name={name!} size="l" filled={asleepPanes} />
           </div>
         </>
       )}
