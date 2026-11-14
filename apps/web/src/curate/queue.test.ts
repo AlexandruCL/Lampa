@@ -1,7 +1,7 @@
-import type { PendingEcho } from "@lampa/shared";
+import { sites, type PendingEcho } from "@lampa/shared";
 import { describe, expect, it, vi } from "vitest";
 import { SIGN_IN_RETURN_KEY } from "../auth/claimFlow";
-import { clearVisitorReturn, formatDuration, keepSelection, metaLine, removeEcho, sessionEnded } from "./queue";
+import { clearVisitorReturn, formatDuration, keepSelection, metaLine, removeEcho, sessionEnded, siteName } from "./queue";
 
 const NOW = Date.parse("2026-11-14T12:00:00.000Z");
 
@@ -57,6 +57,16 @@ describe("queue", () => {
   it("the duration 19.4 s reads 0:19", () => {
     expect(formatDuration(19.4)).toBe("0:19");
     expect(formatDuration(75)).toBe("1:15");
+  });
+
+  it("siteName prefers the API's name", () => {
+    expect(siteName({ ...echo("a"), siteName: "Decebal Bridge" })).toBe("Decebal Bridge");
+  });
+
+  it("siteName falls back to the bundled name", () => {
+    const bundled = sites[0]!;
+    expect(siteName({ ...echo("a"), siteId: bundled.id })).toBe(bundled.name);
+    expect(siteName({ ...echo("a"), siteId: "decebal-bridge" })).toBe("decebal-bridge");
   });
 
   it("curate sign-in clears the visitor return key", () => {

@@ -9,9 +9,9 @@ export function clearVisitorReturn(): void {
   writeSession(SIGN_IN_RETURN_KEY, null);
 }
 
-// shortcut: only the shared site list is known here, so a site added later shows its id until the queue carries names.
-export function siteName(siteId: string): string {
-  return sites.find((s) => s.id === siteId)?.name ?? siteId;
+/** The API's English name when the queue carries one, else the bundled name, else the id. */
+export function siteName(echo: Pick<PendingEcho, "siteId" | "siteName">): string {
+  return echo.siteName ?? sites.find((s) => s.id === echo.siteId)?.name ?? echo.siteId;
 }
 
 /** Keeps the selection while it is still pending; otherwise (and on load) the first echo. */

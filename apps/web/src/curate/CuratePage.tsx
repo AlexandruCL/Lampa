@@ -239,7 +239,7 @@ export function CuratePage() {
                       setOpen(true);
                     }}
                   >
-                    <span className={styles.queueRowSite}>{siteName(echo.siteId)}</span>
+                    <span className={styles.queueRowSite}>{siteName(echo)}</span>
                     <span className={styles.queueRowMeta}>{metaLine(echo, now)}</span>
                   </button>
                 </li>
