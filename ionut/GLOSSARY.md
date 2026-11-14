@@ -218,6 +218,7 @@ The owner's answers only.
 | 37 | A new place with no Romanian name: Ionut asks Fabi for `name: r.name[lang] ?? r.name.en` in `GET /sites/:id` | Without it a Romanian phone gets 500 and loops on "Try again" |
 | 37 | B4-0: `npm install` approved to bring the local `node_modules` up to the lockfile (three packages were missing); the lockfile is not committed | The baseline failed on missing packages only |
 | 37 | B4-0: the 18 Romanian strings of the seam table approved as drafted | Ionut's review before the seam commit |
+| 37 | B4-1.d: all 130 Romanian strings of `ro.json` (the 18 of B4-0 plus 112 drafted in B4-1.b.1 and B4-1.c.1) approved as drafted; no correction commit | Ionut's review before the `ionut/b4-lang` PR |
 
 ## Blocked
 | Since hour | ID | Question | Recommendation | Waiting on |
