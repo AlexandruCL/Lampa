@@ -25,7 +25,7 @@ describe("placeForm", () => {
     const place = PlaceIn.parse(toPlaceIn(form));
     expect(place.lat).toBe(45.7489);
     expect(place.facts).toHaveLength(2);
-    expect(place.interactions).toEqual(["talk", "colours", "echo", "lamp"]);
+    expect(place.interactions).toEqual(["colours", "lamp"]);
   });
 
   it("one fact is invalid", () => {
@@ -61,8 +61,8 @@ describe("placeForm", () => {
     expect(validate(form)).toEqual([{ field: "fact-4-text", message: MESSAGES.factText }]);
   });
 
-  it("all four interactions are ticked at start", () => {
-    expect(emptyForm().interactions).toEqual(["talk", "colours", "echo", "lamp"]);
+  it("both interactions are ticked at start, and talk and echo are not offered", () => {
+    expect(emptyForm().interactions).toEqual(["colours", "lamp"]);
   });
 
   it("the QR url is origin plus /s/ plus the id", () => {

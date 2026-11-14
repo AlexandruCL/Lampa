@@ -1,7 +1,7 @@
 import { SiteDetail } from "@lampa/shared";
 import { LANG, type Lang } from "../i18n/t";
 import type { PhoneSite } from "../sites/sites";
-import { ApiError, api } from "./client";
+import { API_URL, ApiError, api } from "./client";
 
 /** GET /sites/:id. An unknown id (404) gives null; any other failure is thrown. */
 export async function fetchSite(id: string, lang: Lang = LANG): Promise<PhoneSite | null> {
@@ -15,6 +15,7 @@ export async function fetchSite(id: string, lang: Lang = LANG): Promise<PhoneSit
       is_memorial: s.is_memorial,
       lamp: s.interactions.includes("lamp"),
       interactions: s.interactions,
+      ...(s.bed ? { bed: API_URL + s.bed } : {}),
     };
   } catch (e) {
     if (e instanceof ApiError && e.status === 404) return null;

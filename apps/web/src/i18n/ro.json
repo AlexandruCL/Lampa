@@ -131,5 +131,8 @@
   "echo.info": "Înregistrarea ta e stocată pe serverul nostru și transcrisă. Un curator o ascultă. Dacă e aprobată, vizitatorii de aici o aud cu vocea ta. Dacă e respinsă, nu se aude niciodată. Nu îți cerem numele.",
   "echo.discard_title": "Renunți la acest ecou?",
   "echo.discard": "Renunță",
-  "echo.keep": "Păstrează înregistrarea"
+  "echo.keep": "Păstrează înregistrarea",
+  "keep.button": "Păstrează-mi culorile",
+  "keep.saved": "Salvat. Culorile tale rămân în contul tău.",
+  "keep.failed": "Te-ai conectat, dar culorile tale nu s-au mutat în contul tău."
 }

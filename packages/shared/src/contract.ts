@@ -145,6 +145,8 @@ export const SiteDetail = Site.extend({
   facts: z.array(z.unknown()),
   directions_hint: z.string(),
   glow: z.number().min(0).max(1),
+  /** Path of the sound bed of a place added in the console (`/blob/site-<id>_bed-1-…`); absent for the bundled sites. */
+  bed: z.string().optional(),
 });
 export type SiteDetail = z.infer<typeof SiteDetail>;
 
