@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { addWhisper, nextWhisper, WHISPER_COUNT, type Whisper } from "./whisper";
+import { addWhisper, nextWhisper, WHISPER_COUNT, WHISPER_RMS, whisperGain, type Whisper } from "./whisper";
 
 const w = (id: string): Whisper => ({ echoId: id, audioUrl: `/blob/${id}` });
 const five = ["e5", "e4", "e3", "e2", "e1"].map(w); // newest first, as the route sends them
@@ -31,4 +31,16 @@ describe("addWhisper", () => {
 
   it("an echo already in the list is not added twice", () =>
     expect(addWhisper(five, w("e3")).map((x) => x.echoId)).toEqual(["e5", "e4", "e3", "e2", "e1"]));
+});
+
+describe("whisperGain", () => {
+  it("brings a loud and a quiet recording to the same level", () => {
+    expect(whisperGain(new Float32Array(100).fill(0.5)) * 0.5).toBeCloseTo(WHISPER_RMS);
+    expect(whisperGain(new Float32Array(100).fill(0.05)) * 0.05).toBeCloseTo(WHISPER_RMS);
+  });
+  it("never boosts, and an empty or silent recording gets 0", () => {
+    expect(whisperGain(new Float32Array(100).fill(0.001))).toBe(1);
+    expect(whisperGain(new Float32Array(100))).toBe(0);
+    expect(whisperGain(new Float32Array(0))).toBe(0);
+  });
 });

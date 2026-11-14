@@ -1,9 +1,11 @@
-import { ambientBus } from "./bus";
+import { ambientBus, BED_LEVEL } from "./bus";
 import { getAudioContext } from "./context";
-import { RAMP_S } from "./engine";
+import { ASLEEP_GAIN, RAMP_S } from "./engine";
 
 // Patrick's decisions, hour 24 (B3-6.b.1).
-export const WHISPER_GAIN = 0.35;
+const BED_RMS = 0.063; // the bed files are mastered to −24 dBFS RMS
+/** An echo plays 8 dB under the quietest (asleep) bed, whatever level it was recorded at. Not yet tuned by ear. */
+export const WHISPER_RMS = BED_RMS * BED_LEVEL * ASLEEP_GAIN * 0.4;
 export const WHISPER_GAP_MS = 20000;
 export const WHISPER_COUNT = 5;
 
@@ -21,7 +23,15 @@ export function addWhisper<W extends Whisper>(list: readonly W[], w: W): W[] {
   return [w, ...list].slice(0, WHISPER_COUNT);
 }
 
-/** One echo: source → HRTF panner → gain at WHISPER_GAIN → ambient bus. `onEnded` runs only when it plays out. */
+/** The gain that brings a recording to WHISPER_RMS; never a boost, and 0 for an empty or silent one. */
+export function whisperGain(samples: Float32Array): number {
+  let sum = 0;
+  for (const x of samples) sum += x * x;
+  const rms = Math.sqrt(sum / samples.length);
+  return rms > 0 ? Math.min(1, WHISPER_RMS / rms) : 0;
+}
+
+/** One echo: source → HRTF panner → gain from whisperGain → ambient bus. `onEnded` runs only when it plays out. */
 export function playWhisper(buffer: AudioBuffer, at: { x: number; z: number }, onEnded: () => void) {
   const ctx = getAudioContext();
   const t = ctx.currentTime;
@@ -33,7 +43,7 @@ export function playWhisper(buffer: AudioBuffer, at: { x: number; z: number }, o
   panner.positionY.setValueAtTime(0, t);
   panner.positionZ.setValueAtTime(at.z, t);
   const gain = ctx.createGain();
-  gain.gain.setValueAtTime(WHISPER_GAIN, t);
+  gain.gain.setValueAtTime(whisperGain(buffer.getChannelData(0)), t);
   source.connect(panner).connect(gain).connect(ambientBus());
   let stopped = false;
   source.onended = () => {
