@@ -13,7 +13,8 @@ ORDER BY geom <-> ST_SetSRID(ST_MakePoint($1, $2), 4326)::geography
 LIMIT 5`;
 
 export const SITE_SQL = `SELECT id, name, ST_Y(geom::geometry) AS lat, ST_X(geom::geometry) AS lng, is_memorial,
-       radius_m, interactions, facts, directions_hint
+       radius_m, interactions, facts, directions_hint,
+       (SELECT key FROM blobs WHERE starts_with(key, 'site-' || sites.id || '_bed-1-') ORDER BY key LIMIT 1) AS bed_key
 FROM sites
 WHERE id = $1 AND status = 'published'`;
 
@@ -66,6 +67,8 @@ export function createSitesRouter(deps: { db?: Db; latestGlow: LatestGlow }): Ro
       radius_m: r.radius_m, interactions: r.interactions, facts: r.facts,
       directions_hint: r.directions_hint?.[lang] ?? r.directions_hint?.en ?? "",
       glow: glowOf(r.id),
+      // Take 1 of the bed that publishing stored in blobs; the bundled sites have none there.
+      ...(r.bed_key ? { bed: "/blob/" + r.bed_key } : {}),
     }));
   });
 

@@ -2,6 +2,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { caughtClink, readingTone, windowChord } from "../audio/note";
 import { useBed } from "../audio/useBed";
 import { useWhispers } from "../audio/useWhispers";
+import { KeepMyColours } from "../auth/KeepMyColours";
 import { Button, Notice } from "../components";
 import { siteName, t } from "../i18n/t";
 import { openRearCamera, type CameraResult } from "../sensors/camera";
@@ -38,7 +39,7 @@ export function SiteView({ site, demo, remote, notice, compass, primer, arrived 
   const [camera, setCamera] = useState<Promise<CameraResult> | null>(null);
   const [mic, setMic] = useState<Promise<"granted" | "denied"> | null>(null);
   const [view, setView] = useState<"site" | "lens" | "echo" | "between" | "talk" | "lamp">("site");
-  useBed(site.id, glow, view !== "between");
+  useBed(site.id, glow, view !== "between", site.bed);
   useWhispers(view === "site" ? site.id : null, null, null); // centred, on the Site view only
   const [motion, setMotion] = useState<CompassStatus | null>(null);
   const [echoPrompt, setEchoPrompt] = useState<string | undefined>();
@@ -204,6 +205,7 @@ export function SiteView({ site, demo, remote, notice, compass, primer, arrived 
             {t("site.compass")}
           </Button>
         )}
+        <KeepMyColours />
       </div>
     </main>
   );

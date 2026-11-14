@@ -53,6 +53,12 @@ describe("fetchSite", () => {
     expect((await fetchSite("new-place", "en"))?.lamp).toBe(false);
   });
 
+  it("a bed path becomes a full URL on the API; no bed leaves the key out", async () => {
+    answer(200, { ...detail, bed: "/blob/site-new-place_bed-1-abc123abc123.wav" });
+    expect((await fetchSite("new-place", "en"))?.bed).toBe(`${API_URL}/blob/site-new-place_bed-1-abc123abc123.wav`);
+    answer(200, detail);
+    expect(await fetchSite("new-place", "en")).not.toHaveProperty("bed");
+  });
   it("a 404 gives null", async () => {
     answer(404, { error: "unknown_site" });
     await expect(fetchSite("nowhere", "en")).resolves.toBeNull();
