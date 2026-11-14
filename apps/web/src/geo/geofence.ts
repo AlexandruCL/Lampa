@@ -2,7 +2,7 @@ import { haversineM, type LatLng } from "./geo";
 
 // Concept PDF section 9.7: "Geofence: enter when distance < r + min(accuracy, 30 m);
 // exit when distance > r + 25 m; ignore fixes with accuracy > 60 m; a QR scan overrides".
-export const SITE_RADIUS_M = 40; // every site (Ionut's decision, hour 1)
+export const SITE_RADIUS_M = 60; // every site; 40 until the MX check on site (Cristea)
 export const ENTER_ACCURACY_CAP_M = 30;
 export const EXIT_MARGIN_M = 25;
 export const MAX_ACCURACY_M = 60;
