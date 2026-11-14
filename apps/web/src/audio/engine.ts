@@ -1,5 +1,6 @@
 import { sites } from "@lampa/shared";
 import { AUDIO_BASE, clips, picks, type Clips } from "./clips";
+import { ambientBus } from "./bus";
 import { getAudioContext } from "./context";
 
 export const ASLEEP_GAIN = 0.3;
@@ -35,7 +36,7 @@ export function bedUrl(siteId: string, c: Clips = clips, p: Record<string, 1 | 2
   return file ? AUDIO_BASE + file : null;
 }
 
-async function load(url: string): Promise<AudioBuffer> {
+export async function loadBuffer(url: string): Promise<AudioBuffer> {
   const cached = buffers.get(url);
   if (cached) return cached;
   const res = await fetch(url);
@@ -56,12 +57,12 @@ function rampTo(gain: GainNode, value: number, seconds: number): void {
 async function start(bed: Bed, url: string): Promise<BedState> {
   let buffer: AudioBuffer;
   try {
-    buffer = await load(url);
+    buffer = await loadBuffer(url);
   } catch {
     await new Promise((r) => setTimeout(r, RETRY_MS));
     if (current !== bed) return "failed";
     try {
-      buffer = await load(url);
+      buffer = await loadBuffer(url);
     } catch {
       console.info(`LAMPA: the sound bed of ${bed.siteId} did not load`);
       return "failed";
@@ -83,7 +84,7 @@ function connect(bed: Bed, buffer: AudioBuffer): void {
   bed.target = bedGain(bed.glow, bed.memorial);
   gain.gain.setValueAtTime(0, ctx.currentTime);
   gain.gain.linearRampToValueAtTime(bed.target, ctx.currentTime + FADE_IN_S);
-  source.connect(gain).connect(ctx.destination);
+  source.connect(gain).connect(ambientBus());
   source.start();
   bed.source = source;
   bed.gain = gain;
