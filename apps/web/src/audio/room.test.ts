@@ -21,7 +21,7 @@ describe("roomPan", () => {
 
 describe("roomSites", () => {
   it("the colour sites only: never the memorial, never the Gallery", () => {
-    const placed = new Map([...sites.map((s) => [s.id, { x: 0 }] as const), ["gallery", { x: 0 }] as const]);
+    const placed = [...sites.map((s) => ({ id: s.id, x: 0 })), { id: "gallery", x: 0 }];
     const ids = roomSites(placed);
     expect(ids).toEqual(sites.filter((s) => !s.is_memorial).map((s) => s.id));
     expect(ids).toHaveLength(4);

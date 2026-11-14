@@ -14,8 +14,8 @@ export const roomGain = (glow: number): number => ROOM_MASTER * Math.min(1, Math
 export const roomPan = (x: number, width: number): number => ROOM_PAN_MAX * ((2 * x) / width - 1);
 
 /** The colour sites placed on the map: never the memorial, never the Gallery (not a site). */
-export function roomSites(placed: ReadonlyMap<string, { x: number }>): string[] {
-  return sites.filter((s) => !s.is_memorial && placed.has(s.id)).map((s) => s.id);
+export function roomSites(placed: readonly { id: string; x: number }[]): string[] {
+  return sites.filter((s) => !s.is_memorial && placed.some((p) => p.id === s.id)).map((s) => s.id);
 }
 
 function rampTo(gain: GainNode, value: number, seconds: number): void {
@@ -29,7 +29,7 @@ function rampTo(gain: GainNode, value: number, seconds: number): void {
  * The Living Map's room sound: each colour site's bed panned to its place, at its glow.
  * Mounted right after the "Start the Living Map" click; plays to the destination, not the duck bus.
  */
-export function useRoomSound(glowRef: RefObject<Record<string, number>>, placed: ReadonlyMap<string, { x: number }>, width: number): void {
+export function useRoomSound(glowRef: RefObject<Record<string, number>>, placed: readonly { id: string; x: number }[], width: number): void {
   useEffect(() => {
     void unlockAudio(); // the effect of the click's render, still inside its user activation
     const ctx = getAudioContext();
@@ -47,7 +47,7 @@ export function useRoomSound(glowRef: RefObject<Record<string, number>>, placed:
           source.buffer = buffer;
           source.loop = true;
           const panner = ctx.createStereoPanner();
-          panner.pan.setValueAtTime(roomPan(placed.get(id)!.x, width), ctx.currentTime);
+          panner.pan.setValueAtTime(roomPan(placed.find((p) => p.id === id)!.x, width), ctx.currentTime);
           const gain = ctx.createGain();
           const level = glowOf(id);
           gain.gain.setValueAtTime(0, ctx.currentTime);
