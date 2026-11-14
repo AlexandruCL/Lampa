@@ -5,16 +5,66 @@
         "mx/bed-1-346a95f32b1f.wav",
         "mx/bed-2-3d23238814b1.wav"
       ],
-      "greeting": {},
-      "answers": {},
+      "greeting": {
+        "ro": "mx/greeting-ro-d41885a73719.mp3",
+        "en": "mx/greeting-en-94bc672bba82.mp3"
+      },
+      "answers": {
+        "lamps": {
+          "ro": "mx/answer-lamps-ro-ae33b5b83eba.mp3",
+          "en": "mx/answer-lamps-en-59854b5b9285.mp3"
+        },
+        "trams": {
+          "ro": "mx/answer-trams-ro-c70f5b96d654.mp3",
+          "en": "mx/answer-trams-en-14204c3b20bd.mp3"
+        },
+        "museum": {
+          "ro": "mx/answer-museum-ro-9543c4cc0b9a.mp3",
+          "en": "mx/answer-museum-en-49545954a1b5.mp3"
+        }
+      },
       "narrations": {},
-      "tapToAsk": [],
+      "tapToAsk": [
+        {
+          "id": "lamps",
+          "q": {
+            "ro": "Ce s-a întâmplat în 1884?",
+            "en": "What happened in 1884?"
+          },
+          "a": {
+            "ro": "Pe 12 noiembrie 1884, Timișoara și-a aprins 731 de lămpi electrice pe străzi, printre primele orașe din Europa. În seara asta, le aprindeți din nou.",
+            "en": "On 12 November 1884, Timișoara lit 731 electric street lamps, one of the first cities in Europe to do so. Tonight, you light them again."
+          }
+        },
+        {
+          "id": "trams",
+          "q": {
+            "ro": "De când are Timișoara tramvaie?",
+            "en": "How long has Timișoara had trams?"
+          },
+          "a": {
+            "ro": "Din 1869, trase de cai. Din 1899, electrice. Am auzit fiecare clopoțel de atunci încoace.",
+            "en": "Since 1869, pulled by horses. Since 1899, electric. I have heard every bell since."
+          }
+        },
+        {
+          "id": "museum",
+          "q": {
+            "ro": "Ce se află în muzeu?",
+            "en": "What is inside the museum?"
+          },
+          "a": {
+            "ro": "Tramvaie vechi, autobuze și troleibuze care au purtat orașul ani de zile. Acum se odihnesc, dar încă le place să fie privite.",
+            "en": "Old trams, buses and trolleybuses that carried the city for years. They are resting now, but they still like to be looked at."
+          }
+        }
+      ],
       "archive": []
     },
     "unirii": {
       "beds": [
-        "unirii/bed-1-c6609b0a9504.wav",
-        "unirii/bed-2-2d3dd1d1aeaf.wav"
+        "unirii/bed-1-790ff451d259.wav",
+        "unirii/bed-2-de7b75378a41.wav"
       ],
       "greeting": {
         "ro": "unirii/greeting-ro-238fb7f3e45a.mp3",
@@ -77,10 +127,60 @@
         "victoriei/bed-1-fc6f3872034f.wav",
         "victoriei/bed-2-a06c6ef28e98.wav"
       ],
-      "greeting": {},
-      "answers": {},
+      "greeting": {
+        "ro": "victoriei/greeting-ro-c5d3de6ad2fa.mp3",
+        "en": "victoriei/greeting-en-ca20fd037a1e.mp3"
+      },
+      "answers": {
+        "wolf": {
+          "ro": "victoriei/answer-wolf-ro-0ac92cb5eb98.mp3",
+          "en": "victoriei/answer-wolf-en-fea1bccd8a0f.mp3"
+        },
+        "opera": {
+          "ro": "victoriei/answer-opera-ro-fd0ece9c7017.mp3",
+          "en": "victoriei/answer-opera-en-8e58d39b56f6.mp3"
+        },
+        "balcony": {
+          "ro": "victoriei/answer-balcony-ro-0019cf619d60.mp3",
+          "en": "victoriei/answer-balcony-en-22fe9ec32b67.mp3"
+        }
+      },
       "narrations": {},
-      "tapToAsk": [],
+      "tapToAsk": [
+        {
+          "id": "wolf",
+          "q": {
+            "ro": "Ce caută o lupoaică aici?",
+            "en": "Why is there a she-wolf here?"
+          },
+          "a": {
+            "ro": "Este Lupoaica Capitolină, un dar al Romei din 1926. Le amintește trecătorilor de rădăcinile latine ale limbii române.",
+            "en": "She is the Capitoline Wolf, a gift from Rome in 1926. She reminds passers-by of the Latin roots of the Romanian language."
+          }
+        },
+        {
+          "id": "opera",
+          "q": {
+            "ro": "Ce este clădirea de la capătul pieței?",
+            "en": "What is the building at the end of the square?"
+          },
+          "a": {
+            "ro": "Teatrul Național și Opera. A fost construită în anii 1870, iar după un incendiu fațada a primit un stil românesc. În fiecare seară îmi place cine iese de acolo.",
+            "en": "The National Theatre and Opera. It was built in the 1870s, and after a fire its front was redone in a Romanian style. I like who walks out of it each evening."
+          }
+        },
+        {
+          "id": "balcony",
+          "q": {
+            "ro": "De ce este important balconul Operei?",
+            "en": "Why does the Opera balcony matter?"
+          },
+          "a": {
+            "ro": "În decembrie 1989, oamenii au umplut piața și au vorbit mulțimii de la acest balcon. Pe 20 decembrie, Timișoara a fost proclamată primul oraș din România liber de comunism.",
+            "en": "In December 1989, people filled this square and spoke to the crowd from that balcony. On 20 December, Timișoara was proclaimed the first city in Romania free of communism."
+          }
+        }
+      ],
       "archive": []
     },
     "bastion": {
@@ -88,10 +188,60 @@
         "bastion/bed-1-f5242a3cb1b1.wav",
         "bastion/bed-2-0f52d18daccf.wav"
       ],
-      "greeting": {},
-      "answers": {},
+      "greeting": {
+        "ro": "bastion/greeting-ro-d55ac3bd81bd.mp3",
+        "en": "bastion/greeting-en-614dc317fb24.mp3"
+      },
+      "answers": {
+        "theresia": {
+          "ro": "bastion/answer-theresia-ro-9c5634611043.mp3",
+          "en": "bastion/answer-theresia-en-920951db7c80.mp3"
+        },
+        "walls": {
+          "ro": "bastion/answer-walls-ro-ef7746ddb0e0.mp3",
+          "en": "bastion/answer-walls-en-9f9440508e2a.mp3"
+        },
+        "inside": {
+          "ro": "bastion/answer-inside-ro-03102d448931.mp3",
+          "en": "bastion/answer-inside-en-ee20a84487a2.mp3"
+        }
+      },
       "narrations": {},
-      "tapToAsk": [],
+      "tapToAsk": [
+        {
+          "id": "theresia",
+          "q": {
+            "ro": "Cine a fost Theresia?",
+            "en": "Who was Theresia?"
+          },
+          "a": {
+            "ro": "Împărăteasa Maria Tereza. Am fost construit în secolul al XVIII-lea, când habsburgii au refăcut Timișoara ca cetate în formă de stea, și port numele ei.",
+            "en": "Empress Maria Theresa. I was built in the 18th century, when the Habsburgs rebuilt Timișoara as a star-shaped fortress, and I carry her name."
+          }
+        },
+        {
+          "id": "walls",
+          "q": {
+            "ro": "Unde sunt restul zidurilor?",
+            "en": "Where are the rest of the walls?"
+          },
+          "a": {
+            "ro": "Pe la 1900, orașul a vrut să crească, așa că zidurile au fost dărâmate. Eu am rămas. Cineva trebuia să-și amintească.",
+            "en": "Around 1900 the city wanted to grow, so the walls came down. I stayed. Someone had to remember."
+          }
+        },
+        {
+          "id": "inside",
+          "q": {
+            "ro": "Ce se află acum înăuntru?",
+            "en": "What is inside you now?"
+          },
+          "a": {
+            "ro": "Cândva, soldați și praf de pușcă. Acum expoziții, cafenele și muzică. Recunosc, prefer muzica.",
+            "en": "Once, soldiers and gunpowder. Now exhibitions, cafés and music. I admit I prefer the music."
+          }
+        }
+      ],
       "archive": []
     },
     "cathedral": {
@@ -99,6 +249,97 @@
         "cathedral/bed-1-2e0734b512aa.wav",
         "cathedral/bed-2-4502fb3ca8be.wav"
       ],
+      "greeting": {},
+      "answers": {},
+      "narrations": {
+        "december-17": {
+          "ro": "cathedral/narration-december-17-ro-e8018fdde870.mp3",
+          "en": "cathedral/narration-december-17-en-549c6e19b0c3.mp3"
+        },
+        "the-steps": {
+          "ro": "cathedral/narration-the-steps-ro-4c83c2396fd2.mp3",
+          "en": "cathedral/narration-the-steps-en-7034cac7121e.mp3"
+        },
+        "first-free-city": {
+          "ro": "cathedral/narration-first-free-city-ro-45453e81eb5f.mp3",
+          "en": "cathedral/narration-first-free-city-en-30020c665029.mp3"
+        },
+        "remembering": {
+          "ro": "cathedral/narration-remembering-ro-7658890f24b8.mp3",
+          "en": "cathedral/narration-remembering-en-6f9dcd956609.mp3"
+        }
+      },
+      "tapToAsk": [],
+      "archive": [],
+      "testimonies": [
+        {
+          "id": "december-17",
+          "title": {
+            "ro": "17 decembrie 1989",
+            "en": "17 December 1989"
+          },
+          "text": {
+            "ro": "Pe 17 decembrie 1989, la Timișoara s-au auzit primele focuri de armă. În acea seară, miile de oameni adunați în jurul acestei catedrale au ajuns sub foc.",
+            "en": "On 17 December 1989, the first gunshots were heard in Timișoara. That evening, the thousands of people gathered around this cathedral came under fire."
+          },
+          "source": "Agerpres, 17 Dec 2024, https://agerpres.ro/english/2024/12/17/the-city-of-timisoara-commemorates-35-years-since-the-romanian-revolution-of-december-1989--1404228; RFE/RL, 14 Dec 1999, https://www.rferl.org/a/1092892.html"
+        },
+        {
+          "id": "the-steps",
+          "title": {
+            "ro": "Treptele",
+            "en": "The steps"
+          },
+          "text": {
+            "ro": "Pe 18 decembrie, tineri s-au adunat din nou pe aceste trepte și au cântat „Deșteaptă-te, române!”, un cântec interzis atunci. Ușile catedralei erau închise. S-a tras asupra lor.",
+            "en": "On 18 December, young people gathered again on these steps and sang \"Deșteaptă-te, române!\", a song that was forbidden then. The doors of the cathedral were closed. They were fired upon."
+          },
+          "source": "TVR Info, https://tvrinfo.ro/18-decembrie-1989-o-noua-zi-insangerata-la-timisoara-s-a-cantat-desteapta-te-romane-iar-comunistii-au-vrut-sa-stearga-urmele-masacrului/; Antena 3, 18 Dec 2015, https://www.antena3.ro/actualitate/1989-timisoara-sub-stare-de-asediu-330529.html; Marius Oprea, Mediafax, 26 Dec 2021, https://www.mediafax.ro/stirile-zilei/istoria-fara-perdea-marius-oprea-tragedia-si-maretia-revolutiei-nu-trageti-vrem-piine-20425805"
+        },
+        {
+          "id": "first-free-city",
+          "title": {
+            "ro": "Primul oraș liber",
+            "en": "The first free city"
+          },
+          "text": {
+            "ro": "Pe 20 decembrie, fabricile orașului au intrat în grevă, iar oamenii au umplut piața din fața Operei. Timișoara a fost proclamată primul oraș din România liber de comunism.",
+            "en": "On 20 December, the city's factories went on strike and people filled the square in front of the Opera. Timișoara was proclaimed the first city in Romania free of communism."
+          },
+          "source": "Europa Liberă, https://romania.europalibera.org/a/decembrie-1989-timisoara/32734358.html; Digi24, https://www.digi24.ro/stiri/actualitate/evenimente/24-de-ani-de-la-revolutie-pe-20-decembrie-1989-timisoara-a-devenit-primul-oras-liber-de-comunism-172238"
+        },
+        {
+          "id": "remembering",
+          "title": {
+            "ro": "Amintirea",
+            "en": "Remembering"
+          },
+          "text": {
+            "ro": "Procuratura Militară Timișoara a înregistrat atunci 66 de morți și 196 de răniți. În fiecare an, pe 17 decembrie, seara, pe aceste trepte se aprind lumânări.",
+            "en": "The Timișoara Military Prosecutor's Office recorded 66 dead and 196 wounded. Every year, on the evening of 17 December, candles are lit on these steps."
+          },
+          "source": "Agerpres, 17 Dec 2024, https://agerpres.ro/english/2024/12/17/the-city-of-timisoara-commemorates-35-years-since-the-romanian-revolution-of-december-1989--1404228"
+        }
+      ]
+    },
+    "pod-decebal": {
+      "beds": [],
+      "greeting": {},
+      "answers": {},
+      "narrations": {},
+      "tapToAsk": [],
+      "archive": []
+    },
+    "pod-michelangelo": {
+      "beds": [],
+      "greeting": {},
+      "answers": {},
+      "narrations": {},
+      "tapToAsk": [],
+      "archive": []
+    },
+    "pod-maria": {
+      "beds": [],
       "greeting": {},
       "answers": {},
       "narrations": {},
