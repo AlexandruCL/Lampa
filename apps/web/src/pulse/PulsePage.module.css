@@ -1,6 +1,6 @@
 /* DESIGN 7.14 layout. Phone (under 1024px): one column in the 7.14 phone order, 16px side gutter. */
 .page { display: flex; flex-direction: column; gap: var(--space-l); padding: var(--space-m); box-sizing: border-box; max-width: 100%; overflow-x: clip; }
-.header { display: flex; flex-direction: column; gap: var(--space-2xs); }
+.header { display: flex; flex-direction: column; gap: var(--space-2xs); padding-top: env(safe-area-inset-top, 0px); }
 .title { margin: 0; font: var(--type-title); letter-spacing: var(--type-title-tracking); color: var(--text); }
 .line { margin: 0; font: var(--type-meta); color: var(--text-2); }
 .columns { display: flex; flex-direction: column; gap: var(--space-l); }
