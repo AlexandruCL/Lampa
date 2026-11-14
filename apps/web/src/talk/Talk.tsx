@@ -90,7 +90,7 @@ function TalkScreen({ site, demo, remote, mic, onBack, panes, addPane }: Props) 
     // no file: speak inside the tap, iOS wants a gesture for the browser voice
     const voice = () => speak(q.a, lang).then(done);
     if (!q.file) return void voice();
-    void playClip(q.file).then((end) => (end === "failed" && turn.current === t ? voice() : done(end)));
+    void playClip(q.file, true).then((end) => (end === "failed" && turn.current === t ? voice() : done(end)));
   };
 
   return (

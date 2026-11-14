@@ -68,6 +68,13 @@ async function start(bed: Bed, url: string): Promise<BedState> {
     }
   }
   if (current !== bed) return "failed";
+  connect(bed, buffer);
+  listenForHeal();
+  return "playing";
+}
+
+/** A fresh looping source and gain for the bed, fading in to its level. */
+function connect(bed: Bed, buffer: AudioBuffer): void {
   const ctx = getAudioContext();
   const source = ctx.createBufferSource();
   source.buffer = buffer;
@@ -80,7 +87,38 @@ async function start(bed: Bed, url: string): Promise<BedState> {
   source.start();
   bed.source = source;
   bed.gain = gain;
-  return "playing";
+}
+
+/**
+ * One step of the self-heal: a hidden page or any state but "running" marks the bed lapsed (iOS can
+ * stay "running" yet silent); the first visible "running" after a lapse asks for one rebuild and
+ * clears the mark, so a second event cannot rebuild again.
+ */
+export function healStep(lapsed: boolean, state: string, hidden: boolean): { lapsed: boolean; rebuild: boolean } {
+  return state === "running" && !hidden ? { lapsed: false, rebuild: lapsed } : { lapsed: true, rebuild: false };
+}
+
+let lapsed = false;
+let listening = false;
+
+// iOS can resume the context after another app yet leave the old source silent: rebuild it.
+function onAudioState(): void {
+  const step = healStep(lapsed, getAudioContext().state, document.visibilityState === "hidden");
+  lapsed = step.lapsed;
+  const { source, gain } = current ?? {};
+  if (!step.rebuild || !current || !source?.buffer || !gain) return;
+  source.stop();
+  source.disconnect();
+  gain.disconnect();
+  connect(current, source.buffer);
+}
+
+function listenForHeal(): void {
+  if (listening) return;
+  listening = true;
+  getAudioContext().addEventListener("statechange", onAudioState);
+  // A hidden page counts as a lapse; a running context on return heals.
+  document.addEventListener("visibilitychange", onAudioState);
 }
 
 /** Starts the site's bed, or for the current site returns the same promise and only applies the glow. */

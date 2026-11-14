@@ -1,5 +1,5 @@
 import { AUDIO_BASE } from "./clips";
-import { getAudioContext } from "./context";
+import { getAudioContext, unlockAudio } from "./context";
 
 export type ClipEnd = "ended" | "stopped" | "failed";
 type Clip = { resolve: (end: ClipEnd) => void; source?: AudioBufferSourceNode };
@@ -18,16 +18,26 @@ async function load(file: string): Promise<AudioBuffer> {
   return buffer;
 }
 
-/** Plays one clip through the unlocked context, stopping the one before. No retry. */
-export function playClip(file: string): Promise<ClipEnd> {
+/**
+ * Plays one clip through the unlocked context, stopping the one before. No retry.
+ * `inTap`: the caller is inside a tap, so a context iOS suspended or interrupted since the unlock is resumed here.
+ * A context still not running resolves "failed": a source started on it would never end.
+ */
+export function playClip(file: string, inTap = false): Promise<ClipEnd> {
   stopClip();
+  // resume() is called synchronously, before any await, so iOS counts it as part of the tap
+  const unlocked = inTap ? unlockAudio() : null;
   return new Promise((resolve) => {
     const clip: Clip = { resolve };
     current = clip;
-    load(file).then(
-      (buffer) => {
+    Promise.all([load(file), unlocked]).then(
+      ([buffer]) => {
         if (current !== clip) return; // stopped while loading, already resolved
         const ctx = getAudioContext();
+        if (ctx.state !== "running") {
+          current = null;
+          return resolve("failed");
+        }
         const source = ctx.createBufferSource();
         source.buffer = buffer;
         source.connect(ctx.destination);
