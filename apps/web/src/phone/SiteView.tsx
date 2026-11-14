@@ -188,6 +188,7 @@ export function SiteView({ site, demo, remote, notice, compass, primer, arrived 
           onClick={() => {
             // The demo primer asks for no motion permission; on an iPhone the prompt must come from this tap.
             if (demo && !new URLSearchParams(window.location.search).has("heading")) void requestCompass();
+            setNextTarget(undefined);
             setView("between");
           }}
         >
