@@ -5,6 +5,7 @@ import { authApi } from "./authApi";
 export const CLAIM_RETURN_KEY = "lampa.claimReturnTo";
 export const CLAIM_RESULT_KEY = "lampa.claimResult";
 export const SIGN_IN_RETURN_KEY = "lampa.signInReturnTo";
+export const PROMPT_SEEN_KEY = "lampa.keepPromptSeen";
 
 const AUTH_ERROR_PARAMS = ["error", "error_description", "state", "iss"];
 
@@ -53,6 +54,11 @@ export async function claimAnonymous(getAuth0Token: () => Promise<string>): Prom
   });
   if (!result) throw new Error("The claim answered without a result");
   return result;
+}
+
+/** The sign-in pop-up shows to a signed-out visitor once per site in a browser session (`seen` is that site's flag), and never while Auth0 is still loading. */
+export function shouldPromptKeep({ isLoading, isAuthenticated, seen }: { isLoading: boolean; isAuthenticated: boolean; seen: string | null }): boolean {
+  return !isLoading && !isAuthenticated && !seen;
 }
 
 export function nextClaimStep({ isAuthenticated, returnTo }: { isAuthenticated: boolean; returnTo: string | null }) {

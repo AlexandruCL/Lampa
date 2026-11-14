@@ -2,7 +2,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { caughtClink, readingTone, windowChord } from "../audio/note";
 import { useBed } from "../audio/useBed";
 import { useWhispers } from "../audio/useWhispers";
-import { KeepMyColours } from "../auth/KeepMyColours";
+import { KeepMyColours, KeepPrompt } from "../auth/KeepMyColours";
 import { Button, Notice } from "../components";
 import { siteName, t } from "../i18n/t";
 import { openRearCamera, type CameraResult } from "../sensors/camera";
@@ -245,6 +245,7 @@ export function SiteView({ site, demo, remote, notice, compass, primer, arrived 
         )}
         <KeepMyColours />
       </div>
+      <KeepPrompt siteId={site.id} />
     </main>
   );
 }
