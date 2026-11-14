@@ -12,7 +12,7 @@ import { getClockOffset } from "../time/clockOffset";
 import styles from "./Bells.module.css";
 import { TopBar } from "./TopBar";
 
-const HARMONY_LINE_MS = 4000;
+const HARMONY_LINE_MS = 6000; // about as long as the peal is heard
 
 type Props = {
   site: PhoneSite;
@@ -72,6 +72,7 @@ export function Bells({ site, demo, motion, bell, harmony, onBack }: Props) {
     if (harmony === seenHarmony.current) return;
     seenHarmony.current = harmony;
     harmonyChord();
+    navigator.vibrate?.([60, 80, 60, 80, 200]);
     setTogether((n) => n + 1);
     setChord(true);
     const timer = setTimeout(() => setChord(false), HARMONY_LINE_MS);
@@ -85,13 +86,16 @@ export function Bells({ site, demo, motion, bell, harmony, onBack }: Props) {
       <div className={styles.body}>
         {tower ? (
           <>
-            <h1 className={styles.title}>{t(`bells.${tower}`)}</h1>
+            {/* The harmony takes the title, the largest text on the screen. */}
+            <h1 className={styles.title} aria-live="polite">
+              {chord ? t("bells.harmony") : t(`bells.${tower}`)}
+            </h1>
             <button type="button" className={styles.bell} onClick={ring} aria-label={t("bells.ring")}>
               {answered > 0 && <span key={`a${answered}`} className={styles.answer} aria-hidden="true" />}
               <span key={struck} className={struck > 0 ? styles.struck : undefined} aria-hidden="true" />
             </button>
             <p className={styles.line} role="status">
-              {chord ? t("bells.harmony") : motion === "granted" ? t("bells.flick") : motion === null ? "" : t("bells.tap")}
+              {chord || motion === null ? "" : motion === "granted" ? t("bells.flick") : t("bells.tap")}
             </p>
           </>
         ) : (
