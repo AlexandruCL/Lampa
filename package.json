@@ -15,7 +15,8 @@
     "demo:reset": "npm run demo:reset -w @lampa/api",
     "agent:check": "tsx --env-file-if-exists=.env scripts/agent-check.ts",
     "simulate:crowd": "tsx scripts/simulate-crowd.ts",
-    "publish:site": "tsx --env-file-if-exists=.env scripts/publish-site.ts"
+    "publish:site": "tsx --env-file-if-exists=.env scripts/publish-site.ts",
+    "radio:lampa": "tsx --env-file-if-exists=.env scripts/radio-lampa.ts"
   },
   "devDependencies": { "concurrently": "10.0.7" }
 }
