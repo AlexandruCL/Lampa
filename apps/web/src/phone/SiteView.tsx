@@ -13,6 +13,8 @@ import type { PhoneSite } from "../sites/sites";
 import { DemoBadge } from "./DemoBadge";
 import { EchoRecorder } from "./EchoRecorder";
 import { GlowMark } from "./GlowMark";
+import { Lamp } from "../lamp/Lamp";
+import { LampCounter } from "../lamp/LampCounter";
 import { applyPane, emptyWindow } from "./panes";
 import { RoseWindow } from "./RoseWindow";
 import styles from "./SiteView.module.css";
@@ -27,14 +29,16 @@ export function SiteView({ site, demo, remote, notice, compass, primer, arrived 
   const [compassDenied, setCompassDenied] = useState(compass === "denied");
   const live = useSiteGlow(site.id);
   const { glow, connected } = live;
-  useBed(site.id, glow);
   // Remote: the phone joins no gallery room, so the mini window holds only the visitor's own pane.
   const [local, setLocal] = useState(emptyWindow);
   const [waited, setWaited] = useState(false);
   const [camera, setCamera] = useState<Promise<CameraResult> | null>(null);
   const [mic, setMic] = useState<Promise<"granted" | "denied"> | null>(null);
-  const [view, setView] = useState<"site" | "lens" | "echo" | "between" | "talk">("site");
+  const [view, setView] = useState<"site" | "lens" | "echo" | "between" | "talk" | "lamp">("site");
+  useBed(site.id, glow, view !== "between");
+  const [motion, setMotion] = useState<CompassStatus | null>(null);
   const [echoPrompt, setEchoPrompt] = useState<string | undefined>();
+  const [nextTarget, setNextTarget] = useState<string | undefined>();
 
   useEffect(() => {
     track("wake", site.id);
@@ -80,7 +84,11 @@ export function SiteView({ site, demo, remote, notice, compass, primer, arrived 
   }
 
   if (view === "between") {
-    return <Between from={site} primer={primer} demo={demo} remote={remote} onBack={() => setView("site")} />;
+    return <Between from={site} primer={primer} demo={demo} remote={remote} initialTarget={nextTarget} onBack={() => setView("site")} />;
+  }
+
+  if (view === "lamp" && motion) {
+    return <Lamp site={site} demo={demo} lamps={live.lamps} connected={connected} motion={motion} onBack={() => setView("site")} />;
   }
 
   if (view === "talk" && mic) {
@@ -93,6 +101,8 @@ export function SiteView({ site, demo, remote, notice, compass, primer, arrived 
         onBack={() => setView("site")}
         panes={remote ? local : live.panes}
         addPane={remote ? (p) => setLocal((s) => applyPane(s, p)) : live.addPane}
+        onEcho={(p) => { setEchoPrompt(p); setView("echo"); }}
+        onNextSite={(id) => { setNextTarget(id); setView("between"); }}
       />
     );
   }
@@ -107,6 +117,7 @@ export function SiteView({ site, demo, remote, notice, compass, primer, arrived 
       <h1 className={styles.name}>{siteName(site)}</h1>
       {arrivedLine && <p className={styles.arrived}>{t("site.waking", { name: siteName(site) })}</p>}
       <GlowMark siteName={siteName(site)} glow={glow} connected={connected} />
+      {site.lamp && !remote && <LampCounter lamps={live.lamps} connected={connected} size="s" />}
       <div className={styles.visual}>
         <RoseWindow name={siteName(site)} size="l" filled={live.panes.filled} glow={glow !== null && glow >= 0.15 ? glow : undefined} />
       </div>
@@ -146,7 +157,21 @@ export function SiteView({ site, demo, remote, notice, compass, primer, arrived 
           >
             {t("site.catch")}
           </Button>
-          {site.lamp && !remote && <Button variant="secondary" size="l" block>{t("site.lamp")}</Button>}
+          {site.lamp && !remote && (
+            <Button
+              variant="secondary"
+              size="l"
+              block
+              onClick={() => {
+                // inside the tap: iOS asks for motion here, which the demo primer skips; the site view stays until it answers
+                setMotion(null);
+                void requestCompass().then(setMotion);
+                setView("lamp");
+              }}
+            >
+              {t("site.lamp")}
+            </Button>
+          )}
           <Button
             variant="secondary"
             size="l"
@@ -164,6 +189,7 @@ export function SiteView({ site, demo, remote, notice, compass, primer, arrived 
           onClick={() => {
             // The demo primer asks for no motion permission; on an iPhone the prompt must come from this tap.
             if (demo && !new URLSearchParams(window.location.search).has("heading")) void requestCompass();
+            setNextTarget(undefined);
             setView("between");
           }}
         >

@@ -16,3 +16,17 @@
 .visitor { display: flex; flex-direction: column; gap: var(--space-2xs); }
 .visitor p { margin: 0; font: var(--type-body); color: var(--text-2); }
 .you { font: var(--type-meta); color: var(--text-2); }
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2xs);
+  align-self: flex-start;
+  max-width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+}
+.card img { display: block; max-width: 100%; max-height: 40dvh; border-radius: var(--radius-s); object-fit: contain; }
+.credit { font: var(--type-meta); color: var(--text-3); }

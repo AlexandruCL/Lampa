@@ -1,6 +1,6 @@
 import { ConversationProvider } from "@elevenlabs/react";
 import { useEffect, useRef, useState, type ComponentProps } from "react";
-import { playClip, stopClip } from "../audio/clip";
+import { stopClip } from "../audio/clip";
 import { caughtClink, readingTone, windowChord } from "../audio/note";
 import { Button, Notice, RoundControl } from "../components";
 import { ColourLens } from "../phone/ColourLens";
@@ -14,7 +14,7 @@ import { questionsFor, type Question } from "./questions";
 import { speak, stopSpeaking } from "./speak";
 import styles from "./Talk.module.css";
 import { LENS_CLOSED, caughtLine } from "./tools";
-import { useLiveTalk } from "./useLiveTalk";
+import { playDuckedClip, useLiveTalk, type HandOffs } from "./useLiveTalk";
 
 type Props = {
   site: PhoneSite;
@@ -24,7 +24,7 @@ type Props = {
   onBack: () => void;
   panes: WindowPanes;
   addPane: (pane: { windowId: string; slot: number; hex: string }) => void;
-};
+} & HandOffs;
 
 /** DESIGN 7.3. The only place the conversation SDK is rendered. */
 export function Talk(props: Props) {
@@ -35,9 +35,9 @@ export function Talk(props: Props) {
   );
 }
 
-function TalkScreen({ site, demo, remote, mic, onBack, panes, addPane }: Props) {
+function TalkScreen({ site, demo, remote, mic, onBack, panes, addPane, onEcho, onNextSite }: Props) {
   const [lang] = useState(() => visitorLang(navigator.language));
-  const talk = useLiveTalk(site, lang, mic);
+  const talk = useLiveTalk(site, lang, mic, { onEcho, onNextSite });
   const { conversation, mode } = talk;
   const [held, setHeld] = useState(false);
   const [handsFree, setHandsFree] = useState(false);
@@ -90,7 +90,7 @@ function TalkScreen({ site, demo, remote, mic, onBack, panes, addPane }: Props) 
     // no file: speak inside the tap, iOS wants a gesture for the browser voice
     const voice = () => speak(q.a, lang).then(done);
     if (!q.file) return void voice();
-    void playClip(q.file, true).then((end) => (end === "failed" && turn.current === t ? voice() : done(end)));
+    void playDuckedClip(q.file, true).then((end) => (end === "failed" && turn.current === t ? voice() : done(end)));
   };
 
   return (

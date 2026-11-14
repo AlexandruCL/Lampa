@@ -1,13 +1,14 @@
 import { useEffect } from "react";
 import { playBed, setBedGlow, stopBed } from "./engine";
 
-/** Plays the site's bed while mounted; its gain follows glow. */
-export function useBed(siteId: string, glow: number | null): void {
-  // Keyed on siteId only: a new glow must ramp the bed, not restart it.
+/** Plays the site's bed while mounted and `on`; its gain follows glow. */
+export function useBed(siteId: string, glow: number | null, on = true): void {
+  // Keyed on siteId and on only: a new glow must ramp the bed, not restart it.
   useEffect(() => {
+    if (!on) return;
     void playBed(siteId, glow);
     return stopBed;
-  }, [siteId]);
+  }, [siteId, on]);
 
   useEffect(() => {
     setBedGlow(glow);
