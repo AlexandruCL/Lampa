@@ -9,6 +9,7 @@ import { isDemo } from "../sensors/demo";
 import { primeDevice, type PrimerResult } from "../sensors/primer";
 import { fetchSite } from "../api/sites";
 import { findSite, type PhoneSite } from "../sites/sites";
+import { PhoneFinale } from "../finale/PhoneFinale";
 import { DemoBadge } from "./DemoBadge";
 import styles from "./Join.module.css";
 import { Memorial } from "./Memorial";
@@ -178,21 +179,29 @@ export default function Join({ siteId }: { siteId?: string }) {
       const denied = result.location === "denied" && (
         <Notice variant="info">{t("join.location_off")}</Notice>
       );
-      return <Between from={null} primer={result} demo={demo} remote={noLocation} notice={denied || undefined} />;
+      return (
+        <>
+          <Between from={null} primer={result} demo={demo} remote={noLocation} notice={denied || undefined} />
+          <PhoneFinale />
+        </>
+      );
     }
     return memorial ? (
       <Memorial site={site!} demo={demo} remote={remote} primer={result} notice={notice || undefined} />
     ) : (
-      <SiteView
-        key={site!.id}
-        site={site!}
-        demo={demo}
-        remote={remote}
-        notice={notice || undefined}
-        compass={result.compass}
-        primer={result}
-        arrived={primedThisLoad && (state as { arrived?: boolean } | null)?.arrived === true}
-      />
+      <>
+        <SiteView
+          key={site!.id}
+          site={site!}
+          demo={demo}
+          remote={remote}
+          notice={notice || undefined}
+          compass={result.compass}
+          primer={result}
+          arrived={primedThisLoad && (state as { arrived?: boolean } | null)?.arrived === true}
+        />
+        <PhoneFinale site={site!} />
+      </>
     );
   }
 

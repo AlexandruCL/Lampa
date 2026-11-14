@@ -1,11 +1,11 @@
-import { type FinaleMessage, GlowMessage, LAMP_TARGET, type LampsMessage } from "@lampa/shared";
+import { FINALE_LEAD_MS, type FinaleMessage, GlowMessage, LAMP_TARGET, type LampsMessage } from "@lampa/shared";
 import type { Db, GlowLoop } from "../seam.js";
 import { glowSql } from "./glow.js";
 import { LAMPS_SQL, toLampsMessage } from "./lamps.js";
 
 export const GLOW_INTERVAL_MS = 5000;
 export const NUDGE_MIN_GAP_MS = 1000;
-export const FINALE_LEAD_MS = 3000;
+export { FINALE_LEAD_MS }; // moved to the contract so the web finale shares it
 
 export function startGlowLoop(deps: { db: Db; emit: (message: GlowMessage) => void; emitLamps?: (message: LampsMessage) => void; emitFinale?: (message: FinaleMessage) => void; intervalMs?: number; now?: () => Date }): GlowLoop {
   const now = deps.now ?? (() => new Date());

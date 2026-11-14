@@ -169,5 +169,8 @@
   "lamp_counter.label": "{de}lămpi aprinse azi",
   "lamp_counter.last_known": "(ultima valoare cunoscută)",
   "lamp_counter.spoken": "{n} din {target} {de}lămpi aprinse azi",
-  "lamp_counter.spoken_last_known": "{n} din {target} {de}lămpi aprinse azi, ultima valoare cunoscută"
+  "lamp_counter.spoken_last_known": "{n} din {target} {de}lămpi aprinse azi, ultima valoare cunoscută",
+  "finale_line": "12 noiembrie 1884. 731 de lămpi. În seara asta, din nou.",
+  "finale_tap_waltz": "Atinge pentru a asculta valsul",
+  "finale_label": "Momentul 1884"
 }
