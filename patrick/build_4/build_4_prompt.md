@@ -1,6 +1,6 @@
 # Prompt: Patrick's Build 4: demo extras (Patrick, LAMPA)
 
-**Status: prompt completed and checked against `IMPLEMENTATION_PLAN.md` at hour 28.3 (2026-11-14 17:40 +0200). Implementation not started.**
+**Status: prompt completed and checked against `IMPLEMENTATION_PLAN.md` at hour 28.3 (2026-11-14 17:40 +0200). Updated at B4-0 (hour 37): Fabi's `FinaleMessage { startAt }` and `FINALE_LEAD_MS` 3000 were already on `main`; this prompt adopts them (Patrick's decision, hour 37). Implementation not started.**
 
 You are implementing Patrick's part of Build 4: demo extras (hours 37 to 40 in the plan; Patrick runs it from clock hour 28.5 to 31.5, 17:51 to 20:51 on 2026-11-14) in this repository. Follow the checklist in section 3 in order, except where it says agent tasks run in parallel. Tick a box only after its verify command has run and passed.
 
@@ -11,10 +11,10 @@ Checkpoint this block must pass: Build 4 is followed by the freeze, not a checkp
 ## 0. Ground rules
 
 - **Patrick takes every decision. You may not guess.** If this prompt, the plan, `DESIGN.md`, the contract, a recorded answer or the existing code does not settle a choice, stop that item and ask Patrick, with your recommendation. Nothing uses the recommendation until Patrick answers. Look up facts yourself. Carry on with items that do not depend on the answer.
-- **This prompt follows `IMPLEMENTATION_PLAN.md` and `DESIGN.md`.** If you find a difference between them and this prompt, stop that item and ask. Known differences, all Patrick's decisions (glossary Decisions, hour 37): `/screen` gets the finale's sound and a DOM layer (dips, black, two side-panel lines), not the window flare and amber streets of DESIGN 7.13; the clock offset also starts when a phone view mounts and on the `/screen` start click; Radio Lampa leaves out the concept's approved-echo line; a device with no clock offset starts `FINALE_LEAD_MS` after it receives `finale`, not at once.
+- **This prompt follows `IMPLEMENTATION_PLAN.md` and `DESIGN.md`.** If you find a difference between them and this prompt, stop that item and ask. Known differences, all Patrick's decisions (glossary Decisions, hour 37): `/screen` gets the finale's sound and a DOM layer (dips, black, two side-panel lines), not the window flare and amber streets of DESIGN 7.13; the clock offset also starts when a phone view mounts and on the `/screen` start click; Radio Lampa leaves out the concept's approved-echo line; a device with no clock offset starts `FINALE_LEAD_MS` after it receives `finale`, not at once; the `finale` payload is Fabi's `FinaleMessage { startAt }` with `FINALE_LEAD_MS = 3000` (already on `main`, Patrick's decision hour 37). **Wherever this prompt writes `at` for the message, read the message's `startAt`**; function parameters may keep the name `at`.
 - **Read only the documents in section 2.** If you need something outside the list, say which file and why before opening it.
 - **The block runs from clock hour 28.5 to 31.5 (17:51 to 20:51; Patrick's decision, hour 37). Where this prompt or the plan says hour 40, read 20:51.** Each task carries its plan hours. When a task has used its hours and is not done, stop and tell Patrick: carrying on, cutting (plan section 7) or moving it is their decision. Patrick's cut line (hour 37): first Radio Lampa (cut order 1); then, if the phone finale is not working at 20:51, the finale plays on `/screen` alone (plan fallback, cut order 3). The phone checks of B4-3 are never cut.
-- **Contract first.** `packages/shared` holds the event kinds, socket messages and Zod schemas. Do not change them without Patrick, who takes it to the team. When another lane's endpoint has not landed, code against its schema. This block adds `FinaleMessage` and `FINALE_LEAD_MS` (B4-1.0) only after Fabi and the team agree.
+- **Contract first.** `packages/shared` holds the event kinds, socket messages and Zod schemas. Do not change them without Patrick, who takes it to the team. When another lane's endpoint has not landed, code against its schema. `FinaleMessage { startAt }` is Fabi's, already in the contract. This block only moves `FINALE_LEAD_MS` (3000) from Fabi's `apps/api/src/glow/loop.ts` into the contract (B4-1.0, Fabi's yes through Patrick).
 - The server sets event weights. The client never sends one. Nothing in this block sends events.
 - No library beyond plan section 3 without Patrick's approval. Approved: none in this block. Web Audio API directly; Text to Dialogue through the global `fetch`.
 - No secrets in git or in the web bundle. `.env` stays out of git, and API keys stay on the server. **`ELEVENLABS_API_KEY` and `ELEVENLABS_AGENT_ID` never appear in the chat, in a commit, in a glossary line or in command output** (Patrick's decision, hour 5). Do not open, print or `cat` the root `.env`. Scripts print statuses, file names, credit numbers, names and `true` or `false`.
@@ -23,7 +23,7 @@ Checkpoint this block must pass: Build 4 is followed by the freeze, not a checkp
 - **Live ElevenLabs calls cost credits.** No agent makes a live call or runs a script with `--run`. Patrick runs `npm run radio:lampa -- --run` once, before the pitch, after the demo numbers are in (B4-2.b). Live Talk runs only at checkpoints and rehearsals (B4-3).
 - The Cathedral is a memorial: no persona, no game, no counter, no microphone prompt, and no generated text about 1989 at runtime. **The finale never shows or sounds on the memorial view** (DESIGN 7.11: "a 731 finale happens: ignored on this view; no overlay, no sound"). On `/screen` the candle field and its label stay unchanged through the finale (DESIGN 5.5, 7.13). Radio Lampa never names the Cathedral.
 - Screens follow `DESIGN.md` and the tokens and base components in `design/css/` (`apps/web/src/styles/tokens.css` and `apps/web/src/components/`). Do not add a colour, font or spacing value that is not a token.
-- Write in `patrick/` only. Other members' folders are read-only. Files outside the lane that this prompt lets you touch, each only after its owner agrees and each with a Changes line: Ionut's `apps/web/src/phone/Join.tsx` (one import and the `<PhoneFinale>` element, B4-1.b.1), `apps/web/src/i18n/en.json` and `ro.json` (the three new `finale_*` keys); Cristea's `apps/web/src/screen/ScreenPage.tsx` (one import, the `useScreenFinale` line, two elements, B4-1.c.1 and B4-2.c.1); `packages/shared/src/contract.ts` (B4-1.0, team).
+- Write in `patrick/` only. Other members' folders are read-only. Files outside the lane that this prompt lets you touch, each only after its owner agrees and each with a Changes line: Ionut's `apps/web/src/phone/Join.tsx` (one import and the `<PhoneFinale>` element, B4-1.b.1), `apps/web/src/i18n/en.json` and `ro.json` (the three new `finale_*` keys); Cristea's `apps/web/src/screen/ScreenPage.tsx` (one import, the `useScreenFinale` line, two elements, B4-1.c.1 and B4-2.c.1); `packages/shared/src/contract.ts` (B4-1.0, team); Fabi's `apps/api/src/glow/loop.ts` (the `FINALE_LEAD_MS` import instead of its local constant, B4-1.0).
 - **Keep `patrick/GLOSSARY.md` current.** Each finished ID gets a Done line, each deviation or file touched outside this lane a Changes line, each answer from Patrick a Decisions line, each new thing another lane can use a Hand-offs line. One docs commit per PR branch (Patrick's decision, hour 25). Build 4 rows use hour 37 and later (Patrick's decision, hour 37).
 - Before you claim anything done, run its verify command and paste the summary line. No claim without output.
 - For a failing test, find the cause first, then fix. Do not patch around a symptom.
@@ -36,8 +36,8 @@ Checkpoint this block must pass: Build 4 is followed by the freeze, not a checkp
 - Finale pieces that exist: `clips.json` `project.crackle` (`project/crackle-1-2d4bdc14454f.mp3`, 4 s) and `project.waltz` (take 1 `project/waltz-1-7cd34134806b.mp3`, take 2 `project/waltz-2-00915c96fcc1.mp3`, about 45 s each). `SocketMessage` lists `finale` with no payload schema. `LightSurface` (`apps/web/src/lamp/LightSurface.tsx`) takes `pulse={false}` for the finale burst; `LIGHT_LEAVE_MS` 450. `LampCounter` (S, L, light). `pulse.ts`: `startClockOffset()` (once per page, today only from the first Lamp open), `useClockOffset()`. `bus.ts`: `ambientBus()`, `duck(holder, on)`, `DUCK_GAIN` 0.25. `engine.ts`: `loadBuffer(url)`. `context.ts` (Ionut's): `getAudioContext()`, `unlockAudio()`. `room.ts`: `useRoomSound(glowRef, placed, width)`, room beds bypass the duck bus.
 - Phone root: `apps/web/src/phone/Join.tsx` renders `Between` (line 142), `Memorial` (line 145) or `SiteView` (line 147). The Lamp opens inside `SiteView`.
 - `/screen`: `ScreenPage.tsx` mounts `LivingMap` only after the "Start the Living Map" click. The map is `<div className={styles.map}>` with the canvas, subtitles, the OSM credit and the DemoBadge; the side panel `<aside>` holds the wordmark, two stats, `<Ticker>`, the status line and the QR block. `canvas.ts` draws the candle field and its label (read only).
-- Not there yet, added by this block: `FinaleMessage` and `FINALE_LEAD_MS` (B4-1.0), `apps/web/src/audio/finale.ts` (B4-1.a), `apps/web/src/finale/` (B4-1.b, B4-1.c), `apps/web/src/audio/radio.ts` (B4-2.c), `apps/api/src/publish/radio.ts`, `scripts/radio-lampa.ts` and the root script `radio:lampa` (B4-2.a), `ProjectClips.radio` (B4-2.0).
-- Needs from others: Fabi's finale trigger at 731 lamps (Build 4 plan row) has not landed: no `fabi/build_4/` prompt, no branch, nothing sends `finale` (checked hour 28.3). The plan's answer: code against `FinaleMessage`. Fabi's `npm run demo:reset` has not landed either. `lamps` and `GET /time` are live (Fabi, hour 11). The deployed `GET /pulse/summary` answered `lampsToday` 721, every glow 0; `GET /pulse/languages` answered `[]` (hour 28.3).
+- Not there yet, added by this block: `FINALE_LEAD_MS` in the contract (B4-1.0), `apps/web/src/audio/finale.ts` (B4-1.a), `apps/web/src/finale/` (B4-1.b, B4-1.c), `apps/web/src/audio/radio.ts` (B4-2.c), `apps/api/src/publish/radio.ts`, `scripts/radio-lampa.ts` and the root script `radio:lampa` (B4-2.a), `ProjectClips.radio` (B4-2.0).
+- Needs from others: Fabi's finale trigger has landed (re-checked at B4-0): `FinaleMessage { startAt }` in the contract (`8e5c440`), and `apps/api/src/glow/loop.ts` (`c80a9f5`) sends `{ startAt: now + FINALE_LEAD_MS }` (3000, local constant) once when `litToday` crosses 731; `socket.ts` does not replay it on connect. Fabi's `npm run demo:reset` has landed too (#59). `lamps` and `GET /time` are live (Fabi, hour 11). The deployed `GET /pulse/summary` answered `lampsToday` 721, every glow 0; `GET /pulse/languages` answered `[]` (hour 28.3).
 - Credits: ElevenLabs meter 19,405 used of 131,000 (Creator), resets 2026-12-03 (hour 28.3).
 - Text to Dialogue (docs read at hour 28.3): `POST https://api.elevenlabs.io/v1/text-to-dialogue`, body `inputs: [{ text, voice_id }]` (at most 10 voices), `model_id` default `eleven_v3`, query `output_format` default `mp3_44100_128`; keep the combined text at 2,000 characters or less; 200 returns the audio file. The docs page gives no price: B4-2.a.1 checks it.
 - Persona voices in the site files: `persona.voice` is set for mx, unirii, victoriei and bastion. English site names (`packages/shared/sites.json`): Muzeul MX Corneliu Miklosi, Piața Unirii, Piața Victoriei, Theresia Bastion. `LANGUAGE_NAMES` (`apps/api/src/agent/persona.ts`): ro Romanian, en English, hu Hungarian, de German, sr Serbian. `/pulse/languages` is ordered by conversations, most first.
@@ -55,7 +55,7 @@ Checkpoint this block must pass: Build 4 is followed by the freeze, not a checkp
 | `patrick/GLOSSARY.md` | Whole file | All |
 | `LAMPA_Hackathon_Concept_Timisoara_v6.pdf` | S3 Relight 1884 (printed page 22); clock sync row of section 7.6 (page 32); F3 Radio Lampa and its credit check (pages 54 and 56) | B4-1, B4-2 |
 | `DESIGN.md` | 5.5 (1884 finale and candle rows), 5.6, 5.7, 5.8 (finale row); 6.2 Button, 6.7 Notice, 6.13 LampCounter, 6.14 LightSurface; 7.7 ("731 reached while lit"); 7.11 (finale row); 7.12; 7.13 (layout, side panel, finale and Radio Lampa rows); section 9 items 14 and 19 | B4-1, B4-2 |
-| `packages/shared/src/contract.ts` | `SocketMessage`, `LAMP_TARGET`, `TimeNow`, `PulseSummary`, `PulseLanguages`, and `FinaleMessage` once B4-1.0 lands | B4-1, B4-2 |
+| `packages/shared/src/contract.ts` | `SocketMessage`, `LAMP_TARGET`, `TimeNow`, `PulseSummary`, `PulseLanguages`, `FinaleMessage`, and `FINALE_LEAD_MS` once B4-1.0 lands | B4-1, B4-2 |
 | `packages/shared/sites.json` | Site ids and English names | B4-2 |
 | `apps/web/src/audio/` | Whole folder (`context.ts` is Ionut's, read only) | B4-1, B4-2 |
 | `apps/web/src/lamp/` | `LightSurface.tsx`, `LightSurface.module.css`, `LampCounter.tsx`, `pulse.ts`, `useWakeLock.ts` | B4-1 |
@@ -91,12 +91,10 @@ Order (all on `patrick/b4-work`): B4-0; the contract seam B4-1.0 (after Fabi's y
 Seams this session writes and commits before the agents start:
 
 ```ts
-// packages/shared/src/contract.ts (B4-1.0, after Fabi and the team agree), beside LAMP_TARGET
-/** Lead between the trigger and the crackle, so every socket has the message before it starts. */
-export const FINALE_LEAD_MS = 4000;
-/** `finale` on /live, to every socket, sent once by the trigger (Fabi): `at` is server epoch ms when the crackle starts. */
-export const FinaleMessage = z.object({ at: z.number().int() });
-export type FinaleMessage = z.infer<typeof FinaleMessage>;
+// packages/shared/src/contract.ts (B4-1.0), beside Fabi's FinaleMessage { startAt } (already there)
+/** Lead between the trigger and the crackle (`startAt = now + FINALE_LEAD_MS`), so every socket has the message before it starts. */
+export const FINALE_LEAD_MS = 3000;
+// apps/api/src/glow/loop.ts (Fabi's): its local `export const FINALE_LEAD_MS = 3000;` becomes an import from @lampa/shared
 ```
 
 ```ts
@@ -140,20 +138,20 @@ Rules for this session:
 
 ### B4-0 Preflight (first, this session)
 
-- [ ] `git status`, `git branch --show-current`, `git pull`. List local changes; do not touch them.
-- [ ] Baseline before any change, summary lines recorded: `npm run typecheck`, `npm run build`, `npm test`.
-- [ ] Re-check each "Needs from others" item of section 1: Fabi's finale trigger and `demo:reset` (glossary, branches, `git log origin/main`).
-- [ ] Ask Ionut for the `Join.tsx` lines and the three i18n keys, and Cristea for the `ScreenPage.tsx` lines (Patrick passes the request). Record each yes under Decisions.
+- [x] `git status`, `git branch --show-current`, `git pull`. List local changes; do not touch them.
+- [x] Baseline before any change, summary lines recorded: `npm run typecheck`, `npm run build`, `npm test`.
+- [x] Re-check each "Needs from others" item of section 1: Fabi's finale trigger and `demo:reset` (glossary, branches, `git log origin/main`).
+- [x] Ask Ionut for the `Join.tsx` lines and the three i18n keys, and Cristea for the `ScreenPage.tsx` lines (Patrick passes the request). Record each yes under Decisions.
 - Done when: the baseline is recorded and failures that were already there are listed, not fixed silently.
 
 ### B4-1 1884 finale cue on phones and `/screen` (1.5 h)
 
 #### B4-1.0 The `finale` payload in the contract (this session)
 
-- [ ] Patrick takes `FinaleMessage` and `FINALE_LEAD_MS` (seam above) to Fabi and the team: Fabi's trigger at 731 lamps sends `{ at: serverNow + FINALE_LEAD_MS }` once, to every socket, and never replays it on connect (Patrick's decision, hour 37, Package A). Record the answer.
-- [ ] After the yes: commit the seam on `patrick/b4-finale` (`feat(shared) finale message payload`). Hand-offs line for Fabi.
+- [x] Fabi's trigger already sends `{ startAt: now + FINALE_LEAD_MS }` once, to every socket, never replayed on connect. Patrick adopts it and moves the lead into the contract (Patrick's decision, hour 37).
+- [ ] Commit the seam on `patrick/b4-work` (`feat(shared) shared the finale lead`); it goes to `patrick/b4-finale` by cherry-pick. Hand-offs line for Fabi; the PR asks Fabi to review the `loop.ts` line.
 - Verify: `npm run typecheck`. Paste the summary line.
-- Done when: `FinaleMessage` is on `patrick/b4-finale` and Fabi knows the payload.
+- Done when: `FINALE_LEAD_MS` is in the contract on `patrick/b4-finale`, `loop.ts` imports it, and Fabi knows.
 
 #### B4-1.a Finale timeline and player
 
@@ -166,7 +164,7 @@ Rules for this session:
 - [ ] `startFinale(at: number, serverNow: number, opts: { surface: "phone" | "screen" }): { stop(): void }`: schedules on `getAudioContext()` time, never through `playClip` (a later clip must not cut the waltz). Received during `"wait"` or `"crackle"`: crackle from its matching point, gain ramped to 0 over `CRACKLE_FADE_S` at `at + 1500`. Received during `"silence"`: nothing until `at + 3500`. At `at + 3500` or later inside `"burst"`: waltz from `waltzOffsetMs`. `"done"`: nothing. Both sources connect to `ctx.destination`, not to the ambient bus. Phone: `duck("finale", true)` from the start of playback, `duck("finale", false)` when the waltz ends or `stop()` runs. Screen: the room beds go to 0 over 0.5 s at the start and back over 4 s at the end, through a new `setRoomLevel(level: number, seconds: number)` in `room.ts` (a master gain between the room beds and the destination, applied after `ROOM_MASTER`).
 - [ ] Each `at` plays once per page: a second `startFinale` with the same `at` returns the first handle and schedules nothing.
 - [ ] Never call `resume()` here. If `getAudioContext().state !== "running"` at the burst, `startFinale` reports it (`suspended: true` on the handle) and exposes `resumeWaltz(serverNow)`, which the tap handler of B4-1.b.1 calls after `unlockAudio()` to start the waltz at its current offset.
-- [ ] Tests in `finale.test.ts`: each phase boundary (`at - 1`, `at`, `at + 1499`, `at + 1500`, `at + 3499`, `at + 3500`, `at + 48499`, `at + 48500`); `waltzOffsetMs` at `at + 10000` is 6500; `finaleClock` with an offset, and with `null` (received at device time 1000 for `at` 50000: server time 46000 at device time 1000, so the crackle starts at device time 5000); the same `at` twice schedules once (fake context); a message received at `at + 2000` starts no crackle and starts the waltz at `at + 3500`. In `room.test.ts`: `setRoomLevel` ramps the master gain (fake context).
+- [ ] Tests in `finale.test.ts`: each phase boundary (`at - 1`, `at`, `at + 1499`, `at + 1500`, `at + 3499`, `at + 3500`, `at + 48499`, `at + 48500`); `waltzOffsetMs` at `at + 10000` is 6500; `finaleClock` with an offset, and with `null` (received at device time 1000 for `at` 50000: server time 47000 at device time 1000, so the crackle starts at device time 4000); the same `at` twice schedules once (fake context); a message received at `at + 2000` starts no crackle and starts the waltz at `at + 3500`. In `room.test.ts`: `setRoomLevel` ramps the master gain (fake context).
 - Verify: `npm test -w @lampa/web -- finale room` and `npm run typecheck -w @lampa/web`. Paste the summary lines.
 - Done when: the tests pass, and dropping the "once per `at`" rule fails at least one test.
 

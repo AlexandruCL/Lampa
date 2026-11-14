@@ -78,6 +78,7 @@ Hour 0: 2026-11-13 13:21 (+0200).
 | Build 3 | Closed by Patrick at hour 27.5. Every agent task of the prompt is under Done; nothing was cut. All phone checks (B3-1.e, B3-2.a, B3-3.d, B3-4.e, B3-5.a, B3-6.b), the carried Android lens check and webhook transcript, and the Checkpoint 3 run move to Build 4 (Blocked) | `main` `f319428`: `npm run typecheck` exit 0; `npm run build` exit 0; `npm test` api 363, web 537 passed; `npm run publish:site -- --site all` → `total new 0 credits` | f319428 | 27.5 |
 | Follow-ups (Ionut) | `toClips` copies the memorial’s `narrations` (id, title, text, source) into `testimonies` (a malformed memorial gives `[]` without crashing); the Lamp and LampCounter strings go through `t()` (21 keys, 14 ro drafts for Ionut), Romanian "de" by `Intl.PluralRules("ro")` (`other` only), Ionut’s `back_to` reused; `SiteDetail.greeting` beside Ionut’s `bed`, filled from the place’s `site-<id>_greeting-<lang>-` blobs; `registerSiteSound` in `fetchSite` (one line) so the beacon, compass and Talk greeting play an added place (greeting in the visitor’s language only) | `npm test` api 370, web 555 passed; typecheck exit 0; build ok; `total new 0 credits`; removing the copy fails 2 tests, PluralRules back to `>= 20` fails 5, removing the `bedUrl` fallback fails 1 | d25ea76 | 28 |
 | B3-last (PR 1) | `patrick/b3-lamp` cut from `origin/main` `210e892` in a separate worktree (`../Lampa-pr`): B3-1.a.1, B3-1.b.1, B3-2.a.1, the answers, B3-1.c.1, B3-1.d.1 | on the branch: `npm run typecheck` exit 0; `npm run build` exit 0; `npm test` api 310, web 424 passed | this commit | 26 |
+| B4-0 | Preflight: `main` clean, pulled to `1545bf3` (#57, #59, #60, #61 since the prompt). Fabi's finale trigger and `demo:reset` have landed: `FinaleMessage { startAt }` (`8e5c440`), trigger in `glow/loop.ts` with a local `FINALE_LEAD_MS = 3000` (`c80a9f5`), no replay on connect. Ionut and Cristea agreed to their lines. `Join.tsx` lines 142, 145, 147 unchanged | `npm run typecheck` exit 0; `npm run build` exit 0; `npm test` api 394, web 555 passed. No failures already there | this commit | 37 |
 
 ## Changes
 Anything that differs from the plan, `DESIGN.md` or the contract, and any file outside this lane that was touched.
@@ -263,6 +264,9 @@ The owner's answers only.
 | 37 | No clock offset: the device starts `FINALE_LEAD_MS` after receiving `finale` (receipt taken as `at - 4000`), not at once | Start on receipt would play 4 s early |
 | 37 | Build 4 runs from clock hour 28.5 to 31.5 (2026-11-14 17:51 to 20:51); the cut line is checked at 20:51 | Patrick accepted the recommendation |
 | 37 | The finale opens its own `/live` socket (phone and `/screen`); overlay label `finale_label` "The 1884 moment" / "Momentul 1884"; on `/` the exit reads "Back" | Patrick accepted |
+| 37 | Finale seam: adopt Fabi's `FinaleMessage { startAt }` already on `main` (the prompt's `at` reads `startAt`); `FINALE_LEAD_MS` is 3000, not 4000, and moves from Fabi's `loop.ts` into the contract so web and API share it (one import line in `loop.ts`, Fabi reviews). Replaces the Package A payload row and the `at - 4000` row | Patrick: "Adopt Fabi's, share lead" |
+| 37 | Ionut agrees to the `Join.tsx` lines and the three `finale_*` keys; Cristea agrees to the `ScreenPage.tsx` lines | Patrick: "Both agreed" |
+| 37 | The Build 4 prompt is updated with these answers before the docs commit is pushed to `main` | Patrick accepted the recommendation |
 
 ## Blocked
 | Since hour | ID | Question | Recommendation | Waiting on |
