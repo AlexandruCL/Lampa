@@ -172,6 +172,7 @@ export const PendingEcho = z.object({
   lang: z.string().nullable(),
   transcript: z.string().nullable(),
   audioUrl: z.string(), // "/blob/<key>", relative to the API
+  siteName: z.string().optional(), // the site's English name from the sites table (Build 4)
 });
 export type PendingEcho = z.infer<typeof PendingEcho>;
 export const PendingEchoes = z.object({ echoes: z.array(PendingEcho) });
@@ -250,3 +251,28 @@ export type PulseLanguages = z.infer<typeof PulseLanguages>;
 /** GET /pulse/candles: candles at the memorial in the last 24 hours. No count is ever shown. */
 export const PulseCandles = z.object({ candles: z.array(z.object({ id: z.string().min(1), at: z.string().datetime() })) });
 export type PulseCandles = z.infer<typeof PulseCandles>;
+
+// Add a place (Cristea, Build 4): POST /sites and POST /sites/:id/publish, behind write:site.
+export const PLACE_ID = /^[a-z0-9-]{2,40}$/;
+export const PlaceInteraction = z.enum(["talk", "colours", "echo", "lamp"]);
+export type PlaceInteraction = z.infer<typeof PlaceInteraction>;
+export const PlaceFact = z.object({
+  text: z.string().trim().min(10).max(280),
+  source: z.string().trim().max(500).regex(/^https:\/\/\S+$/),
+});
+export const PlaceIn = z.object({
+  name: z.object({ ro: z.string().trim().min(2).max(60), en: z.string().trim().min(2).max(60) }),
+  lat: z.number().min(-90).max(90),
+  lng: z.number().min(-180).max(180),
+  facts: z.array(PlaceFact).min(2).max(5),
+  persona: z.string().trim().min(10).max(400),
+  interactions: z.array(PlaceInteraction).min(1),
+});
+export type PlaceIn = z.infer<typeof PlaceIn>;
+export const PlaceDraft = z.object({ id: z.string().regex(PLACE_ID), status: z.literal("draft") });
+export type PlaceDraft = z.infer<typeof PlaceDraft>;
+export const PublishStep = z.enum(["greeting", "bed", "live"]);
+export type PublishStep = z.infer<typeof PublishStep>;
+export const PublishIn = z.object({ step: PublishStep });
+export const PublishOut = z.object({ step: PublishStep, credits: z.number().int().min(0) });
+export type PublishOut = z.infer<typeof PublishOut>;
