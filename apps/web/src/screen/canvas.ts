@@ -8,6 +8,11 @@ import type { ScreenEffect } from "./useScreenSocket";
 import type { WindowsState } from "./windows";
 
 const EASE_MS = 1200;
+// Cristea's decision, hour 37: a changed site list moves every circle, label and map line over this, --ease-out.
+export const REFIT_MS = 1200;
+// DESIGN.md 5.5: a newly published site's window fades in from opacity 0 over 1200ms; 150ms under reduced motion (5.6).
+export const SITE_FADE_MS = 1200;
+const REDUCED_FADE_MS = 150;
 const HALO_REACH = 1.6;
 const LABEL_GAP = 10;
 const NAME = { weight: 600, size: 30, line: 36 };
@@ -34,6 +39,7 @@ const CANDLE_FADE_IN_MS = 3000;
 
 type Ease = { from: number; to: number; start: number };
 type Refs = {
+  sitesRef: RefObject<Site[]>;
   glowRef: RefObject<Record<string, number>>;
   windowsRef: RefObject<WindowsState>;
   effectsRef: RefObject<ScreenEffect[]>;
@@ -55,11 +61,13 @@ function rgbaOf(hex: string, alpha: number): string {
   return `rgba(${n >> 16}, ${(n >> 8) & 255}, ${n & 255}, ${alpha})`;
 }
 
+type XY = { x: number; y: number };
+const lerp = (a: XY, b: XY, t: number): XY => ({ x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t });
+
 export function startCanvas(
   canvas: HTMLCanvasElement,
-  sites: Site[],
   lines: MapLine[],
-  { glowRef, windowsRef, effectsRef, candlesRef }: Refs,
+  { sitesRef, glowRef, windowsRef, effectsRef, candlesRef }: Refs,
 ): () => void {
   const ctx = canvas.getContext("2d");
   const art = document.createElement("canvas");
@@ -84,10 +92,32 @@ export function startCanvas(
   const paneMs = reduced ? REDUCED_MS : Math.max(PANE_FLASH_MS, PANE_RING_MS);
   const completeMs = reduced ? REDUCED_MS : FLARE_IN_MS + FLARE_HOLD_MS + FLARE_OUT_MS;
   const echoMs = reduced ? REDUCED_MS : ECHO_RING_MS + (ECHO_RINGS - 1) * ECHO_RING_GAP_MS;
+  const refitMs = reduced ? 0 : REFIT_MS;
+  const fadeMs = reduced ? REDUCED_FADE_MS : SITE_FADE_MS;
 
-  const byId = new Map(sites.map((s) => [s.id, s]));
-  const placed = layout(sites, lines);
-  const projected = projectLines(sites, lines);
+  // The shown layout eases from the positions at the last refit to the current layout.
+  let shownSites = sitesRef.current;
+  let byId = new Map(shownSites.map((s) => [s.id, s]));
+  let placed = layout(shownSites, lines);
+  let projected = projectLines(shownSites, lines);
+  let fromPlaced = new Map<string, XY>();
+  let fromLines = projected;
+  let refitAt = -Infinity;
+  let artSettled = true;
+  const bornAt = new Map<string, number>();
+  const refitT = (now: number) => (refitMs ? easeOut(progress(now - refitAt, refitMs)) : 1);
+  const placeAt = (p: XY & { id: string }, t: number) => lerp(fromPlaced.get(p.id) ?? p, p, t);
+  const linesAt = (t: number) =>
+    projected.map((l, i) => ({ ...l, points: l.points.map((p, j) => lerp(fromLines[i].points[j], p, t)) }));
+  const fadeOf = (id: string, now: number) => {
+    const born = bornAt.get(id);
+    return born === undefined ? 1 : progress(now - born, fadeMs);
+  };
+  // Every alpha a site draws with is scaled by its fade-in.
+  let fade = 1;
+  const setAlpha = (a: number) => {
+    ctx.globalAlpha = a * fade;
+  };
   const shapes = Array.from({ length: SLOTS }, (_, i) => slotShape(i));
 
   let dpr = 1;
@@ -98,13 +128,14 @@ export function startCanvas(
   });
 
   // DESIGN.md 5.5: the map art and the window frames are drawn once per size and copied each frame.
-  const drawArt = () => {
+  const drawArt = (now = performance.now()) => {
     const u = canvas.width / MAP_WIDTH;
+    const t = refitT(now);
     art.width = canvas.width;
     art.height = canvas.height;
     artCtx.fillStyle = bg;
     artCtx.fillRect(0, 0, art.width, art.height);
-    for (const l of projected) {
+    for (const l of linesAt(t)) {
       const isRiver = l.kind === "river";
       artCtx.globalAlpha = isRiver ? 0.35 : 0.5;
       artCtx.strokeStyle = isRiver ? river : lineStrong;
@@ -122,14 +153,34 @@ export function startCanvas(
     artCtx.lineWidth = 1.5 * dpr;
     for (const p of placed) {
       if (byId.get(p.id)!.is_memorial) continue;
+      const { x, y } = placeAt(p, t);
+      artCtx.globalAlpha = fadeOf(p.id, now);
       artCtx.beginPath();
-      artCtx.arc(p.x * u, p.y * u, (SITE_RADIUS + 2) * u, 0, Math.PI * 2);
+      artCtx.arc(x * u, y * u, (SITE_RADIUS + 2) * u, 0, Math.PI * 2);
       artCtx.stroke();
     }
+    artCtx.globalAlpha = 1;
   };
   const eases = new Map<string, Ease>(placed.map((p) => [p.id, { from: 0, to: 0, start: 0 }]));
   const candleEases = new Map<string, Ease & { ms: number }>();
   let candleGlow: Record<string, number> | null = null;
+
+  const refit = (now: number) => {
+    const t = refitT(now);
+    fromPlaced = new Map(placed.map((p) => [p.id, placeAt(p, t)]));
+    fromLines = linesAt(t);
+    shownSites = sitesRef.current;
+    for (const s of shownSites) {
+      if (byId.has(s.id)) continue;
+      bornAt.set(s.id, now);
+      eases.set(s.id, { from: 0, to: 0, start: 0 });
+    }
+    byId = new Map(shownSites.map((s) => [s.id, s]));
+    placed = layout(shownSites, lines);
+    projected = projectLines(shownSites, lines);
+    refitAt = now;
+    artSettled = false;
+  };
 
   const fit = () => {
     dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -151,7 +202,7 @@ export function startCanvas(
     let top = side === "below" ? y + r + LABEL_GAP * s : y - r - LABEL_GAP * s - height;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.globalAlpha = 1;
+    setAlpha(1);
     for (const [str, f, family, color] of lines) {
       ctx.font = `${f.weight} ${f.size * s}px ${family}`;
       ctx.fillStyle = color;
@@ -164,7 +215,7 @@ export function startCanvas(
   // Angles from slotShape start at 12 o'clock; canvas angles start at 3 o'clock. Both run clockwise on screen.
   const slot = (x: number, y: number, r: number, i: number, fill: string, alpha = 1) => {
     const { r0, r1, a0, a1 } = shapes[i];
-    ctx.globalAlpha = alpha;
+    setAlpha(alpha);
     ctx.beginPath();
     ctx.arc(x, y, r1 * r, a0 - Math.PI / 2, a1 - Math.PI / 2);
     ctx.arc(x, y, r0 * r, a1 - Math.PI / 2, a0 - Math.PI / 2, true);
@@ -193,7 +244,7 @@ export function startCanvas(
       const shown = candleShown(e, now);
       const { dx, dy } = candlePosition(c.id);
       const [cx, cy] = [x + dx * r, y + dy * r];
-      ctx.globalAlpha = shown;
+      setAlpha(shown);
       const halo = ctx.createRadialGradient(cx, cy, point, cx, cy, reach);
       halo.addColorStop(0, candleHaloIn);
       halo.addColorStop(1, candleHaloOut);
@@ -206,7 +257,7 @@ export function startCanvas(
       ctx.arc(cx, cy, point, 0, Math.PI * 2);
       ctx.fill();
     }
-    ctx.globalAlpha = 1;
+    setAlpha(1);
   };
 
   /** 0 to 1: how far the complete flare is from rest (rise, hold, settle). */
@@ -223,14 +274,14 @@ export function startCanvas(
     const halo = ctx.createRadialGradient(x, y, 0, x, y, reach * r);
     halo.addColorStop(0, lamp);
     halo.addColorStop(1, lampClear);
-    ctx.globalAlpha = haloAlpha(glow) + (1 - haloAlpha(glow)) * flare;
+    setAlpha(haloAlpha(glow) + (1 - haloAlpha(glow)) * flare);
     ctx.fillStyle = halo;
     ctx.beginPath();
     ctx.arc(x, y, reach * r, 0, Math.PI * 2);
     ctx.fill();
 
     // DESIGN.md 6.6: the gaps between the rings are leading too, so the window sits on a --bg disk over the halo.
-    ctx.globalAlpha = 1;
+    setAlpha(1);
     ctx.fillStyle = bg;
     ctx.beginPath();
     ctx.arc(x, y, r, 0, Math.PI * 2);
@@ -271,7 +322,7 @@ export function startCanvas(
       if (e.kind !== "echo") continue;
       if (reduced) {
         // DESIGN.md 5.6: one 600ms opacity flash on the window in place of the rings.
-        ctx.globalAlpha = ECHO_RING_ALPHA * (1 - progress(now - e.at, REDUCED_MS));
+        setAlpha(ECHO_RING_ALPHA * (1 - progress(now - e.at, REDUCED_MS)));
         ctx.fillStyle = text;
         ctx.beginPath();
         ctx.arc(x, y, r, 0, Math.PI * 2);
@@ -282,7 +333,7 @@ export function startCanvas(
         const elapsed = now - e.at - k * ECHO_RING_GAP_MS;
         if (elapsed < 0 || elapsed >= ECHO_RING_MS) continue;
         const t = elapsed / ECHO_RING_MS;
-        ctx.globalAlpha = ECHO_RING_ALPHA * (1 - t);
+        setAlpha(ECHO_RING_ALPHA * (1 - t));
         ctx.beginPath();
         ctx.arc(x, y, r * (1 + (ECHO_RING_REACH - 1) * t), 0, Math.PI * 2);
         ctx.stroke();
@@ -294,7 +345,7 @@ export function startCanvas(
         if (e.kind !== "pane") continue;
         const t = progress(now - e.at, PANE_RING_MS);
         if (t >= 1) continue;
-        ctx.globalAlpha = PANE_RING_ALPHA * (1 - t);
+        setAlpha(PANE_RING_ALPHA * (1 - t));
         ctx.strokeStyle = text;
         ctx.lineWidth = 2 * (canvas.width / MAP_WIDTH);
         ctx.beginPath();
@@ -302,7 +353,7 @@ export function startCanvas(
         ctx.stroke();
       }
     }
-    ctx.globalAlpha = 1;
+    setAlpha(1);
   };
 
   const draw = (now: number) => {
@@ -311,13 +362,21 @@ export function startCanvas(
     // The canvas spans the 1380-unit map area, so one design unit is canvas.width / 1380 device pixels.
     const s = canvas.width / MAP_WIDTH;
     ctx.globalAlpha = 1;
+    if (sitesRef.current !== shownSites) refit(now);
+    if (!artSettled) {
+      drawArt(now);
+      artSettled = now - refitAt >= Math.max(refitMs, fadeMs);
+    }
     // drawImage throws on a 0-size source, which the map is while hidden below 1024px.
     if (art.width && art.height) ctx.drawImage(art, 0, 0);
+    const t = refitT(now);
     for (const p of placed) {
       const site = byId.get(p.id)!;
-      const [x, y, r] = [p.x * s, p.y * s, SITE_RADIUS * s];
+      const at = placeAt(p, t);
+      const [x, y, r] = [at.x * s, at.y * s, SITE_RADIUS * s];
+      fade = fadeOf(p.id, now);
       if (site.is_memorial) {
-        ctx.globalAlpha = 1;
+        setAlpha(1);
         ctx.strokeStyle = line;
         ctx.lineWidth = dpr;
         ctx.beginPath();
@@ -343,6 +402,8 @@ export function startCanvas(
         );
       }
     }
+    fade = 1;
+    ctx.globalAlpha = 1;
   };
 
   const tick = (now: number) => {

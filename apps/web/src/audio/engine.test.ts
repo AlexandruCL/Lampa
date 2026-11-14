@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import type { Clips, SiteClips } from "./clips";
 import { bedGain, bedTarget, bedUrl, healStep } from "./engine";
 
-const site = (beds: string[]): SiteClips => ({ beds, greeting: {}, answers: {}, narrations: {}, tapToAsk: [] });
+const site = (beds: string[]): SiteClips => ({ beds, greeting: {}, answers: {}, narrations: {}, tapToAsk: [], archive: [] });
 const c: Clips = {
   sites: { a: site(["a/bed-1-x.wav", "a/bed-2-y.wav"]), b: site([]) },
   project: { waltz: [] },

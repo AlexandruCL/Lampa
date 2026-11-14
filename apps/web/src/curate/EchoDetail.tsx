@@ -50,7 +50,7 @@ export function EchoDetail({ echo, now, getToken, busy, onApprove, onReject, onB
       </span>
       <div className={styles.consoleDetailHead}>
         <h2 id={`echo-${echo.id}`} className={styles.consoleSite} tabIndex={-1} ref={headingRef}>
-          {siteName(echo.siteId)}
+          {siteName(echo)}
         </h2>
         <p className={styles.consoleFacts}>{facts}</p>
       </div>

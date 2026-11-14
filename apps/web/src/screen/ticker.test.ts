@@ -61,3 +61,7 @@ it("timeAgo is 1 min at 60 s and 2 min at 179 s", () => {
   expect(timeAgo(0, 60_000)).toBe("1 min");
   expect(timeAgo(0, 179_000)).toBe("2 min");
 });
+
+it("new place line reads New place: {Site}", () => {
+  expect(tickerText({ kind: "place", siteId: "opera", at: 0 }, "Opera", "")).toBe("New place: Opera");
+});

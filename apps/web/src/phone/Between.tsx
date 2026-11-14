@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useLocation, useNavigate } from "react-router";
 import { getAudioContext, unlockAudio } from "../audio/context";
+import { arrive } from "../audio/nav";
+import { useNavAudio } from "../audio/useNavAudio";
 import { Button, Notice } from "../components";
 import { siteName, t } from "../i18n/t";
 import { track } from "../events";
@@ -34,6 +36,7 @@ type BetweenProps = {
   onBack?: () => void; // absent on "/"
   onTarget?: (siteId: string) => void; // Patrick: the beacon follows the chosen site
   onArrive?: (siteId: string) => void; // Patrick: the arrival chime; never called for the memorial
+  initialTarget?: string; // the site suggest_next_site chose; used as the first targetId
 };
 
 const LANTERN_MS = 10000;
@@ -41,7 +44,7 @@ const LANTERN_MS = 10000;
 const open = (url: string) => window.open(url, "_blank", "noopener");
 
 /** Between sites (DESIGN.md 7.8). */
-export function Between({ from, primer, demo, remote, notice, onBack, onTarget, onArrive }: BetweenProps) {
+export function Between({ from, primer, demo, remote, notice, onBack, onTarget, onArrive, initialTarget }: BetweenProps) {
   const { search } = useLocation();
   const navigate = useNavigate();
   const injected = demo ? readDemo(search, from?.id) : null;
@@ -55,7 +58,7 @@ export function Between({ from, primer, demo, remote, notice, onBack, onTarget, 
   if (position && position.accuracy <= MAX_ACCURACY_M) good.current = position;
   const here = good.current;
 
-  const [targetId, setTargetId] = useState<string | null>(null);
+  const [targetId, setTargetId] = useState<string | null>(initialTarget ?? null);
   const [list, setList] = useState(remote);
   const next = useMemo(
     () => suggestNext({ sites: SITES, position: here, glow: city.glow, visited: visitedSites() }),
@@ -63,6 +66,7 @@ export function Between({ from, primer, demo, remote, notice, onBack, onTarget, 
   );
   const shown = (targetId ? findSite(targetId) : next.suggestion?.site) ?? null;
   const shownId = shown?.id ?? null;
+  useNavAudio({ position: here, heading: blendHeading(heading, position), targetId: shownId, demo });
 
   useEffect(() => {
     if (shownId) onTarget?.(shownId);
@@ -73,6 +77,7 @@ export function Between({ from, primer, demo, remote, notice, onBack, onTarget, 
   useEffect(() => {
     if (!arrived || !shown || arrivedOnce.current) return;
     arrivedOnce.current = true;
+    arrive(shown.id, shown.is_memorial);
     if (!shown.is_memorial) {
       track("arrived", shown.id);
       navigator.vibrate?.([30, 60, 30]);

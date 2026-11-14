@@ -236,8 +236,9 @@ describe("publish", () => {
       answers: { paint: { ro: f[2], en: f[3] } },
       narrations: {},
       tapToAsk: persona.persona!.tap_to_ask,
+      archive: [],
     });
-    expect(clips.sites.garden).toEqual({ beds: [], greeting: {}, answers: {}, narrations: {}, tapToAsk: [] });
+    expect(clips.sites.garden).toEqual({ beds: [], greeting: {}, answers: {}, narrations: {}, tapToAsk: [], archive: [] });
     const pf = p.items.map((i) => i.file);
     expect(clips.project).toEqual({ glass: pf[0], crackle: pf[1], chime: pf[2], waltz: [pf[3], pf[4]] });
     expect(toClips([], () => false)).toEqual({ sites: {}, project: { waltz: [] } });
@@ -274,5 +275,24 @@ describe("publish", () => {
     expect(c.answers).toEqual({});
     expect(c.tapToAsk.map((t) => t.id)).toEqual(["roof", "bell"]);
     expect(c.tapToAsk[0]!.a).toEqual({ ro: "Pentru ploaie.", en: "For the rain." });
+  });
+
+  it("toClips copies archive images in file order", () => {
+    const archive = [
+      { id: "stall", file: "kiosk/stall.jpg", alt: { en: "A green stall." }, credit: "Test archive", year: "1901" },
+      { id: "awning", file: "kiosk/awning.jpg", alt: { ro: "O copertină.", en: "An awning." }, credit: "Test archive", year: "1910" },
+    ];
+    const site = SiteFile.parse({ ...persona, persona: { ...persona.persona, archive } });
+    expect(toClips([site], () => true).sites.kiosk!.archive).toEqual(archive);
+  });
+
+  it("toClips gives [] without archive", () => {
+    const withArchive = SiteFile.parse({
+      ...memorial,
+      persona: { ...persona.persona, archive: [{ id: "x", file: "x.jpg", alt: { en: "X." }, credit: "", year: "1900" }] },
+    });
+    const clips = toClips([persona, withArchive], () => true);
+    expect(clips.sites.kiosk!.archive).toEqual([]);
+    expect(clips.sites.garden!.archive).toEqual([]);
   });
 });

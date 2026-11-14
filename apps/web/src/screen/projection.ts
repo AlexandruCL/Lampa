@@ -11,6 +11,8 @@ export const SPACING_PASSES = 20;
 export const REF_LAT_DEG = 45.75;
 
 const LABEL_WIDTH = 320;
+// shortcut: the 30-unit display-font name line averages about 15.6 units a character in Chromium (MX's name measured 405); 16.5 leaves margin. Measure with a 2D context if a name runs wider.
+const NAME_CHAR_WIDTH = 16.5;
 const LABEL_HEIGHT = 74;
 const LABEL_GAP = 10;
 
@@ -83,18 +85,23 @@ export function spread(points: Point[]): Point[] {
 
 type Box = { x0: number; x1: number; y0: number; y1: number };
 
-function labelBox(p: Point, side: LabelSide): Box {
+/** A label's width in design units: its name line, never narrower than the glow line's 320. */
+export const labelWidth = (name: string) => Math.max(LABEL_WIDTH, [...name].length * NAME_CHAR_WIDTH);
+
+export function labelBox(p: Point, side: LabelSide, width = LABEL_WIDTH): Box {
   const y0 = side === "below" ? p.y + SITE_RADIUS + LABEL_GAP : p.y - SITE_RADIUS - LABEL_GAP - LABEL_HEIGHT;
-  return { x0: p.x - LABEL_WIDTH / 2, x1: p.x + LABEL_WIDTH / 2, y0, y1: y0 + LABEL_HEIGHT };
+  return { x0: p.x - width / 2, x1: p.x + width / 2, y0, y1: y0 + LABEL_HEIGHT };
 }
 
 const boxesOverlap = (a: Box, b: Box) => a.x0 < b.x1 && b.x0 < a.x1 && a.y0 < b.y1 && b.y0 < a.y1;
 
-const crossesCircle = (b: Box, c: Point) =>
+export const crossesCircle = (b: Box, c: Point) =>
   Math.hypot(clamp(c.x, b.x0, b.x1) - c.x, clamp(c.y, b.y0, b.y1) - c.y) < SITE_RADIUS;
 
-export function labelSides(points: Point[]): Record<string, LabelSide> {
-  const clear = (p: Point, side: LabelSide) => points.every((c) => c === p || !crossesCircle(labelBox(p, side), c));
+/** `widths` holds each label's width by id; a missing one is 320. */
+export function labelSides(points: Point[], widths: Record<string, number> = {}): Record<string, LabelSide> {
+  const box = (p: Point, side: LabelSide) => labelBox(p, side, widths[p.id]);
+  const clear = (p: Point, side: LabelSide) => points.every((c) => c === p || !crossesCircle(box(p, side), c));
   const sides: Record<string, LabelSide> = Object.fromEntries(
     points.map((p) => [p.id, clear(p, "below") || !clear(p, "above") ? "below" : "above"]),
   );
@@ -102,7 +109,7 @@ export function labelSides(points: Point[]): Record<string, LabelSide> {
     for (let j = i + 1; j < points.length; j++) {
       const a = points[i];
       const b = points[j];
-      if (!boxesOverlap(labelBox(a, sides[a.id]), labelBox(b, sides[b.id]))) continue;
+      if (!boxesOverlap(box(a, sides[a.id]), box(b, sides[b.id]))) continue;
       const lower = b.y >= a.y ? b : a;
       if (clear(lower, "above")) sides[lower.id] = "above";
     }
@@ -112,6 +119,6 @@ export function labelSides(points: Point[]): Record<string, LabelSide> {
 
 export function layout(sites: Site[], lines: MapLine[] = []): (Point & { label: LabelSide })[] {
   const points = spread(project(sites, lines));
-  const sides = labelSides(points);
+  const sides = labelSides(points, Object.fromEntries(sites.map((s) => [s.id, labelWidth(s.name)])));
   return points.map((p) => ({ ...p, label: sides[p.id] }));
 }
