@@ -189,21 +189,21 @@
         "bastion/bed-2-0f52d18daccf.wav"
       ],
       "greeting": {
-        "ro": "bastion/greeting-ro-d55ac3bd81bd.mp3",
-        "en": "bastion/greeting-en-614dc317fb24.mp3"
+        "ro": "bastion/greeting-ro-7e367948da67.mp3",
+        "en": "bastion/greeting-en-ee82d3116814.mp3"
       },
       "answers": {
         "theresia": {
-          "ro": "bastion/answer-theresia-ro-9c5634611043.mp3",
-          "en": "bastion/answer-theresia-en-920951db7c80.mp3"
+          "ro": "bastion/answer-theresia-ro-3306b9521644.mp3",
+          "en": "bastion/answer-theresia-en-36f5785304d3.mp3"
         },
         "walls": {
-          "ro": "bastion/answer-walls-ro-ef7746ddb0e0.mp3",
-          "en": "bastion/answer-walls-en-9f9440508e2a.mp3"
+          "ro": "bastion/answer-walls-ro-3bcf4b8420b2.mp3",
+          "en": "bastion/answer-walls-en-a2d499b9d2f6.mp3"
         },
         "inside": {
-          "ro": "bastion/answer-inside-ro-03102d448931.mp3",
-          "en": "bastion/answer-inside-en-ee20a84487a2.mp3"
+          "ro": "bastion/answer-inside-ro-40e84a216015.mp3",
+          "en": "bastion/answer-inside-en-0cc784dd7397.mp3"
         }
       },
       "narrations": {},
