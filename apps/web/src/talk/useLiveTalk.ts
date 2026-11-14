@@ -90,9 +90,15 @@ export function useLiveTalk(site: PhoneSite, lang: AgentLang, mic: Promise<"gran
   useEffect(() => {
     let cancelled = false;
     let timer: ReturnType<typeof setTimeout> | undefined;
+    let agentSpoke = false;
     const dispatch = (e: TalkEvent) => {
       if (cancelled) return;
       const s = step(modeRef.current, e);
+      // the greeting clip stands in only when the live persona never got to say it
+      if (s.mode === "fallback" && modeRef.current !== "fallback" && !agentSpoke) {
+        const greeting = greetingFor(site.id, lang);
+        if (greeting) void playDuckedClip(greeting);
+      }
       modeRef.current = s.mode;
       setMode(s.mode);
       // a "stay" step carries nulls: keep the last notice and caption
@@ -104,8 +110,6 @@ export function useLiveTalk(site: PhoneSite, lang: AgentLang, mic: Promise<"gran
     };
 
     (async () => {
-      const greeting = greetingFor(site.id, lang);
-      if (greeting) void playDuckedClip(greeting);
       if ((await mic) === "denied") return dispatch({ type: "mic_denied" });
       if (cancelled) return;
       // the iOS microphone prompt does not count against the 8 s
@@ -162,7 +166,10 @@ export function useLiveTalk(site: PhoneSite, lang: AgentLang, mic: Promise<"gran
         onError: () => dispatch({ type: "error" }),
         onDisconnect: (d) => dispatch({ type: "disconnected", reason: d.reason }),
         // final lines only: the SDK fires once per agent response and once per visitor transcript
-        onMessage: (m) => setLines((ls) => [...ls, { key: `${m.role}-${m.event_id}`, role: m.role, text: m.message }]),
+        onMessage: (m) => {
+          if (m.role === "agent") agentSpoke = true;
+          setLines((ls) => [...ls, { key: `${m.role}-${m.event_id}`, role: m.role, text: m.message }]);
+        },
       });
     })();
 

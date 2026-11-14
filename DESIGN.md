@@ -643,7 +643,7 @@ Layout: top bar (back, site name); Captions fill the middle; the bottom action a
 
 | Situation | What happens |
 |---|---|
-| connecting (signed URL plus session) | RoundControl "Connecting"; the pre-generated greeting clip plays at once so the visitor hears the persona even before the live session opens |
+| connecting (signed URL plus session) | RoundControl "Connecting"; no audio, the live persona speaks the greeting once connected. The pre-generated greeting clip plays only when Talk falls back before the persona has spoken |
 | live, holding | "Listening"; release sends |
 | persona speaking | captions stream; other audio ducks 12 dB (sound engine); RoundControl "Hold to interrupt" |
 | `show_archive_image` | an image card appears in Captions (max height 40dvh, `--radius-s`, credit line `--type-meta` `--text-3`); tapping it opens the Sheet full size with the image's alt text and credit |
