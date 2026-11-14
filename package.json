@@ -12,6 +12,7 @@
     "db:migrate": "npm run db:migrate -w @lampa/api",
     "db:seed": "npm run db:seed -w @lampa/api",
     "glow:check": "npm run glow:check -w @lampa/api",
+    "demo:reset": "npm run demo:reset -w @lampa/api",
     "agent:check": "tsx --env-file-if-exists=.env scripts/agent-check.ts",
     "simulate:crowd": "tsx scripts/simulate-crowd.ts",
     "publish:site": "tsx --env-file-if-exists=.env scripts/publish-site.ts"

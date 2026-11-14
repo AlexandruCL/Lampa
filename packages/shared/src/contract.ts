@@ -223,6 +223,10 @@ export type LampsMessage = z.infer<typeof LampsMessage>;
 export const TimeNow = z.object({ now: z.number().int() });
 export type TimeNow = z.infer<typeof TimeNow>;
 
+/** `finale` on /live, to every socket: the 1884 moment starts at server time `startAt` (epoch ms; clients add their clock offset). */
+export const FinaleMessage = z.object({ startAt: z.number().int() });
+export type FinaleMessage = z.infer<typeof FinaleMessage>;
+
 const SiteGlow = z.object({ siteId: z.string(), glow: z.number().min(0).max(1) });
 
 /** GET /pulse/summary. Glow and colours leave the Cathedral out; visitors are city-wide. */
