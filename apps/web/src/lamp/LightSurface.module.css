@@ -1,0 +1,27 @@
+/* Ported from the 6.14 .light-surface block of design/css/components.css; the pulse comes with B3-2. */
+.surface {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-light);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: var(--space-l);
+  box-sizing: border-box;
+  padding: var(--space-l) var(--space-l) calc(var(--space-l) + env(safe-area-inset-bottom, 0px));
+  background: var(--lamp-white);
+  color: var(--ink-on-light);
+  animation: light-in 600ms var(--ease-out);
+}
+@keyframes light-in { from { opacity: 0; } }
+.leaving { opacity: 0; transition: opacity 450ms var(--ease-out); }
+.surface :focus-visible { outline-color: var(--ink-on-light); }
+/* .button--on-light: the quiet exit button reads --ink-on-light in every state (Button takes no className) */
+.exit { display: flex; justify-content: center; }
+.exit button,
+.exit button:active,
+.exit button:hover:not(:disabled) { color: var(--ink-on-light); background: transparent; }
+@media (prefers-reduced-motion: reduce) {
+  .surface { animation-duration: 150ms; }
+  .leaving { transition-duration: 150ms; }
+}
