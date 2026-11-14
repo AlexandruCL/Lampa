@@ -207,7 +207,7 @@ narrations:
     source: "Agerpres, 17 Dec 2024, https://agerpres.ro/english/2024/12/17/the-city-of-timisoara-commemorates-35-years-since-the-romanian-revolution-of-december-1989--1404228"
 ```
 
-Still for the team: Ionut reviews the Romanian, and someone who knows the memorial reads all four before the paid run. They are about 1,100 characters in ro and en, so about 1,100 credits.
+Still for the team: Ionut reviews the Romanian, and someone who knows the memorial reads all four before the paid run. They are about 1,300 characters in ro and en, so about 1,300 credits.
 
 ---
 
