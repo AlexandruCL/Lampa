@@ -45,9 +45,9 @@ describe("greetingFor", () => {
     expect(greetingFor("added", "ro", c)).toBe(`${API_URL}/blob/added/greeting-ro.mp3`);
     expect(greetingFor("added", "en", c)).toBe(`${API_URL}/blob/added/greeting-en.mp3`);
   });
-  it("an added place without the visitor's language falls back to en", () => {
+  it("an added place without the visitor's language gives null, not en", () => {
     registerSiteSound("added-en", { bed: null, greeting: { en: "/blob/added-en/greeting-en.mp3" } });
-    expect(greetingFor("added-en", "ro", c)).toBe(`${API_URL}/blob/added-en/greeting-en.mp3`);
+    expect(greetingFor("added-en", "ro", c)).toBeNull();
   });
   it("an added place with no greeting gives null", () => {
     registerSiteSound("added-quiet", { bed: null, greeting: {} });
