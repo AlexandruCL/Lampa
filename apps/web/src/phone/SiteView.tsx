@@ -1,6 +1,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { caughtClink, readingTone, windowChord } from "../audio/note";
 import { useBed } from "../audio/useBed";
+import { useWhispers } from "../audio/useWhispers";
 import { Button, Notice } from "../components";
 import { openRearCamera, type CameraResult } from "../sensors/camera";
 import { Between } from "./Between";
@@ -35,6 +36,7 @@ export function SiteView({ site, demo, remote, notice, compass, primer, arrived 
   const [mic, setMic] = useState<Promise<"granted" | "denied"> | null>(null);
   const [view, setView] = useState<"site" | "lens" | "echo" | "between" | "talk" | "lamp">("site");
   useBed(site.id, glow, view !== "between");
+  useWhispers(view === "site" ? site.id : null, null, null); // centred, on the Site view only
   const [motion, setMotion] = useState<CompassStatus | null>(null);
   const [echoPrompt, setEchoPrompt] = useState<string | undefined>();
   const [nextTarget, setNextTarget] = useState<string | undefined>();

@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import express, { Router, type RequestHandler } from "express";
 import { rateLimit } from "express-rate-limit";
-import { EchoAccepted, EchoApprovedMessage, PendingEchoes, SocketMessage, sites } from "@lampa/shared";
+import { ApprovedEchoes, EchoAccepted, EchoApprovedMessage, PendingEchoes, SocketMessage, sites } from "@lampa/shared";
 import type { Db, Emit, Tx } from "../seam.js";
 import { requireVisitor, visitorLimiter, type Visitor } from "../auth/session.js";
 import { INSERT_EVENTS, userSub } from "../events/router.js";
@@ -21,6 +21,9 @@ WHERE b.key = $1`;
 export const SELECT_PENDING = `SELECT e.id, e.site_id, e.created_at, e.lang, e.transcript, e.audio_url, s.name->>'en' AS site_name
 FROM echoes e LEFT JOIN sites s ON s.id = e.site_id
 WHERE e.status = 'pending' ORDER BY e.created_at ASC, e.id ASC`;
+// The table has no approval time, so newest means newest recorded.
+export const SELECT_APPROVED = `SELECT id, audio_url, lang FROM echoes
+WHERE status = 'approved' AND site_id = $1 ORDER BY created_at DESC, id DESC LIMIT 5`;
 export const APPROVE_ECHO = `UPDATE echoes SET status = 'approved', public_audio_url = audio_url
 WHERE id = $1 AND status = 'pending' RETURNING site_id, audio_url, transcript, lang, anon_id, author_sub`;
 export const REJECT_ECHO = "UPDATE echoes SET status = 'rejected' WHERE id = $1 AND status = 'pending' RETURNING audio_url";
@@ -64,6 +67,8 @@ export function createEchoesRouter(deps: EchoesDeps): Router {
   });
   // shortcut: memory store, counts reset on restart and are per instance; move to a shared store if the API runs on more than one instance
   const blobLimiter = rateLimit({ windowMs: 60_000, limit: 120 });
+  // shortcut: memory store, counts reset on restart and are per instance; move to a shared store if the API runs on more than one instance
+  const approvedLimiter = rateLimit({ windowMs: 60_000, limit: 120, message: { error: "rate_limited" } });
 
   router.post("/echoes", requireVisitor, echoLimiter, readBody, async (req, res) => {
     const invalid = () => void res.status(400).json({ error: "invalid_echo" });
@@ -143,6 +148,22 @@ export function createEchoesRouter(deps: EchoesDeps): Router {
       res.set("Cache-Control", "no-store").json(PendingEchoes.parse({ echoes }));
     } catch (err) {
       console.error("pending echoes read failed: " + (err instanceof Error ? err.message : "unknown"));
+      res.status(503).json({ error: "unavailable" });
+    }
+  });
+
+  router.get("/echoes/approved", approvedLimiter, async (req, res) => {
+    const site = sites.find((s) => s.id === req.query.site);
+    if (!site) return void res.status(404).json({ error: "unknown_site" });
+    if (site.is_memorial) return void res.status(404).json({ error: "no_echo" });
+    if (!deps.db) return void res.status(503).json({ error: "unavailable" });
+    try {
+      const { rows } = await deps.db.query(SELECT_APPROVED, [site.id]);
+      // audioUrl is audio_url, as in the echo_approved broadcast.
+      const echoes = rows.map((r) => ({ echoId: r.id, audioUrl: r.audio_url, lang: r.lang }));
+      res.set("Cache-Control", "no-store").json(ApprovedEchoes.parse({ echoes }));
+    } catch (err) {
+      console.error("approved echoes read failed: " + (err instanceof Error ? err.message : "unknown"));
       res.status(503).json({ error: "unavailable" });
     }
   });
