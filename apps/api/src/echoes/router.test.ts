@@ -256,6 +256,18 @@ describe("GET /blob/:key", () => {
     await expectError(await (await start({ db: readDb([]).db })).get("/blob/echo-none"), 404, "unknown_blob");
     await expectError(await (await start({ db: readDb([blobRow(null)]).db })).get("/blob/place-x"), 404, "unknown_blob");
   });
+  it("a site blob is public", async () => {
+    const r = readDb([blobRow(null, "audio/mpeg")]);
+    const res = await (await start({ db: r.db })).get("/blob/site-theresia-bastion_greeting-en-0123456789ab.mp3");
+    expect(res.status).toBe(200);
+    expect(res.headers.get("content-type")).toBe("audio/mpeg");
+    expect(res.headers.get("cache-control")).toBe("public, max-age=3600");
+    expect(new Uint8Array(await res.arrayBuffer())).toEqual(AUDIO);
+  });
+
+  it("a blob with no echo and no site prefix is 404", async () => {
+    await expectError(await (await start({ db: readDb([blobRow(null, "audio/mpeg")]).db })).get("/blob/sites_x.mp3"), 404, "unknown_blob");
+  });
 });
 
 describe("GET /echoes?status=pending", () => {
@@ -285,7 +297,20 @@ describe("GET /echoes?status=pending", () => {
       { id: "e2", siteId: "unirii", createdAt: "2026-11-13T21:00:00.000Z", lang: "ron", transcript: "Aici.", audioUrl: "/blob/echo-2" },
     ]);
     expect(r.calls[0]!.text).toBe(SELECT_PENDING);
-    expect(SELECT_PENDING).toMatch(/WHERE status = 'pending' ORDER BY created_at ASC/);
+    expect(SELECT_PENDING).toMatch(/WHERE e.status = 'pending' ORDER BY e.created_at ASC/);
+  });
+
+  it("pending echoes carry the site's English name", async () => {
+    const named = [{ ...rows[0], site_name: "MX" }, { ...rows[1], site_id: "theresia-bastion", site_name: "Theresia Bastion" }];
+    const res = await (await start({ db: readDb(named).db })).get("/echoes?status=pending", await auth0Token(["moderate:echo"]));
+    const body = await res.json();
+    expect(PendingEchoes.parse(body)).toEqual(body);
+    expect(body.echoes.map((e: { siteId: string; siteName?: string }) => [e.siteId, e.siteName])).toEqual([
+      ["mx", "MX"],
+      ["theresia-bastion", "Theresia Bastion"],
+    ]);
+    expect(SELECT_PENDING).toContain("s.name->>'en' AS site_name");
+    expect(SELECT_PENDING).toMatch(/LEFT JOIN sites s ON s.id = e.site_id/);
   });
 
   it("status=approved is 400", async () => {
