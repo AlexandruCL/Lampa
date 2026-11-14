@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router";
 import { getAudioContext, unlockAudio } from "../audio/context";
 import { arrive } from "../audio/nav";
 import { useNavAudio } from "../audio/useNavAudio";
+import { useWhispers } from "../audio/useWhispers";
 import { Button, Notice } from "../components";
 import { track } from "../events";
 import { bearingDeg, haversineM } from "../geo/geo";
@@ -66,6 +67,7 @@ export function Between({ from, primer, demo, remote, notice, onBack, onTarget, 
   const shown = (targetId ? findSite(targetId) : next.suggestion?.site) ?? null;
   const shownId = shown?.id ?? null;
   useNavAudio({ position: here, heading: blendHeading(heading, position), targetId: shownId, demo });
+  useWhispers(shownId, here, blendHeading(heading, position));
 
   useEffect(() => {
     if (shownId) onTarget?.(shownId);
