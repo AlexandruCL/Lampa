@@ -5,11 +5,11 @@ import styles from "./QRBlock.module.css";
 const DESIGN_WIDTH = 1920;
 const CODE_UNITS = 240;
 
-/** DESIGN.md 6.17, the /screen size: joins the installation from the room. */
+/** DESIGN.md 6.17, the /screen size. The screen stands at MX, so the link is the on-site one, not `?mode=remote` (Cristea, after Build 4). */
 export function QRBlock() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [state, setState] = useState<"loading" | "ready" | "error">("loading");
-  const url = `${location.origin}/?mode=remote`;
+  const url = `${location.origin}/`;
 
   useEffect(() => {
     const canvas = canvasRef.current;
