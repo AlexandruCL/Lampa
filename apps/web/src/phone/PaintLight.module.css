@@ -1,0 +1,36 @@
+.view {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  background: var(--bg);
+  animation: open var(--dur-base) var(--ease-out);
+}
+@keyframes open { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) {
+  .view { animation-name: openfade; }
+  @keyframes openfade { from { opacity: 0; } to { opacity: 1; } }
+}
+.view > header { position: absolute; top: 0; left: 0; right: 0; z-index: 1; }
+/* the canvas lies over the live video while painting, so the trail grows on screen */
+.media { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.media[hidden] { display: none; }
+.result { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; background: var(--bg); }
+.panel {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  max-height: 60%;
+  overflow-y: auto;
+  padding: var(--space-xl) var(--space-l) calc(var(--space-l) + env(safe-area-inset-bottom, 0px));
+  background: linear-gradient(to top, var(--scrim) 70%, transparent);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+}
+.lines { display: flex; flex-direction: column; align-items: center; gap: var(--space-s); text-align: center; padding-bottom: var(--space-s); }
+.lines:empty { display: none; }
+.line { margin: 0; font: var(--type-lead); color: var(--text); text-wrap: balance; }
+.meta { margin: 0; font: var(--type-meta); color: var(--text); }
+.timer { display: flex; align-items: center; gap: var(--space-m); line-height: 0; }
+.timer .line { line-height: normal; }
