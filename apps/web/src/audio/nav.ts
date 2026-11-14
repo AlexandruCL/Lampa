@@ -1,6 +1,6 @@
 import type { Site } from "@lampa/shared";
 import { bearingDeg, haversineM, type LatLng } from "../geo/geo";
-import { ambientBus } from "./bus";
+import { bedBus } from "./bus";
 import { playClip } from "./clip";
 import { clips } from "./clips";
 import { getAudioContext } from "./context";
@@ -61,7 +61,7 @@ function rampGain(gain: GainNode, value: number, endTime: number): void {
   gain.gain.linearRampToValueAtTime(value, endTime);
 }
 
-/** source (looping bed) → lowpass → HRTF panner → gain → ambient bus, fading in to the voice's mix. */
+/** source (looping bed) → lowpass → HRTF panner → gain → bed bus, fading in to the voice's mix. */
 function build(voice: Voice, buffer: AudioBuffer): void {
   const ctx = getAudioContext();
   const t = ctx.currentTime;
@@ -80,7 +80,7 @@ function build(voice: Voice, buffer: AudioBuffer): void {
   gain.gain.setValueAtTime(0, t);
   voice.fadeEnd = t + FADE_IN_S;
   gain.gain.linearRampToValueAtTime(voice.mix.level, voice.fadeEnd);
-  source.connect(filter).connect(panner).connect(gain).connect(ambientBus());
+  source.connect(filter).connect(panner).connect(gain).connect(bedBus());
   source.start();
   voice.nodes = { source, filter, panner, gain };
 }

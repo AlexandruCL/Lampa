@@ -1,7 +1,7 @@
 import { sites } from "@lampa/shared";
 import { API_URL } from "../api/client";
 import { AUDIO_BASE, clips, picks, type Clips } from "./clips";
-import { ambientBus } from "./bus";
+import { bedBus } from "./bus";
 import { getAudioContext } from "./context";
 import { siteSound } from "./siteSound";
 
@@ -96,7 +96,7 @@ function connect(bed: Bed, buffer: AudioBuffer): void {
   bed.target = bedTarget(bed.glow, bed.memorial, muted);
   gain.gain.setValueAtTime(0, ctx.currentTime);
   gain.gain.linearRampToValueAtTime(bed.target, ctx.currentTime + FADE_IN_S);
-  source.connect(gain).connect(ambientBus());
+  source.connect(gain).connect(bedBus());
   source.start();
   bed.source = source;
   bed.gain = gain;

@@ -4,8 +4,11 @@ import { getAudioContext } from "./context";
 export const DUCK_GAIN = 0.25; // −12 dB
 export const DUCK_ATTACK_S = 0.2;
 export const DUCK_RELEASE_S = 0.8;
+/** Level of every bed on the phone (site bed, beacon, compass); whispers keep theirs (Cristea, after Build 4). */
+export const BED_LEVEL = 0.7;
 
 let bus: GainNode | undefined;
+let beds: GainNode | undefined;
 const holds = new Set<string>();
 
 /** The ambient bus: beds, compass, beacon and whispers connect here, never to destination. */
@@ -16,6 +19,16 @@ export function ambientBus(): GainNode {
     bus.connect(ctx.destination);
   }
   return bus;
+}
+
+/** Where the looping beds connect: BED_LEVEL, then the ambient bus. */
+export function bedBus(): GainNode {
+  if (!beds) {
+    beds = getAudioContext().createGain();
+    beds.gain.value = BED_LEVEL;
+    beds.connect(ambientBus());
+  }
+  return beds;
 }
 
 /** Duck the ambient bus while any holder ("live", "clip") is on. */

@@ -4,7 +4,7 @@ import { getAudioContext, unlockAudio } from "./context";
 import { bedUrl, FADE_IN_S, loadBuffer, RAMP_S } from "./engine";
 
 // Patrick's decisions, hour 24 (B3-5.a.1).
-export const ROOM_MASTER = 0.8;
+export const ROOM_MASTER = 0.55; // 0.8 until the beds were lowered (Cristea, after Build 4)
 export const ROOM_PAN_MAX = 0.8;
 const READ_MS = 1000;
 

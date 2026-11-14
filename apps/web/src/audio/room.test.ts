@@ -1,13 +1,13 @@
 import { sites } from "@lampa/shared";
 import { afterAll, describe, expect, it, vi } from "vitest";
-import { roomGain, roomPan, roomSites, setRoomLevel } from "./room";
+import { ROOM_MASTER, roomGain, roomPan, roomSites, setRoomLevel } from "./room";
 
 describe("roomGain", () => {
-  it("is 0.8 × glow, clamped to 0..1", () => {
+  it("is ROOM_MASTER × glow, clamped to 0..1", () => {
     expect(roomGain(0)).toBe(0);
-    expect(roomGain(0.5)).toBeCloseTo(0.4);
-    expect(roomGain(1)).toBeCloseTo(0.8);
-    expect(roomGain(1.2)).toBeCloseTo(0.8);
+    expect(roomGain(0.5)).toBeCloseTo(ROOM_MASTER / 2);
+    expect(roomGain(1)).toBeCloseTo(ROOM_MASTER);
+    expect(roomGain(1.2)).toBeCloseTo(ROOM_MASTER);
   });
 });
 
