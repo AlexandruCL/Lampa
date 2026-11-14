@@ -383,6 +383,9 @@ export function startCanvas(
         ctx.lineWidth = dpr;
         ctx.beginPath();
         ctx.arc(x, y, r, 0, Math.PI * 2);
+        // Cristea: the grey of an empty pane, so the field reads as a place and not a hole in the map.
+        ctx.fillStyle = surface2;
+        ctx.fill();
         ctx.stroke();
         drawCandles(x, y, r, s, now);
         if (fontsReady) drawLabel([[site.name, NAME, fontDisplay, text2]], x, y, r, p.label, s);
