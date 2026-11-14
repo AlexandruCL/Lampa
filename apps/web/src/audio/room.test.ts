@@ -1,6 +1,6 @@
 import { sites } from "@lampa/shared";
-import { describe, expect, it } from "vitest";
-import { roomGain, roomPan, roomSites } from "./room";
+import { afterAll, describe, expect, it, vi } from "vitest";
+import { roomGain, roomPan, roomSites, setRoomLevel } from "./room";
 
 describe("roomGain", () => {
   it("is 0.8 × glow, clamped to 0..1", () => {
@@ -27,5 +27,26 @@ describe("roomSites", () => {
     expect(ids).toHaveLength(4);
     expect(ids).not.toContain("cathedral");
     expect(ids).not.toContain("gallery");
+  });
+});
+
+describe("setRoomLevel", () => {
+  const gain = { value: 1, cancelScheduledValues: vi.fn(), setValueAtTime: vi.fn(), linearRampToValueAtTime: vi.fn() };
+  const master = { gain, connect: vi.fn() };
+  const ctx = { currentTime: 5, destination: {}, createGain: vi.fn(() => master) };
+  vi.stubGlobal("AudioContext", function () {
+    return ctx;
+  });
+  afterAll(() => vi.unstubAllGlobals());
+
+  it("ramps one master gain, connected to the destination, from its current level", () => {
+    setRoomLevel(0, 0.5);
+    expect(master.connect).toHaveBeenCalledWith(ctx.destination);
+    expect(gain.setValueAtTime).toHaveBeenCalledWith(1, 5);
+    expect(gain.linearRampToValueAtTime).toHaveBeenLastCalledWith(0, 5.5);
+    ctx.currentTime = 50;
+    setRoomLevel(1, 4);
+    expect(gain.linearRampToValueAtTime).toHaveBeenLastCalledWith(1, 54);
+    expect(ctx.createGain).toHaveBeenCalledOnce();
   });
 });
