@@ -144,7 +144,7 @@ export function LampView({ site, demo, lamps, connected, canRaise, progress, sur
   return (
     <>
       <main className={styles.view} inert={surface !== "off"}>
-        <TopBar siteName={name} onBack={onBack} backLabel={t("lamp.back_to", { site: name }, lang)} demo={demo} />
+        <TopBar siteName={name} onBack={onBack} backLabel={t("back_to", { name }, lang)} demo={demo} />
         <div className={styles.body}>
           {canRaise ? (
             <>
@@ -173,7 +173,7 @@ export function LampView({ site, demo, lamps, connected, canRaise, progress, sur
             </Button>
           )}
           <Button variant="secondary" size="l" block onClick={onBack}>
-            {t("lamp.back_to", { site: name }, lang)}
+            {t("back_to", { name }, lang)}
           </Button>
         </div>
       </main>

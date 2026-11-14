@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { LAMP_TARGET, type LampsMessage } from "@lampa/shared";
 import { LANG, t, type Lang } from "../i18n/t";
 import styles from "./LampCounter.module.css";
+import { roDe } from "./presence";
 
 export const ANNOUNCE_MS = 60000;
 
@@ -20,7 +21,7 @@ type Props = {
 export function LampCounter({ lamps, connected, size, light, presence, lang = LANG }: Props) {
   const value = lamps ? String(lamps.litToday) : t("lamp_counter.loading", {}, lang);
   const lastKnown = lamps !== null && !connected;
-  const spoken = lamps ? t(lastKnown ? "lamp_counter.spoken_last_known" : "lamp_counter.spoken", { n: lamps.litToday, target: LAMP_TARGET }, lang) : "";
+  const spoken = lamps ? counterSpoken(lamps.litToday, LAMP_TARGET, lastKnown, lang) : "";
   const announced = useThrottled(spoken, ANNOUNCE_MS);
   const status = (
     <span className={styles.hidden} role="status" aria-atomic="true">
@@ -59,6 +60,11 @@ export function LampCounter({ lamps, connected, size, light, presence, lang = LA
       {presence && <p className={styles.presence}>{presence}</p>}
     </div>
   );
+}
+
+/** What the hidden status says; Romanian "de" before "lămpi" follows `target`. */
+export function counterSpoken(n: number, target: number, lastKnown: boolean, lang: Lang): string {
+  return t(lastKnown ? "lamp_counter.spoken_last_known" : "lamp_counter.spoken", { n, target, de: roDe(target) }, lang);
 }
 
 /** `text` as it was at most once per `ms`; the latest value lands when the window ends. */

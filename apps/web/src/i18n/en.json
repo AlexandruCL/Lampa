@@ -138,7 +138,6 @@
   "lamp.no_motion": "This phone cannot tell when it is raised. Tap to light the lamp.",
   "lamp.light_without_raising": "Light without raising",
   "lamp.light": "Light the lamp",
-  "lamp.back_to": "Back to {site}",
   "lamp.lit": "Your lamp is lit.",
   "lamp.hint": "Lower your phone to stop.",
   "lamp.lower": "Lower the lamp",

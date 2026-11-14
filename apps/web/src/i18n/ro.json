@@ -138,7 +138,6 @@
   "lamp.no_motion": "Telefonul acesta nu știe când e ridicat. Atinge ca să aprinzi lampa.",
   "lamp.light_without_raising": "Aprinde fără să ridici",
   "lamp.light": "Aprinde lampa",
-  "lamp.back_to": "Înapoi la {site}",
   "lamp.lit": "Lampa ta e aprinsă.",
   "lamp.hint": "Coboară telefonul ca să o stingi.",
   "lamp.lower": "Coboară lampa",
@@ -151,6 +150,6 @@
   "lamp_counter.loading": "...",
   "lamp_counter.label": "lămpi aprinse azi",
   "lamp_counter.last_known": "(ultima valoare cunoscută)",
-  "lamp_counter.spoken": "{n} din {target} de lămpi aprinse azi",
-  "lamp_counter.spoken_last_known": "{n} din {target} de lămpi aprinse azi, ultima valoare cunoscută"
+  "lamp_counter.spoken": "{n} din {target} {de}lămpi aprinse azi",
+  "lamp_counter.spoken_last_known": "{n} din {target} {de}lămpi aprinse azi, ultima valoare cunoscută"
 }

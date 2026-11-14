@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import type { LampsMessage } from "@lampa/shared";
 import type { PhoneSite } from "../sites/sites";
 import { Lamp, LampView, rearms } from "./Lamp";
-import { LampCounter } from "./LampCounter";
+import { counterSpoken, LampCounter } from "./LampCounter";
 
 const site = { id: "victoriei", name: "Piața Victoriei", lamp: true } as PhoneSite;
 const lamps: LampsMessage = { litToday: 412, target: 731, sites: [{ siteId: "victoriei", lightingNow: 5 }] };
@@ -103,5 +103,13 @@ describe("LampCounter", () => {
     const ro = renderToStaticMarkup(<LampCounter lamps={lamps} connected={false} size="l" lang="ro" />);
     expect(ro).toContain("412 din 731 de lămpi aprinse azi, ultima valoare cunoscută");
     expect(ro).toContain("(ultima valoare cunoscută)");
+  });
+
+  it("the spoken counter's Romanian 'de' follows the target's plural category", () => {
+    expect(counterSpoken(412, 731, false, "ro")).toBe("412 din 731 de lămpi aprinse azi");
+    expect(counterSpoken(412, 731, true, "ro")).toBe("412 din 731 de lămpi aprinse azi, ultima valoare cunoscută");
+    expect(counterSpoken(40, 101, false, "ro")).toBe("40 din 101 lămpi aprinse azi");
+    expect(counterSpoken(40, 101, true, "ro")).toBe("40 din 101 lămpi aprinse azi, ultima valoare cunoscută");
+    expect(counterSpoken(40, 101, false, "en")).toBe("40 of 101 lamps lit today");
   });
 });
