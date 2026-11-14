@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useLocation, useNavigate } from "react-router";
 import { getAudioContext, unlockAudio } from "../audio/context";
 import { Button, Notice } from "../components";
+import { siteName, t } from "../i18n/t";
 import { track } from "../events";
 import { bearingDeg, haversineM } from "../geo/geo";
 import { MAX_ACCURACY_M, type Fix } from "../geo/geofence";
@@ -143,7 +144,7 @@ export function Between({ from, primer, demo, remote, notice, onBack, onTarget, 
     <>
     <main className={`${styles.page} ${dim ? styles.dim : ""}`}>
       {from && onBack ? (
-        <TopBar siteName={from.name} onBack={onBack} demo={demo} />
+        <TopBar siteName={siteName(from)} onBack={onBack} demo={demo} />
       ) : (
         <div className={styles.top}>{demo && <DemoBadge />}</div>
       )}
@@ -152,7 +153,7 @@ export function Between({ from, primer, demo, remote, notice, onBack, onTarget, 
         <div className={styles.notice}>
           <Notice variant="info" icon="headphones">
             <Button variant="quiet" onClick={async () => setAudioOff((await unlockAudio()) === "blocked")}>
-              Tap to listen again
+              {t("between.tap_listen")}
             </Button>
           </Notice>
         </div>
@@ -173,14 +174,14 @@ export function Between({ from, primer, demo, remote, notice, onBack, onTarget, 
         )}
       </div>
       <div className={styles.actions}>
-        <Button variant="secondary" size="l" block onClick={() => setList(true)}>Sites</Button>
+        <Button variant="secondary" size="l" block onClick={() => setList(true)}>{t("sites.title")}</Button>
         <Button
           variant="secondary"
           size="l"
           block
           onClick={() => (iphone ? setChoose(true) : shown && open(googleMapsUrl(shown)))}
         >
-          Open in Maps
+          {t("between.open_maps")}
         </Button>
       </div>
     </main>
@@ -204,10 +205,10 @@ export function Between({ from, primer, demo, remote, notice, onBack, onTarget, 
         />
       )}
       {choose && (
-        <Sheet title="Open in Maps" onClose={() => setChoose(false)}>
+        <Sheet title={t("between.open_maps")} onClose={() => setChoose(false)}>
           <div className={styles.actions}>
-            <Button variant="secondary" size="l" block onClick={() => shown && open(appleMapsUrl(shown))}>Apple Maps</Button>
-            <Button variant="secondary" size="l" block onClick={() => shown && open(googleMapsUrl(shown))}>Google Maps</Button>
+            <Button variant="secondary" size="l" block onClick={() => shown && open(appleMapsUrl(shown))}>{t("between.apple_maps")}</Button>
+            <Button variant="secondary" size="l" block onClick={() => shown && open(googleMapsUrl(shown))}>{t("between.google_maps")}</Button>
           </div>
         </Sheet>
       )}

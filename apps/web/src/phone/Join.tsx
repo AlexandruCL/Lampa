@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router";
 import { unlockAudio } from "../audio/context";
 import { Button, Icon, Notice } from "../components";
+import { siteName, t } from "../i18n/t";
 import { markVisited } from "../nav/visited";
 import { isDemo } from "../sensors/demo";
 import { primeDevice, type PrimerResult } from "../sensors/primer";
@@ -45,7 +46,7 @@ export default function Join({ siteId }: { siteId?: string }) {
 
   const site = siteId === undefined ? undefined : findSite(siteId);
   const city = siteId === undefined;
-  const name = city ? "Timișoara" : site?.name;
+  const name = city ? "Timișoara" : site && siteName(site);
 
   useEffect(() => {
     if (result && site?.is_memorial) markVisited(site.id);
@@ -57,10 +58,10 @@ export default function Join({ siteId }: { siteId?: string }) {
     return (
       <main className={styles.page}>
         {top}
-        <h1 className={styles.name}>We could not find this place.</h1>
+        <h1 className={styles.name}>{t("join.not_found")}</h1>
         <div className={styles.actions}>
           <Button variant="primary" size="l" block onClick={() => navigate("/")}>
-            Show all sites
+            {t("join.show_all")}
           </Button>
         </div>
       </main>
@@ -83,19 +84,19 @@ export default function Join({ siteId }: { siteId?: string }) {
     const notice = audioBlocked ? (
       <Notice variant="info" icon="headphones">
         <Button variant="quiet" onClick={async () => setAudioBlocked((await unlockAudio()) === "blocked")}>
-          Tap to listen
+          {t("join.tap_listen")}
         </Button>
       </Notice>
     ) : (
       result.location === "denied" && (
-        <Notice variant="info">Location is off. This site still works. To walk to the next one, use the list.</Notice>
+        <Notice variant="info">{t("join.location_off")}</Notice>
       )
     );
     const remote = new URLSearchParams(search).get("mode") === "remote";
     if (city) {
       const noLocation = remote || result.location === "denied";
       const denied = result.location === "denied" && (
-        <Notice variant="info">Location is off. This site still works. To walk to the next one, use the list.</Notice>
+        <Notice variant="info">{t("join.location_off")}</Notice>
       );
       return <Between from={null} primer={result} demo={demo} remote={noLocation} notice={denied || undefined} />;
     }
@@ -122,14 +123,14 @@ export default function Join({ siteId }: { siteId?: string }) {
       <h1 className={styles.name}>{name}</h1>
       {memorial ? (
         <>
-          <p className={styles.line}>A place of remembrance for December 1989.</p>
+          <p className={styles.line}>{t("memorial.lead")}</p>
           <div className={styles.visual}>
             <Candle />
           </div>
         </>
       ) : (
         <>
-          <p className={styles.line}>{name} is asleep.</p>
+          <p className={styles.line}>{t("join.asleep", { name: name! })}</p>
           <div className={styles.visual}>
             <RoseWindow name={name!} size="l" filled={EMPTY_PANES} />
           </div>
@@ -138,13 +139,17 @@ export default function Join({ siteId }: { siteId?: string }) {
       <div className={styles.actions}>
         <p className={styles.hint}>
           <Icon name="headphones" />
-          Put on headphones. LAMPA guides you with sound.
+          {t("join.headphones")}
         </p>
         <Button variant="primary" size="l" block loading={busy} onClick={tap}>
-          {memorial ? "Listen" : city ? (busy ? "Waking the city" : "Wake the city") : busy ? `Waking ${name}` : `Wake ${name}`}
+          {memorial
+            ? t("join.listen")
+            : city
+              ? t(busy ? "join.waking_city" : "join.wake_city")
+              : t(busy ? "join.waking" : "join.wake", { name: name! })}
         </Button>
         <p className={styles.keep}>
-          Keep LAMPA open while you walk. Sound and location stop when the page is in the background.
+          {t("join.keep_open")}
         </p>
       </div>
     </main>
