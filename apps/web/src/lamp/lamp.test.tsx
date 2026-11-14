@@ -73,6 +73,19 @@ describe("Lamp", () => {
     expect(rearms(null)).toBe(false);
   });
 
+  it("renders the instruction and the lit state in Romanian", () => {
+    const off = view({ lang: "ro" });
+    expect(off).toContain("Ridică telefonul deasupra capului.");
+    expect(off).toContain("Aprinde fără să ridici");
+    expect(off).toContain("Înapoi la Piața Victoriei");
+    expect(off).toContain("lămpi aprinse azi");
+    expect(off).not.toContain("Raise your phone above your head.");
+    const lit = view({ lang: "ro", surface: "on", presence: "Tu și încă 4 persoane aprindeți Piața Victoriei acum." });
+    expect(lit).toContain("Lampa ta e aprinsă.");
+    expect(lit).toContain("Coboară lampa");
+    expect(lit).not.toContain("Your lamp is lit.");
+  });
+
   it("says the lamp was lowered", () => {
     expect(view({ lowered: true })).toContain("Lamp lowered. Raise it again to keep it lit.");
   });
@@ -87,5 +100,8 @@ describe("LampCounter", () => {
     expect(live).not.toContain("last known");
     expect(renderToStaticMarkup(<LampCounter lamps={lamps} connected={false} size="s" />)).toContain("(last known)");
     expect(renderToStaticMarkup(<LampCounter lamps={null} connected={false} size="l" />)).not.toContain("last known");
+    const ro = renderToStaticMarkup(<LampCounter lamps={lamps} connected={false} size="l" lang="ro" />);
+    expect(ro).toContain("412 din 731 de lămpi aprinse azi, ultima valoare cunoscută");
+    expect(ro).toContain("(ultima valoare cunoscută)");
   });
 });

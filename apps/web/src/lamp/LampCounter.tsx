@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { LAMP_TARGET, type LampsMessage } from "@lampa/shared";
+import { LANG, t, type Lang } from "../i18n/t";
 import styles from "./LampCounter.module.css";
 
 export const ANNOUNCE_MS = 60000;
@@ -12,20 +13,22 @@ type Props = {
   light?: boolean;
   /** L only: the presence line; null hides it. */
   presence?: string | null;
+  lang?: Lang;
 };
 
 /** DESIGN 6.13. The visible value changes in place; a hidden status says it to screen readers at most once a minute. */
-export function LampCounter({ lamps, connected, size, light, presence }: Props) {
-  const value = lamps ? String(lamps.litToday) : "...";
+export function LampCounter({ lamps, connected, size, light, presence, lang = LANG }: Props) {
+  const value = lamps ? String(lamps.litToday) : t("lamp_counter.loading", {}, lang);
   const lastKnown = lamps !== null && !connected;
-  const spoken = lamps ? `${lamps.litToday} of ${LAMP_TARGET} lamps lit today${lastKnown ? ", last known" : ""}` : "";
+  const spoken = lamps ? t(lastKnown ? "lamp_counter.spoken_last_known" : "lamp_counter.spoken", { n: lamps.litToday, target: LAMP_TARGET }, lang) : "";
   const announced = useThrottled(spoken, ANNOUNCE_MS);
   const status = (
     <span className={styles.hidden} role="status" aria-atomic="true">
       {announced}
     </span>
   );
-  const muted = lastKnown && <span className={styles.muted}> (last known)</span>;
+  const muted = lastKnown && <span className={styles.muted}> {t("lamp_counter.last_known", {}, lang)}</span>;
+  const label = t("lamp_counter.label", {}, lang);
 
   if (size === "s") {
     return (
@@ -34,7 +37,8 @@ export function LampCounter({ lamps, connected, size, light, presence }: Props) 
           <span className={styles.sValue}>
             {value} / {LAMP_TARGET}
           </span>{" "}
-          lamps lit today{muted}
+          {label}
+          {muted}
         </span>
         {status}
       </p>
@@ -46,7 +50,10 @@ export function LampCounter({ lamps, connected, size, light, presence }: Props) 
         <p className={styles.value}>
           <span className={lamps ? styles.lit : styles.muted}>{value}</span> / {LAMP_TARGET}
         </p>
-        <p className={styles.label}>lamps lit today{muted}</p>
+        <p className={styles.label}>
+          {label}
+          {muted}
+        </p>
       </div>
       {status}
       {presence && <p className={styles.presence}>{presence}</p>}
