@@ -3,12 +3,12 @@ import type { AddressInfo } from "node:net";
 import express from "express";
 import { SignJWT } from "jose";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { PendingEchoes } from "@lampa/shared";
+import { ApprovedEchoes, PendingEchoes } from "@lampa/shared";
 import type { Db, Tx } from "../seam.js";
 import { INSERT_EVENTS } from "../events/router.js";
 import {
   APPROVE_ECHO, DELETE_BLOB, ECHO_LIMIT, ECHO_MAX_BYTES, INSERT_BLOB, INSERT_ECHO, REJECT_ECHO, SELECT_BLOB, SELECT_PENDING,
-  SELECT_STATUS, createEchoesRouter,
+  SELECT_STATUS, createEchoesRouter, SELECT_APPROVED,
 } from "./router.js";
 
 const keys = vi.hoisted(() => import("jose").then((jose) => jose.generateKeyPair("RS256")));
@@ -318,6 +318,49 @@ describe("GET /echoes?status=pending", () => {
     const get = (await start({ db: r.db })).get;
     await expectError(await get("/echoes?status=approved", await auth0Token(["moderate:echo"])), 400, "invalid_status");
     expect(r.calls).toHaveLength(0);
+  });
+});
+
+describe("GET /echoes/approved", () => {
+  const rows = [
+    { id: "e3", audio_url: "/blob/echo-3", lang: "ron" },
+    { id: "e1", audio_url: "/blob/echo-1", lang: null },
+  ];
+
+  it("answers the site's approved echoes without a token, with no-store", async () => {
+    const r = readDb(rows);
+    const res = await (await start({ db: r.db })).get("/echoes/approved?site=mx");
+    expect(res.status).toBe(200);
+    expect(res.headers.get("cache-control")).toBe("no-store");
+    const body = await res.json();
+    expect(ApprovedEchoes.parse(body)).toEqual(body);
+    expect(body.echoes).toEqual([
+      { echoId: "e3", audioUrl: "/blob/echo-3", lang: "ron" },
+      { echoId: "e1", audioUrl: "/blob/echo-1", lang: null },
+    ]);
+    expect(r.calls).toEqual([{ text: SELECT_APPROVED, params: ["mx"] }]);
+  });
+
+  it("asks for approved only, newest first, at most 5", () => {
+    expect(SELECT_APPROVED).toMatch(/WHERE status = 'approved' AND site_id = \$1 ORDER BY created_at DESC, id DESC LIMIT 5$/);
+  });
+
+  it("the cathedral is 404 no_echo", async () => {
+    const r = readDb(rows);
+    await expectError(await (await start({ db: r.db })).get("/echoes/approved?site=cathedral"), 404, "no_echo");
+    expect(r.calls).toHaveLength(0);
+  });
+
+  it("an unknown or missing site is 404 unknown_site", async () => {
+    const r = readDb(rows);
+    const get = (await start({ db: r.db })).get;
+    await expectError(await get("/echoes/approved?site=atlantis"), 404, "unknown_site");
+    await expectError(await get("/echoes/approved"), 404, "unknown_site");
+    expect(r.calls).toHaveLength(0);
+  });
+
+  it("no database is 503", async () => {
+    await expectError(await (await start({})).get("/echoes/approved?site=mx"), 503, "unavailable");
   });
 });
 
