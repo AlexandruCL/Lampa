@@ -231,16 +231,16 @@ Rules for this session:
 
 **B4-2.a.1** Candle stillness stepper. Subagent: `ionut-sensors`. Files: `apps/web/src/memorial/candle.ts`, `apps/web/src/memorial/candle.test.ts`.
 
-- [ ] `candle.ts` exports exactly the constants, `CandleState`, `initialCandle`, `stepCandle` and `candleProgress` of the seam. Pure: no DOM, no timers, no React.
-- [ ] `initialCandle(at)` → `{ openedAt: at, stillSince: null, sawRate: false, lit: false, fallback: false }`.
-- [ ] `stepCandle(s, { rate, at, holdMs })`, in this order:
+- [x] `candle.ts` exports exactly the constants, `CandleState`, `initialCandle`, `stepCandle` and `candleProgress` of the seam. Pure: no DOM, no timers, no React.
+- [x] `initialCandle(at)` → `{ openedAt: at, stillSince: null, sawRate: false, lit: false, fallback: false }`.
+- [x] `stepCandle(s, { rate, at, holdMs })`, in this order:
   1. `s.lit` or `s.fallback` → return `s` unchanged.
   2. `rate === null` and `!s.sawRate`: if `at - s.openedAt >= NO_MOTION_MS` → `{ ...s, fallback: true }`; else `s` (Ionut's decision, hour 23: no rate within 3 s shows the tap fallback).
   3. `rate === null` after a rate was seen → `{ ...s, stillSince: null }` (no reading counts as not still; Ionut's decision, hour 23).
   4. `rate < STILL_MAX_DPS` (strictly under 5 °/s, `DESIGN.md` 6.22) → `stillSince` is `s.stillSince ?? at`, `sawRate: true`; `lit: true` when `at - stillSince >= holdMs`.
   5. Otherwise (moved) → `{ ...s, stillSince: null, sawRate: true }`.
-- [ ] `candleProgress(s, at, holdMs)`: 1 when `s.lit`; 0 when `s.stillSince === null`; else `(at - s.stillSince) / holdMs` clamped to 0..1.
-- [ ] Tests by name: "still for 10 s lights the candle"; "still for 9.9 s does not"; "5 s is enough with the demo hold"; "a rate of exactly 5 deg/s counts as moving"; "moving resets the hold to zero"; "no rate for 3 s shows the fallback"; "no rate for 2.9 s does not"; "a rate seen before 3 s means no fallback later"; "a null after a rate resets the hold"; "a lit candle stays lit when the phone moves"; "progress is 0 when not still, half after 5 of 10 s, 1 when lit".
+- [x] `candleProgress(s, at, holdMs)`: 1 when `s.lit`; 0 when `s.stillSince === null`; else `(at - s.stillSince) / holdMs` clamped to 0..1.
+- [x] Tests by name: "still for 10 s lights the candle"; "still for 9.9 s does not"; "5 s is enough with the demo hold"; "a rate of exactly 5 deg/s counts as moving"; "moving resets the hold to zero"; "no rate for 3 s shows the fallback"; "no rate for 2.9 s does not"; "a rate seen before 3 s means no fallback later"; "a null after a rate resets the hold"; "a lit candle stays lit when the phone moves"; "progress is 0 when not still, half after 5 of 10 s, 1 when lit".
 - Verify: `npm run test -w @lampa/web -- src/memorial/candle && npm run typecheck -w @lampa/web`. Paste the summary line.
 - Done when: every case passes, and changing `<` to `<=` in step 4 fails "a rate of exactly 5 deg/s counts as moving".
 
@@ -248,11 +248,11 @@ Rules for this session:
 
 **B4-2.b.1** Testimony selector and the bed mute. Subagent: `ionut-sensors`. Files: `apps/web/src/memorial/testimonies.ts`, `apps/web/src/memorial/testimonies.test.ts`, `apps/web/src/audio/engine.ts`, `apps/web/src/audio/engine.test.ts`.
 
-- [ ] `testimoniesFor(siteId, lang, c = clips)`: `c.sites[siteId]?.testimonies ?? []` in file order, mapped to `Testimony`: `title` and `text` in `lang`, else `en`; an item with no `title.en` or no `text.en` and no text in `lang` is left out; `source` as written; `audio` = `AUDIO_BASE + c.sites[siteId].narrations[id][lang]`, else the `en` file, else `null`.
-- [ ] `formatClock(seconds)`: whole seconds rounded down, `m:ss` (`0` → "0:00", `42` → "0:42", `160` → "2:40", `600` → "10:00"); a non-finite value → "0:00".
-- [ ] `engine.ts` `bedTarget(glow, memorial, muted)`: pure, `0` when `muted`, else `bedGain(glow, memorial)`. Every gain the engine sets (connect, `setBedGlow`, unmute) goes through it.
-- [ ] `engine.ts` `setBedMuted(muted)` (Patrick agreed, hour 23): a module flag; when `true`, the current bed ramps to 0 over `RAMP_S`; when `false`, it ramps back to `bedGain(current.glow, current.memorial)` over `RAMP_S`; a bed that connects while muted starts at 0; `setBedGlow` keeps the bed at 0 while muted; `playBed` of a different site clears the flag. No other behaviour of the engine changes.
-- [ ] Tests by name: "testimonies keep file order"; "ro text when the phone is ro, en otherwise"; "an item with no English title is left out"; "audio falls back to the English file, then null"; "no testimonies field gives an empty list"; "formatClock"; "bedTarget is 0 when muted"; "bedTarget is the memorial 0.5 when not muted"; "bedTarget follows the glow when not muted". The engine tests stay pure, as the existing ones are: no Web Audio stub. Fixtures use neutral words only (section 0). Tests pass `lang` explicitly and never rely on `LANG`.
+- [x] `testimoniesFor(siteId, lang, c = clips)`: `c.sites[siteId]?.testimonies ?? []` in file order, mapped to `Testimony`: `title` and `text` in `lang`, else `en`; an item with no `title.en` or no `text.en` and no text in `lang` is left out; `source` as written; `audio` = `AUDIO_BASE + c.sites[siteId].narrations[id][lang]`, else the `en` file, else `null`.
+- [x] `formatClock(seconds)`: whole seconds rounded down, `m:ss` (`0` → "0:00", `42` → "0:42", `160` → "2:40", `600` → "10:00"); a non-finite value → "0:00".
+- [x] `engine.ts` `bedTarget(glow, memorial, muted)`: pure, `0` when `muted`, else `bedGain(glow, memorial)`. Every gain the engine sets (connect, `setBedGlow`, unmute) goes through it.
+- [x] `engine.ts` `setBedMuted(muted)` (Patrick agreed, hour 23): a module flag; when `true`, the current bed ramps to 0 over `RAMP_S`; when `false`, it ramps back to `bedGain(current.glow, current.memorial)` over `RAMP_S`; a bed that connects while muted starts at 0; `setBedGlow` keeps the bed at 0 while muted; `playBed` of a different site clears the flag. No other behaviour of the engine changes.
+- [x] Tests by name: "testimonies keep file order"; "ro text when the phone is ro, en otherwise"; "an item with no English title is left out"; "audio falls back to the English file, then null"; "no testimonies field gives an empty list"; "formatClock"; "bedTarget is 0 when muted"; "bedTarget is the memorial 0.5 when not muted"; "bedTarget follows the glow when not muted". The engine tests stay pure, as the existing ones are: no Web Audio stub. Fixtures use neutral words only (section 0). Tests pass `lang` explicitly and never rely on `LANG`.
 - Verify: `npm run test -w @lampa/web -- src/memorial src/audio && npm run typecheck -w @lampa/web`. Paste the summary line.
 - Done when: every case passes, every engine test that passed in B4-0 still passes, and returning `bedGain` without the muted check fails "bedTarget is 0 when muted". The session checks by reading that `setBedGlow` and the connect path call `bedTarget`.
 
@@ -293,8 +293,8 @@ Runs on `ionut/b4-lang`, made from `ionut/b4-memorial` after B4-2.c.1 is committ
 
 **B4-1.a.1** Dictionary tests. Subagent: `ionut-sensors`. Files: `apps/web/src/i18n/t.test.ts`.
 
-- [ ] Tests call `pickLang` and pass `lang` to `t` explicitly; none relies on `LANG` (the machine's own `navigator.language` would decide it).
-- [ ] Tests by name: "ro-RO, ro and RO pick ro"; "en-GB, hu-HU, de, sr and undefined pick en"; "t fills every slot"; "an unknown slot stays as written"; "a key missing in ro falls back to en"; "en.json and ro.json have the same keys"; "no value is empty"; "siteName gives Catedrala Mitropolitană in ro and Metropolitan Cathedral in en"; "siteName of a site with no key is its own name".
+- [x] Tests call `pickLang` and pass `lang` to `t` explicitly; none relies on `LANG` (the machine's own `navigator.language` would decide it).
+- [x] Tests by name: "ro-RO, ro and RO pick ro"; "en-GB, hu-HU, de, sr and undefined pick en"; "t fills every slot"; "an unknown slot stays as written"; "a key missing in ro falls back to en"; "en.json and ro.json have the same keys"; "no value is empty"; "siteName gives Catedrala Mitropolitană in ro and Metropolitan Cathedral in en"; "siteName of a site with no key is its own name".
 - Verify: `npm run test -w @lampa/web -- src/i18n && npm run typecheck -w @lampa/web`. Paste the summary line.
 - Done when: every case passes, and deleting one key from `ro.json` fails "en.json and ro.json have the same keys".
 
