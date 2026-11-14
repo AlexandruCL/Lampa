@@ -302,10 +302,10 @@ Runs on `ionut/b4-lang`, made from `ionut/b4-memorial` after B4-2.c.1 is committ
 
 **B4-1.b.1** `nav/format.ts` through `t()` (Ionut's decision, hour 23). Subagent: `ionut-sensors`. Files: `apps/web/src/nav/format.ts`, `apps/web/src/nav/format.test.ts`, `apps/web/src/i18n/en.json`, `apps/web/src/i18n/ro.json`.
 
-- [ ] Every user-visible string `format.ts` builds (distance words, "about N min walk", the eight compass words, the spoken directions of the hour 7 decision, the spoken line) comes from a `nav.*` key; each exported function that returns text gains a last parameter `lang: Lang = LANG`, so callers do not change. Numbers keep their format; the Romanian decimal separator is a comma ("1,2 km"; Ionut's decision, hour 23). Tests pass `lang` explicitly and never rely on `LANG`.
-- [ ] The ro values are drafted by this agent from the en values and marked for Ionut's review in its report (B4-1.d). Site names come from `siteName(site, lang)` and stay in the nominative: a sentence that needs another case is rephrased ("spre {site}", "la {site}").
-- [ ] The score tags `"nearest"` and `"going dark"` stay as values in `score.ts`; their display text gets `nav.tag_nearest` and `nav.tag_going_dark` keys here, used by `SiteRow` in B4-1.c.1.
-- [ ] Every existing `format.test.ts` case still passes unchanged for en; new ro cases: one per function, including "1,2 km" and one spoken line.
+- [x] Every user-visible string `format.ts` builds (distance words, "about N min walk", the eight compass words, the spoken directions of the hour 7 decision, the spoken line) comes from a `nav.*` key; each exported function that returns text gains a last parameter `lang: Lang = LANG`, so callers do not change. Numbers keep their format; the Romanian decimal separator is a comma ("1,2 km"; Ionut's decision, hour 23). Tests pass `lang` explicitly and never rely on `LANG`.
+- [x] The ro values are drafted by this agent from the en values and marked for Ionut's review in its report (B4-1.d). Site names come from `siteName(site, lang)` and stay in the nominative: a sentence that needs another case is rephrased ("spre {site}", "la {site}").
+- [x] The score tags `"nearest"` and `"going dark"` stay as values in `score.ts`; their display text gets `nav.tag_nearest` and `nav.tag_going_dark` keys here, used by `SiteRow` in B4-1.c.1.
+- [x] Every existing `format.test.ts` case still passes unchanged for en; new ro cases: one per function, including "1,2 km" and one spoken line.
 - Verify: `npm run test -w @lampa/web -- src/nav src/i18n && npm run typecheck -w @lampa/web`. Paste the summary line.
 - Done when: every case passes, and the key-parity test of B4-1.a.1 passes with the new keys.
 
@@ -313,11 +313,11 @@ Runs on `ionut/b4-lang`, made from `ionut/b4-memorial` after B4-2.c.1 is committ
 
 **B4-1.c.1** Phone strings to `t()`. Subagent: `ionut-screens`. Files: every `apps/web/src/phone/*.tsx` except `Memorial.tsx`, `Testimony.tsx` and `Candle.tsx`; `apps/web/src/phone/glow.ts`, `glow.test.ts`; `apps/web/src/i18n/en.json`, `apps/web/src/i18n/ro.json`.
 
-- [ ] `glow.ts`: `glowWord` keeps its English union as values (code compares them); the GlowMark shows it through `glow.asleep`, `glow.waking`, `glow.awake`, `glow.fully_lit`; `glowLine` gains a last parameter `lang: Lang = LANG`; existing glow tests pass unchanged, plus one ro case with `lang` passed explicitly.
+- [x] `glow.ts`: `glowWord` keeps its English union as values (code compares them); the GlowMark shows it through `glow.asleep`, `glow.waking`, `glow.awake`, `glow.fully_lit`; `glowLine` gains a last parameter `lang: Lang = LANG`; existing glow tests pass unchanged, plus one ro case with `lang` passed explicitly.
 
-- [ ] Every user-visible string and accessible name in those files goes through `t()`, with flat keys named `<screen>.<what>` (`join.wake`, `lens.point`, `echo.sent`). Site names come from `siteName(site)`; colour names from `colourName(bin, LANG)`; the score tags from `nav.tag_nearest` and `nav.tag_going_dark`. Existing English wording does not change.
-- [ ] The ro values: `DESIGN.md` 7.0 and 6.22 where they give one; otherwise drafted by this agent and listed in its report for Ionut's review. Site names stay in the nominative: "Culoarea ta e în vitraliul de la {site}. {count} din 48." replaces the 7.0 genitive (Ionut's decision, hour 23). No em dashes, no exclamation marks, the 7.0 memorial voice at the Cathedral.
-- [ ] `<html lang>` is already set from `LANG` by `t.ts` (seam); nothing to add.
+- [x] Every user-visible string and accessible name in those files goes through `t()`, with flat keys named `<screen>.<what>` (`join.wake`, `lens.point`, `echo.sent`). Site names come from `siteName(site)`; colour names from `colourName(bin, LANG)`; the score tags from `nav.tag_nearest` and `nav.tag_going_dark`. Existing English wording does not change.
+- [x] The ro values: `DESIGN.md` 7.0 and 6.22 where they give one; otherwise drafted by this agent and listed in its report for Ionut's review. Site names stay in the nominative: "Culoarea ta e în vitraliul de la {site}. {count} din 48." replaces the 7.0 genitive (Ionut's decision, hour 23). No em dashes, no exclamation marks, the 7.0 memorial voice at the Cathedral.
+- [x] `<html lang>` is already set from `LANG` by `t.ts` (seam); nothing to add.
 - Verify: `npm run typecheck -w @lampa/web && npm run build -w @lampa/web && npm test -w @lampa/web`, then `grep -nE '>[A-Z][a-z]+[^<{]*<|aria-label="[A-Za-z]|`[A-Z][a-z]+ ' apps/web/src/phone/*.tsx apps/web/src/phone/glow.ts` → no hit that is UI text (list any hit that is not, with its line). Paste the summary lines.
 - Session browser check (headless Chrome with `--lang=ro-RO`, then `--lang=en-US`): `/s/unirii?demo=1` join and Site view, the lens with a red canvas camera, the echo recorder, `/` Between sites and the Sites list, `/s/cathedral?demo=1`: every visible string is Romanian with `ro-RO` and unchanged English with `en-US`.
 - Done when: the verify lines pass and both browser runs show one language each, with no key names on screen.

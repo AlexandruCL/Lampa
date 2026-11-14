@@ -1,5 +1,6 @@
 import { useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 import { Button } from "../components";
+import { t } from "../i18n/t";
 import styles from "./Sheet.module.css";
 
 const FOCUSABLE = "a[href],button:not([disabled]),input:not([disabled]),[tabindex]:not([tabindex='-1'])";
@@ -71,7 +72,7 @@ export function Sheet({ title, onClose, children }: { title: string; onClose: ()
         <span className={styles.handle} aria-hidden="true" />
         <div className={styles.head}>
           <h2 id={titleId} ref={heading} tabIndex={-1} className={styles.title}>{title}</h2>
-          <Button variant="icon" icon="close" aria-label="Close" onClick={() => setClosing(true)} />
+          <Button variant="icon" icon="close" aria-label={t("sheet.close")} onClick={() => setClosing(true)} />
         </div>
         <div className={styles.content}>{children}</div>
       </div>

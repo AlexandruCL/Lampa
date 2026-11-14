@@ -1,4 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { siteName, t } from "../i18n/t";
 import { compassWord, formatDistance, formatWeakDistance, relativeAngle, spokenDirection, spokenLine, unwrapAngle } from "../nav/format";
 import type { PhoneSite } from "../sites/sites";
 import styles from "./CompassCard.module.css";
@@ -20,6 +21,7 @@ type Props = {
 
 /** DESIGN.md 6.12. The arrow is turned through a ref on every update, with no CSS transition (5.2). */
 export function CompassCard({ site, distanceM, bearing, heading, weak, locationOff, glow, connected, allVisited }: Props) {
+  const name = siteName(site);
   const known = !locationOff && distanceM !== null && bearing !== null;
   const showArrow = known && heading !== null;
   const rel = showArrow ? relativeAngle(bearing, heading) : null;
@@ -32,20 +34,20 @@ export function CompassCard({ site, distanceM, bearing, heading, weak, locationO
     arrow.current.style.transform = `rotate(${angle.current}deg)`;
   });
 
-  let distance = "Distance unknown";
-  let extra: string | null = "Finding your position";
-  if (locationOff) extra = "Location is off. Use Open in Maps or pick from the list.";
+  let distance = t("compass.unknown");
+  let extra: string | null = t("compass.finding");
+  if (locationOff) extra = t("compass.location_off");
   else if (known) {
     distance = weak ? formatWeakDistance(distanceM) : formatDistance(distanceM);
-    if (weak) extra = "Finding your position";
-    else if (site.is_memorial) extra = "A place of remembrance. Listening and candles only.";
-    else if (allVisited) extra = "You have woken every site today. This one is fading.";
+    if (weak) extra = t("compass.finding");
+    else if (site.is_memorial) extra = t("compass.memorial");
+    else if (allVisited) extra = t("compass.all_visited");
     else extra = heading === null ? compassWord(bearing) : null;
   }
 
   const line = !known
-    ? `${site.name}, distance unknown`
-    : spokenLine(site.name, distanceM, rel === null ? compassWord(bearing).toLowerCase() : spokenDirection(rel));
+    ? t("compass.unknown_spoken", { name })
+    : spokenLine(name, distanceM, rel === null ? compassWord(bearing).toLowerCase() : spokenDirection(rel));
   const [spoken, setSpoken] = useState(line);
   const lastAt = useRef(0);
   useEffect(() => {
@@ -57,15 +59,15 @@ export function CompassCard({ site, distanceM, bearing, heading, weak, locationO
   }, [line]);
 
   return (
-    <section className={styles.card} aria-label={`Direction to ${site.name}`}>
+    <section className={styles.card} aria-label={t("compass.label", { name })}>
       {showArrow && (
         <svg ref={arrow} className={`${styles.arrow} ${weak ? styles.weak : ""}`} viewBox="0 0 120 120" aria-hidden="true" focusable="false">
           <path d="M60 8L96 62H72V112H48V62H24Z" />
         </svg>
       )}
       <p className={styles.distance} aria-hidden="true">{distance}</p>
-      <h2 className={styles.name}>{site.name}</h2>
-      {site.is_memorial ? <span className={styles.memorial}>Memorial</span> : <GlowMark siteName={site.name} glow={glow} connected={connected} />}
+      <h2 className={styles.name}>{name}</h2>
+      {site.is_memorial ? <span className={styles.memorial}>{t("memorial.word")}</span> : <GlowMark siteName={name} glow={glow} connected={connected} />}
       {extra && <p className={styles.extra}>{extra}</p>}
       <p className={styles.sr}>{spoken}</p>
     </section>

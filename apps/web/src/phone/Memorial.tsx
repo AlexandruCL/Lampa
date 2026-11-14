@@ -21,7 +21,7 @@ export function Memorial({ site, demo, remote, primer, notice }: { site: PhoneSi
   const [playingId, setPlayingId] = useState<string | null>(null);
   const name = siteName(site);
   const items = testimoniesFor(site.id, LANG);
-  useBed(site.id, null);
+  useBed(site.id, null, view !== "between");
 
   useEffect(() => {
     setBedMuted(playingId !== null);
