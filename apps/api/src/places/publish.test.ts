@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { PlaceIn } from "@lampa/shared";
 import { NEW_PLACE_VOICE, placeSiteFile } from "./content.js";
-import { INSERT_SITE_BLOB, SELECT_SITE_KEYS, runStep } from "./publish.js";
+import { DELETE_STALE_BLOBS, INSERT_SITE_BLOB, SELECT_SITE_KEYS, runStep } from "./publish.js";
 
 const KEY = "sk_test_never_logged";
 const PLACE: PlaceIn = {
@@ -38,6 +38,11 @@ function fakeDb(keys: string[] = [], { failInsert = false } = {}) {
         stored.set(params[0], params[1]);
         return { rows: [], rowCount: 1 };
       }
+      if (text === DELETE_STALE_BLOBS) {
+        const stale = [...stored.keys()].filter((k) => k.startsWith(params[0]) && !params[1].includes(k));
+        for (const k of stale) stored.delete(k);
+        return { rows: [], rowCount: stale.length };
+      }
       throw new Error("unexpected query");
     },
   };
@@ -53,6 +58,26 @@ function fakeFetch(statuses: number[] = []) {
 const urls = (f: ReturnType<typeof fakeFetch>) => f.mock.calls.map(([url]) => String(url));
 
 describe("runStep", () => {
+  it("a finished step removes its own stale clips and keeps the other step's", async () => {
+    const oldGreeting = "site-theresia-bastion_greeting-ro-000000000000.mp3";
+    const bed = "site-theresia-bastion_bed-1-000000000000.wav";
+    const d = fakeDb([oldGreeting, bed, "site-theresia-bastion-2_greeting-ro-000000000000.mp3"]);
+    const result = await runStep({ db: d.db, fetch: fakeFetch(), apiKey: KEY }, SITE, "greeting");
+    expect(result.outcome).toBe("done");
+    expect(d.stored.has(oldGreeting)).toBe(false);
+    expect(d.stored.has(bed)).toBe(true);
+    expect(d.stored.has("site-theresia-bastion-2_greeting-ro-000000000000.mp3")).toBe(true);
+    expect([...d.stored.keys()].filter((k) => k.startsWith("site-theresia-bastion_greeting-"))).toHaveLength(2);
+  });
+
+  it("a failed step deletes nothing", async () => {
+    const oldGreeting = "site-theresia-bastion_greeting-ro-000000000000.mp3";
+    const d = fakeDb([oldGreeting]);
+    const result = await runStep({ db: d.db, fetch: fakeFetch([500]), apiKey: KEY }, SITE, "greeting");
+    expect(result.outcome).toBe("failed");
+    expect(d.stored.has(oldGreeting)).toBe(true);
+  });
+
   it("the greeting step makes one clip per language and no bed", async () => {
     const d = fakeDb();
     const fetch = fakeFetch();
