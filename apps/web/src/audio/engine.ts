@@ -129,8 +129,8 @@ function listenForHeal(): void {
   document.addEventListener("visibilitychange", onAudioState);
 }
 
-/** Starts the site's bed, or for the current site returns the same promise and only applies the glow. */
-export function playBed(siteId: string, glow: number | null): Promise<BedState> {
+/** Starts the site's bed, or for the current site returns the same promise and only applies the glow. `fallbackUrl` is the bed of a place that is not in clips.json. */
+export function playBed(siteId: string, glow: number | null, fallbackUrl?: string): Promise<BedState> {
   if (current?.siteId === siteId) {
     setBedGlow(glow);
     return current.promise;
@@ -139,7 +139,7 @@ export function playBed(siteId: string, glow: number | null): Promise<BedState> 
   stopBed();
   const bed = { siteId, glow, memorial: sites.find((s) => s.id === siteId)?.is_memorial ?? false } as Bed;
   current = bed;
-  const url = bedUrl(siteId);
+  const url = bedUrl(siteId) ?? fallbackUrl;
   bed.promise = (url ? start(bed, url) : Promise.resolve<BedState>("failed")).then((state) => {
     // A failed bed is dropped so the next playBed for the site loads afresh.
     if (state === "failed" && current === bed) current = null;

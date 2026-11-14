@@ -8,10 +8,9 @@ export const WEAK_ACCURACY_M = 30;
 export const MAX_FACTS = 5;
 const START_FACTS = 2;
 
+// Talk and echo are left out: /agent/session and POST /echoes know only the bundled sites, so a new place cannot offer them.
 export const INTERACTIONS: { value: PlaceInteraction; label: string }[] = [
-  { value: "talk", label: "Talk" },
   { value: "colours", label: "Catch a colour" },
-  { value: "echo", label: "Leave an echo" },
   { value: "lamp", label: "Raise a lamp" },
 ];
 

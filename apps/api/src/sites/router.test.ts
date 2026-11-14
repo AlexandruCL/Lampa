@@ -92,6 +92,11 @@ describe("GET /sites/:id", () => {
     const b = await start([{ ...siteRow, directions_hint: {} }]);
     expect((await (await b.get("/sites/mx?lang=ro")).json()).directions_hint).toBe("");
   });
+  it("a place with a bed in blobs answers its path; SITE_SQL looks only at take 1 of this site", async () => {
+    const { get } = await start([{ ...siteRow, id: "new-place", bed_key: "site-new-place_bed-1-abc123abc123.wav" }]);
+    expect((await (await get("/sites/new-place")).json()).bed).toBe("/blob/site-new-place_bed-1-abc123abc123.wav");
+    expect(SITE_SQL).toContain("'site-' || sites.id || '_bed-1-'");
+  });
   it("an unknown id answers 404 unknown_site", async () => {
     const res = await (await start([])).get("/sites/nope");
     expect(res.status).toBe(404);

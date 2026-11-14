@@ -69,7 +69,8 @@ export const visitorLimiter: RequestHandler = rateLimit({
 });
 
 // shortcut: memory store, counts reset on restart and are per instance; move to a shared store if the API runs on more than one instance
-const anonLimiter = rateLimit({ windowMs: 60_000, limit: 10 });
+// 120, not 10: a room on one Wi-Fi shares one IP, and every phone needs a token in the same minute.
+const anonLimiter = rateLimit({ windowMs: 60_000, limit: 120 });
 
 export const sessionRouter: Router = Router();
 

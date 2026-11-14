@@ -1,3 +1,4 @@
+import { KeepMyColours } from "../auth/KeepMyColours";
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { Button, Notice, Ring } from "../components";
 import { HOLD_MS, ROTATION_MAX_DPS, initialHold, isHolding, stepHold } from "../colour/hold";
@@ -253,6 +254,7 @@ export function ColourLens({ site, remote, demo, camera, onBack, onReading, onCa
             {t("lens.say_why")}
           </Button>
         )}
+        {status?.state === "sent" && <KeepMyColours />}
         <Button variant={caught ? "primary" : "secondary"} size="l" block onClick={onBack}>{t("back_to", { name })}</Button>
       </div>
       </div>

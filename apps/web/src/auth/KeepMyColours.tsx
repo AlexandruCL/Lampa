@@ -1,6 +1,7 @@
 import { useAuth0 } from "@auth0/auth0-react";
 import { useEffect, useState } from "react";
 import { Button, Notice } from "../components";
+import { t } from "../i18n/t";
 import {
   CLAIM_RESULT_KEY,
   SIGN_IN_RETURN_KEY,
@@ -49,13 +50,13 @@ export function KeepMyColours() {
     <div className={styles.root}>
       {!isAuthenticated ? (
         <Button variant="quiet" block onClick={signIn}>
-          Keep my colours
+          {t("keep.button")}
         </Button>
       ) : outcome === "saved" ? (
-        <Notice variant="info">Saved. Your colours stay with your account.</Notice>
+        <Notice variant="info">{t("keep.saved")}</Notice>
       ) : (
-        <Notice variant="error" action={{ label: "Try again", onClick: retry }}>
-          You are signed in, but your colours did not move to your account.
+        <Notice variant="error" action={{ label: t("try_again"), onClick: retry }}>
+          {t("keep.failed")}
         </Notice>
       )}
     </div>
