@@ -59,7 +59,7 @@ export type SiteClips = {
   archive: NonNullable<PersonaContent["archive"]>; // persona.archive, file order; `file` is relative to /archive/
   testimonies?: NonNullable<MemorialContent["narrations"]>; // memorial only: narrations' text, file order; audio in `narrations`
 };
-type ProjectClips = { glass?: string; crackle?: string; chime?: string; waltz: string[] };
+type ProjectClips = { glass?: string; crackle?: string; chime?: string; waltz: string[]; radio?: string };
 
 type Job = {
   file: string;
@@ -189,6 +189,7 @@ export async function publishProject(opts: PublishOpts): Promise<PublishResult> 
 export function toClips(
   sites: SiteFile[],
   exists: (file: string) => boolean,
+  radio?: string,
 ): { sites: Record<string, SiteClips>; project: ProjectClips } {
   const out: { sites: Record<string, SiteClips>; project: ProjectClips } = { sites: {}, project: { waltz: [] } };
   for (const site of sites) {
@@ -223,5 +224,6 @@ export function toClips(
     if (slot.kind === "waltz") out.project.waltz.push(file);
     else if (slot.kind === "glass" || slot.kind === "crackle" || slot.kind === "chime") out.project[slot.kind] = file;
   }
+  if (radio) out.project.radio = radio; // the Radio Lampa episode is made by radio:lampa, not planned here
   return out;
 }

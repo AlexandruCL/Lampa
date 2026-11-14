@@ -113,7 +113,8 @@ async function main(): Promise<number> {
     }
   }
   // All five sites and the project, so a run for one site keeps the others.
-  writeFileSync(CLIPS_JSON, `${JSON.stringify(toClips(all, exists), null, 2)}\n`);
+  const radio = existsSync(CLIPS_JSON) ? JSON.parse(readFileSync(CLIPS_JSON, "utf8")).project?.radio : undefined;
+  writeFileSync(CLIPS_JSON, `${JSON.stringify(toClips(all, exists, radio), null, 2)}\n`);
   return code;
 }
 

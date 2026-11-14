@@ -252,6 +252,11 @@ describe("publish", () => {
     expect(toClips([], () => false)).toEqual({ sites: {}, project: { waltz: [] } });
   });
 
+  it("toClips keeps the Radio Lampa episode only when given", () => {
+    expect(toClips([], () => false, "project/radio-1-abc.mp3").project.radio).toBe("project/radio-1-abc.mp3");
+    expect("radio" in toClips([], () => false).project).toBe(false);
+  });
+
   const twoQuestions = SiteFile.parse({
     ...persona,
     persona: {
