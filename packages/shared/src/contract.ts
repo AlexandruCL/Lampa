@@ -145,8 +145,11 @@ export const SiteDetail = Site.extend({
   facts: z.array(z.unknown()),
   directions_hint: z.string(),
   glow: z.number().min(0).max(1),
+  // A place added from /curate: its generated audio, "/blob/<key>" relative to the API. Absent for bundled sites (clips.json).
+  sound: z.object({ bed: z.string().nullable(), greeting: z.record(z.string(), z.string()) }).optional(),
 });
 export type SiteDetail = z.infer<typeof SiteDetail>;
+export type SiteSound = NonNullable<SiteDetail["sound"]>;
 
 /**
  * POST /echoes is multipart/form-data. The file field is "audio" (audio/webm or audio/mp4).
