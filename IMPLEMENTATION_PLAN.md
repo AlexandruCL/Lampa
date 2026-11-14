@@ -232,6 +232,7 @@ Three hours, so each person gets one main item. Anything not working at hour 40 
 | Fabi | Finale trigger at 731 lamps, using the clock offset from Build 3 | 0.5 | broadcast "start now" without sync |
 | Fabi | Compression and retention policies. `EXPLAIN ANALYZE` of raw table against aggregate, numbers into the README | 1 | policies only |
 | Fabi | `npm run demo:reset`: clean state, one window at 47 of 48, lamps just under 731 | 0.5 | not optional, do this first |
+| Fabi | Added at hour 27 (Fabi, at Cristea's and Ionut's request): `/live` gives a place published from `/curate` its site room; `GET /sites/:id` falls back to the English name; the agent tools answer for published places | 0.25 | a new place's phone page gets no live room or tool stats |
 | Cristea | Add a place: form in the console (use my location, name, facts, persona), `POST /sites` and `/sites/:id/publish` behind `write:site`, calling the same publish code as the script. QR code for the new URL. Added by Cristea, hour 37, from slack: `npm run place:reset` puts a rehearsal's place back to draft; carried from Build 3: `/curate` clears the visitor return key, `siteName` on pending echoes, the echo subtitle flips above when it covers another site | 2.5 | show a pre-filled form and a pre-published sixth site |
 
 ### Freeze (hours 40 to 44)
@@ -390,7 +391,7 @@ Needs from others: `POST /events` and `GET /sites` from Fabi by hour 6, `POST /p
 
 Needs from others: site content YAML at hour 0, `GET /agent/session` from Cristea by hour 14, heading and position from Ionut's hooks by hour 25, the clock offset and the per-site lamp count from Fabi in Build 3.
 
-### Fabi: data and real-time (21.75 h of tasks; 0.75 h added in Build 3 at hour 10)
+### Fabi: data and real-time (22 h of tasks; 0.75 h added in Build 3 at hour 10, 0.25 h in Build 4 at hour 27)
 
 | Block | Task | Hours |
 |---|---|---|
@@ -416,6 +417,7 @@ Needs from others: site content YAML at hour 0, `GET /agent/session` from Criste
 | Build 4 | `npm run demo:reset` (do this first) | 0.5 |
 | Build 4 | Finale trigger | 0.5 |
 | Build 4 | Compression, retention, `EXPLAIN ANALYZE` numbers | 1 |
+| Build 4 | Added at hour 27: `/live` rooms for published places, English-name fallback, agent tools for published places | 0.25 |
 
 Needs from others: `requireVisitor` middleware from Cristea by hour 6. Everyone else depends on this lane first, so `POST /events` and the socket ship before anything else in Build 1.
 
