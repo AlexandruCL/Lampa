@@ -24,6 +24,8 @@ export const ARRIVED_LINE_MS = 4000;
 
 /** Site view (DESIGN.md 7.2). Action buttons have no action yet. */
 export function SiteView({ site, demo, remote, notice, compass, primer, arrived }: { site: PhoneSite; demo: boolean; remote: boolean; notice?: ReactNode; compass: CompassStatus; primer: PrimerResult; arrived: boolean }) {
+  // A fetched place lists what it offers; a bundled site shows everything.
+  const has = (i: string) => !site.interactions || site.interactions.includes(i);
   const [compassDenied, setCompassDenied] = useState(compass === "denied");
   const live = useSiteGlow(site.id);
   const { glow, connected } = live;
@@ -111,7 +113,7 @@ export function SiteView({ site, demo, remote, notice, compass, primer, arrived 
         <RoseWindow name={siteName(site)} size="l" filled={live.panes.filled} glow={glow !== null && glow >= 0.15 ? glow : undefined} />
       </div>
       <div className={styles.actions}>
-        <Button
+        {has("talk") && <Button
           variant="primary"
           size="l"
           block
@@ -133,9 +135,9 @@ export function SiteView({ site, demo, remote, notice, compass, primer, arrived 
           }}
         >
           {t("site.talk")}
-        </Button>
+        </Button>}
         <div className={styles.grid}>
-          <Button
+          {has("colours") && <Button
             variant="secondary"
             size="l"
             block
@@ -145,9 +147,9 @@ export function SiteView({ site, demo, remote, notice, compass, primer, arrived 
             }}
           >
             {t("site.catch")}
-          </Button>
+          </Button>}
           {site.lamp && !remote && <Button variant="secondary" size="l" block>{t("site.lamp")}</Button>}
-          <Button
+          {!site.interactions && <Button
             variant="secondary"
             size="l"
             block
@@ -157,7 +159,7 @@ export function SiteView({ site, demo, remote, notice, compass, primer, arrived 
             }}
           >
             {t("site.echo")}
-          </Button>
+          </Button>}
         </div>
         <Button
           variant="quiet"
