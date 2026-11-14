@@ -1,4 +1,4 @@
-import { CandleMessage, PaneMessage, ScreenState, SiteDetail, SocketMessage, WindowCompleteMessage } from "@lampa/shared";
+import { CandleMessage, HarmonyMessage, PaneMessage, ScreenState, SiteDetail, SocketMessage, WindowCompleteMessage } from "@lampa/shared";
 import { useEffect, useRef, useState, type RefObject } from "react";
 import { io } from "socket.io-client";
 import { API_URL } from "../api/client";
@@ -12,7 +12,8 @@ import { applyPane, applyState, applyWindowComplete, emptyWindows, type WindowsS
 export type ScreenEffect =
   | { kind: "pane"; siteId: string; slot: number; hex: string; at: number }
   | { kind: "complete"; siteId: string; panes: (string | null)[]; at: number }
-  | { kind: "echo"; siteId: string; at: number };
+  | { kind: "echo"; siteId: string; at: number }
+  | { kind: "harmony"; siteId: string; at: number };
 
 export type ScreenEvent =
   | { kind: "pane"; siteId: string; hex: string; at: number }
@@ -181,6 +182,11 @@ export function useScreenSocket(
     socket.on(SocketMessage.enum.window_complete, onComplete);
     socket.on(SocketMessage.enum.candle, onCandle);
     socket.on(SocketMessage.enum.echo_approved, onEcho);
+    // The bells rang together: the window flares and keeps its panes; no ticker line.
+    socket.on(SocketMessage.enum.harmony, (message: unknown) => {
+      const h = HarmonyMessage.safeParse(message);
+      if (h.success) effectsRef.current.push({ kind: "harmony", siteId: h.data.siteId, at: performance.now() });
+    });
     return () => {
       live = false;
       socket.close();

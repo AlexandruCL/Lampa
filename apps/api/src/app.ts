@@ -3,6 +3,7 @@ import express, { type Express } from "express";
 import { makeGetPersona } from "./agent/persona.js";
 import { createAgentRouter } from "./agent/session.js";
 import { sessionRouter } from "./auth/session.js";
+import { createBellsRouter } from "./bells/router.js";
 import { createEchoesRouter } from "./echoes/router.js";
 import { createEventsRouter } from "./events/router.js";
 import { createClaimRouter } from "./me/claim.js";
@@ -38,6 +39,7 @@ export function createApp(deps: AppDeps = {}): Express {
   app.use(createEchoesRouter({ db: deps.db, tx: deps.tx, onStored: deps.onEventsStored, emit: deps.emit }));
   app.use(createClaimRouter({ tx: deps.tx }));
   app.use(createTimeRouter());
+  app.use(createBellsRouter({ emit: deps.emit }));
   app.use(createPulseRouter({ db: deps.db, latestGlow: deps.latestGlow ?? (() => null) }));
   app.use(createPlacesRouter({ db: deps.db, tx: deps.tx, onStored: deps.onEventsStored }));
   app.get("/health", (_req, res) => {

@@ -6,6 +6,7 @@ import { KeepMyColours } from "../auth/KeepMyColours";
 import { Button, Notice } from "../components";
 import { siteName, t } from "../i18n/t";
 import { openRearCamera, type CameraResult } from "../sensors/camera";
+import { Bells } from "./Bells";
 import { Between } from "./Between";
 import { ColourLens } from "./ColourLens";
 import { track } from "../events";
@@ -40,8 +41,8 @@ export function SiteView({ site, demo, remote, notice, compass, primer, arrived 
   const [waited, setWaited] = useState(false);
   const [camera, setCamera] = useState<Promise<CameraResult> | null>(null);
   const [mic, setMic] = useState<Promise<"granted" | "denied"> | null>(null);
-  const [view, setView] = useState<"site" | "lens" | "echo" | "between" | "talk" | "lamp" | "paint">("site");
-  useBed(site.id, glow, view !== "between", site.bed);
+  const [view, setView] = useState<"site" | "lens" | "echo" | "between" | "talk" | "lamp" | "paint" | "bells">("site");
+  useBed(site.id, glow, view !== "between" && view !== "bells", site.bed); // the bells are heard without the bed
   useWhispers(view === "site" ? site.id : null, null, null); // centred, on the Site view only
   const [motion, setMotion] = useState<CompassStatus | null>(null);
   const [echoPrompt, setEchoPrompt] = useState<string | undefined>();
@@ -100,6 +101,10 @@ export function SiteView({ site, demo, remote, notice, compass, primer, arrived 
 
   if (view === "lamp" && motion) {
     return <Lamp site={site} demo={demo} lamps={live.lamps} connected={connected} motion={motion} onBack={() => setView("site")} />;
+  }
+
+  if (view === "bells") {
+    return <Bells site={site} demo={demo} motion={motion} bell={live.bell} harmony={live.harmony} onBack={() => setView("site")} />;
   }
 
   if (view === "talk" && mic) {
@@ -193,6 +198,21 @@ export function SiteView({ site, demo, remote, notice, compass, primer, arrived 
               }}
             >
               {t("site.lamp")}
+            </Button>
+          )}
+          {site.bells && !remote && (
+            <Button
+              variant="secondary"
+              size="l"
+              block
+              onClick={() => {
+                // inside the tap: iOS asks for motion here; the bell opens at once and rings by tap until it answers
+                setMotion(null);
+                void requestCompass().then(setMotion);
+                setView("bells");
+              }}
+            >
+              {t("site.bells")}
             </Button>
           )}
           {!site.interactions && <Button

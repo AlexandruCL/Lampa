@@ -269,8 +269,10 @@ export function startCanvas(
 
   const drawWindow = (siteId: string, x: number, y: number, r: number, glow: number, effects: ScreenEffect[], now: number) => {
     const complete = effects.find((e) => e.kind === "complete");
-    const flare = complete && !reduced ? flareLevel(now - complete.at) : 0;
-    const reach = HALO_REACH + (FLARE_REACH - HALO_REACH) * flare;
+    const flaring = complete ?? effects.find((e) => e.kind === "harmony");
+    // Reduced motion: a harmony is one opacity flash of the halo; a complete shows in its panes below.
+    const flare = !flaring ? 0 : !reduced ? flareLevel(now - flaring.at) : flaring.kind === "harmony" ? 1 - progress(now - flaring.at, REDUCED_MS) : 0;
+    const reach = HALO_REACH + (reduced ? 0 : (FLARE_REACH - HALO_REACH) * flare);
     const halo = ctx.createRadialGradient(x, y, 0, x, y, reach * r);
     halo.addColorStop(0, lamp);
     halo.addColorStop(1, lampClear);
@@ -357,7 +359,7 @@ export function startCanvas(
   };
 
   const draw = (now: number) => {
-    const effectMs = { pane: paneMs, complete: completeMs, echo: echoMs };
+    const effectMs = { pane: paneMs, complete: completeMs, echo: echoMs, harmony: completeMs };
     effectsRef.current = effectsRef.current.filter((e) => now - e.at < effectMs[e.kind]);
     // The canvas spans the 1380-unit map area, so one design unit is canvas.width / 1380 device pixels.
     const s = canvas.width / MAP_WIDTH;

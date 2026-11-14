@@ -20,6 +20,8 @@ export const SocketMessage = z.enum([
   "lamps",
   "candle",
   "finale",
+  "bell",
+  "harmony",
 ]);
 export type SocketMessage = z.infer<typeof SocketMessage>;
 
@@ -292,3 +294,16 @@ export type PublishStep = z.infer<typeof PublishStep>;
 export const PublishIn = z.object({ step: PublishStep });
 export const PublishOut = z.object({ step: PublishStep, credits: z.number().int().min(0) });
 export type PublishOut = z.infer<typeof PublishOut>;
+
+// The Dialogue of the Bells (features/2_dialogue_of_the_bells.md)
+export const BellTower = z.enum(["catholic", "serbian"]);
+export type BellTower = z.infer<typeof BellTower>;
+/** POST /bells/ring. `at` is the server clock in epoch ms (phone clock plus the /time offset). Answers 204. */
+export const BellIn = z.object({ siteId: z.string(), tower: BellTower, at: z.number().int() });
+export type BellIn = z.infer<typeof BellIn>;
+/** `bell` on /live, room "site:<id>". */
+export const BellMessage = BellIn;
+export type BellMessage = BellIn;
+/** `harmony` on /live, rooms "site:<id>" and "screen". */
+export const HarmonyMessage = z.object({ siteId: z.string(), at: z.number().int() });
+export type HarmonyMessage = z.infer<typeof HarmonyMessage>;
