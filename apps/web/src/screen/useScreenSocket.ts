@@ -1,9 +1,11 @@
-import { CandleMessage, PaneMessage, ScreenState, SocketMessage, WindowCompleteMessage } from "@lampa/shared";
+import { CandleMessage, PaneMessage, ScreenState, SiteDetail, SocketMessage, WindowCompleteMessage } from "@lampa/shared";
 import { useEffect, useRef, useState, type RefObject } from "react";
 import { io } from "socket.io-client";
+import { API_URL } from "../api/client";
 import { applyCandle, applyCandleState, candleDecay, CANDLE_MIN_DECAY, type Candle } from "./candles";
 import { DEMO_CANDLE_MS, DEMO_GLOW, DEMO_PANE_MS, nextDemoCandle, nextDemoMessage } from "./demoFeed";
 import { applyGlow } from "./glow";
+import { unknownIds } from "./newSites";
 import { addTickerEvent, parseEcho } from "./tickerCopy";
 import { applyPane, applyState, applyWindowComplete, emptyWindows, type WindowsState } from "./windows";
 
@@ -16,16 +18,22 @@ export type ScreenEvent =
   | { kind: "pane"; siteId: string; hex: string; at: number }
   | { kind: "complete"; siteId: string; at: number }
   | { kind: "echo"; siteId: string; at: number }
+  | { kind: "place"; siteId: string; at: number }
   | { kind: "candle"; at: number };
 
 export type ScreenSubtitle = { siteId: string; text: string; lang: string | null; at: number };
 
 const SUBTITLE_CHARS = 90;
 
-/** `siteIds` must keep its identity across renders: a new array reconnects the socket. */
+/**
+ * `siteIds` are the colour sites and `knownIds` every site on the map; both may grow without a reconnect.
+ * A glow naming a site outside `knownIds` fetches its detail and hands it to `onSite`, which must keep its identity.
+ */
 export function useScreenSocket(
   siteIds: string[],
   demo: boolean,
+  knownIds: string[],
+  onSite: (detail: SiteDetail) => void,
 ): {
   glowRef: RefObject<Record<string, number>>;
   windowsRef: RefObject<WindowsState>;
@@ -44,9 +52,20 @@ export function useScreenSocket(
   const [coloursToday, setColoursToday] = useState<number | null>(null);
   const [events, setEvents] = useState<ScreenEvent[]>([]);
   const [subtitles, setSubtitles] = useState<ScreenSubtitle[]>([]);
+  const siteIdsRef = useRef(siteIds);
+  const knownIdsRef = useRef(knownIds);
 
   useEffect(() => {
-    windowsRef.current = emptyWindows(siteIds);
+    siteIdsRef.current = siteIds;
+    knownIdsRef.current = knownIds;
+    const missing = siteIds.filter((id) => !Object.hasOwn(windowsRef.current.windows, id));
+    if (missing.length === 0) return;
+    const { windows, coloursToday } = windowsRef.current;
+    windowsRef.current = { windows: { ...windows, ...emptyWindows(missing).windows }, coloursToday };
+  }, [siteIds, knownIds]);
+
+  useEffect(() => {
+    windowsRef.current = emptyWindows(siteIdsRef.current);
     effectsRef.current = [];
     candlesRef.current = [];
     const addEvent = (event: ScreenEvent) => setEvents((list) => addTickerEvent(list, event));
@@ -79,7 +98,7 @@ export function useScreenSocket(
       if (after.some((c) => c.id === CandleMessage.parse(message).id)) addEvent({ kind: "candle", at: Date.now() });
     };
     const onEcho = (message: unknown) => {
-      const echo = parseEcho(message, siteIds);
+      const echo = parseEcho(message, siteIdsRef.current);
       if (!echo) return;
       const { siteId, transcript, lang } = echo;
       const at = Date.now();
@@ -124,14 +143,37 @@ export function useScreenSocket(
       }
     };
 
+    // Ids being fetched or already handed to onSite, until knownIds catches up.
+    const asked = new Set<string>();
+    // Ids in the first glow after a connect were published before it: a reload is not a publish (DESIGN.md 7.13).
+    let atConnect: Set<string> | null = null;
+    const fetchSite = async (id: string, isNew: boolean) => {
+      asked.add(id);
+      try {
+        const res = await fetch(`${API_URL}/sites/${encodeURIComponent(id)}`);
+        const detail = SiteDetail.safeParse(res.ok ? await res.json() : null);
+        if (!detail.success || detail.data.id !== id) throw new Error("no site");
+        if (!live) return;
+        onSite(detail.data);
+        if (isNew) addEvent({ kind: "place", siteId: id, at: Date.now() });
+      } catch {
+        // A failed fetch is forgotten, so the next glow tries again.
+        asked.delete(id);
+      }
+    };
+
     const socket = io(`${import.meta.env.VITE_API_URL}/live`, { query: { room: "screen" } });
     socket.on("connect", () => {
       setConnected(true);
+      atConnect = null;
       void fetchState();
     });
     socket.on("disconnect", () => setConnected(false));
     socket.on(SocketMessage.enum.glow, (message: unknown) => {
       glowRef.current = applyGlow(glowRef.current, message);
+      const unknown = unknownIds(message, new Set([...knownIdsRef.current, ...asked]));
+      atConnect ??= new Set(unknown);
+      for (const id of unknown) void fetchSite(id, !atConnect.has(id));
       const now = Date.now();
       candlesRef.current = candlesRef.current.filter((c) => candleDecay(c.litAt, now) >= CANDLE_MIN_DECAY);
     });
@@ -143,7 +185,7 @@ export function useScreenSocket(
       live = false;
       socket.close();
     };
-  }, [siteIds, demo]);
+  }, [demo, onSite]);
 
   return { glowRef, windowsRef, effectsRef, candlesRef, connected, coloursToday, events, subtitles };
 }
