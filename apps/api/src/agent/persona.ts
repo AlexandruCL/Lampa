@@ -43,11 +43,13 @@ export function renderPersonaPrompt(site: PersonaSite, lang: AgentLang): string 
   // One pass, so a slot value that contains {{…}} is never substituted again.
   const head = APPENDIX_A.replace(/\{\{(persona_name|site_name|visitor_language|persona_traits)\}\}/g, (_, k: string) => slots[k]);
   const facts = site.facts.length ? site.facts.map((f) => `- ${f.text} (source: ${f.source})`) : ["- (none yet)"];
+  const archive = (persona.archive ?? []).map((img) => `Archive image ${img.id}: ${pick(img.alt, lang)}`);
   return [
     head,
     "",
     "Your knowledge base:",
     ...facts,
+    ...archive,
     "",
     `If the visitor asks about the Metropolitan Cathedral or December 1989, say only this: ${pick(persona.cathedral_line, lang)}`,
   ].join("\n");
