@@ -56,6 +56,7 @@ export type SiteClips = {
   answers: Record<string, Record<string, string>>; // tap_to_ask id -> lang -> file
   narrations: Record<string, Record<string, string>>; // narration id -> lang -> file
   tapToAsk: { id: string; q: Record<string, string>; a: Record<string, string> }[]; // persona.tap_to_ask text, file order
+  archive: NonNullable<PersonaContent["archive"]>; // persona.archive, file order; `file` is relative to /archive/
 };
 type ProjectClips = { glass?: string; crackle?: string; chime?: string; waltz: string[] };
 
@@ -192,7 +193,14 @@ export function toClips(
   for (const site of sites) {
     // the text goes in whether or not a clip exists: Talk speaks it with the browser voice
     const persona = site.is_memorial ? undefined : PersonaContent.safeParse(site.persona).data;
-    const c: SiteClips = { beds: [], greeting: {}, answers: {}, narrations: {}, tapToAsk: persona?.tap_to_ask ?? [] };
+    const c: SiteClips = {
+      beds: [],
+      greeting: {},
+      answers: {},
+      narrations: {},
+      tapToAsk: persona?.tap_to_ask ?? [],
+      archive: persona?.archive ?? [],
+    };
     for (const { file, reason, slot } of planSite(site)) {
       if (reason || !exists(file)) continue;
       if (slot.kind === "bed") c.beds.push(file);
