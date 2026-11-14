@@ -32,7 +32,7 @@ export function useWhispers(siteId: string | null, position: LatLng | null, head
   useEffect(() => {
     if (!id) return;
     let gone = false;
-    let busy = false; // loading, playing or waiting out the gap
+    let busy = true; // loading, playing or waiting out the gap; the first gap starts now (Patrick, hour 26)
     let list: Whisper[] = [];
     let last: string | null = null;
     let timer: ReturnType<typeof setTimeout> | undefined;
@@ -58,6 +58,7 @@ export function useWhispers(siteId: string | null, position: LatLng | null, head
         later, // a failed load or decode skips this echo; the next one comes after the gap
       );
     }
+    timer = setTimeout(next, WHISPER_GAP_MS);
     const add = (w: Whisper) => {
       list = addWhisper(list, w);
       if (!busy) next();
