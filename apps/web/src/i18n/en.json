@@ -13,7 +13,7 @@
   "testimony.loading": "Loading",
   "testimony.error": "This testimony did not load. The text is below.",
   "candle.label": "Candle",
-  "candle.ready": "Hold your phone still to light a candle.",
+  "candle.ready": "Hold your phone still for {seconds} seconds to light a candle.",
   "candle.lit": "Your candle is lit.",
   "candle.tap": "Light a candle",
   "site_name.cathedral": "Metropolitan Cathedral",

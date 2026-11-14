@@ -68,7 +68,7 @@ export function Candle({ siteId, demo }: { siteId: string; demo: boolean }) {
         </Button>
       ) : (
         <p className={styles.line} role="status">
-          {view.lit ? t("candle.lit") : t("candle.ready")}
+          {view.lit ? t("candle.lit") : t("candle.ready", { seconds: holdMs / 1000 })}
         </p>
       )}
     </div>
