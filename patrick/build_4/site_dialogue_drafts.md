@@ -1,6 +1,6 @@
 # Site dialogue drafts (Patrick, after Build 4)
 
-**Status: DRAFT for the team. The Cathedral section is sourced (2026-11-14).** These are drafts to paste into `content/sites/*.yaml`. Nothing here is in the content files yet. Piața Unirii is already written and is the pattern. Its keys and tone, a short warm greeting and answers of one or two sentences, are copied below for the other three persona sites.
+**Status: DRAFT for the team. The Cathedral section is sourced (2026-11-14).** These are drafts to paste into `content/sites/*.yaml`. Moved into `content/sites/01-mx.yaml`, `03-victoriei.yaml`, `04-bastion.yaml` and `05-cathedral.yaml` on branch `patrick/site-dialogue` (Patrick's request, hour 37); the dry run plans 32 clips, 4,474 credits. Piața Unirii is already written and is the pattern. Its keys and tone, a short warm greeting and answers of one or two sentences, are copied below for the other three persona sites.
 
 Before anything is published:
 
