@@ -334,9 +334,9 @@ Runs on `ionut/b4-new-place`, made from `ionut/b4-lang` after B4-1 is committed.
 
 **B4-3.a.1** `fetchSite`. Subagent: `ionut-api`. Files: `apps/web/src/api/sites.ts`, `apps/web/src/api/sites.test.ts`, `apps/web/src/sites/sites.ts`.
 
-- [ ] `sites.ts`: `PhoneSite` becomes `Site & { lamp: boolean; interactions?: string[] }`; `interactions` is set only for a fetched place, so the bundled sites do not change.
-- [ ] `api/sites.ts`: `fetchSite(id: string, lang: Lang = LANG): Promise<PhoneSite | null>` calls `api(`/sites/${encodeURIComponent(id)}?lang=${lang}`, { schema: SiteDetail })` and returns `{ id, name, lat, lng, is_memorial, lamp: interactions.includes("lamp"), interactions }`; an `ApiError` with status 404 → `null`; any other error is thrown unchanged.
-- [ ] Tests by name (`fetch` and `localStorage` stubbed, as `client.test.ts` does; `lang` passed explicitly): "a SiteDetail becomes a PhoneSite with its interactions"; "lamp is true only when interactions list lamp"; "a 404 gives null"; "a 503 throws ApiError 503"; "a network error throws"; "the path encodes the id and carries lang".
+- [x] `sites.ts`: `PhoneSite` becomes `Site & { lamp: boolean; interactions?: string[] }`; `interactions` is set only for a fetched place, so the bundled sites do not change.
+- [x] `api/sites.ts`: `fetchSite(id: string, lang: Lang = LANG): Promise<PhoneSite | null>` calls `api(`/sites/${encodeURIComponent(id)}?lang=${lang}`, { schema: SiteDetail })` and returns `{ id, name, lat, lng, is_memorial, lamp: interactions.includes("lamp"), interactions }`; an `ApiError` with status 404 → `null`; any other error is thrown unchanged.
+- [x] Tests by name (`fetch` and `localStorage` stubbed, as `client.test.ts` does; `lang` passed explicitly): "a SiteDetail becomes a PhoneSite with its interactions"; "lamp is true only when interactions list lamp"; "a 404 gives null"; "a 503 throws ApiError 503"; "a network error throws"; "the path encodes the id and carries lang".
 - Verify: `npm run test -w @lampa/web -- src/api && npm run typecheck -w @lampa/web`. Paste the summary line.
 - Done when: every case passes, and returning `null` for every `ApiError` fails "a 503 throws ApiError 503".
 
@@ -344,10 +344,10 @@ Runs on `ionut/b4-new-place`, made from `ionut/b4-lang` after B4-1 is committed.
 
 **B4-3.b.1** Join fallback and the new place's buttons. Subagent: `ionut-screens`. Files: `apps/web/src/phone/Join.tsx`, `apps/web/src/phone/SiteView.tsx`, `apps/web/src/i18n/en.json`, `apps/web/src/i18n/ro.json`.
 
-- [ ] `Join.tsx`: when `siteId` is given and `findSite` misses, `fetchSite(siteId)` runs on mount. While it runs: the join layout with the line `join.looking` "Looking for this place…" and no button. `null` (404) → the existing "We could not find this place." view, unchanged. Any other failure → an error `Notice` `join.unreachable` "We could not reach LAMPA. Check your connection, then try again." with a secondary L `join.try_again` "Try again" that fetches again (Ionut's decision, hour 37). A found place renders exactly as a bundled site from then on (join tap, `SiteView`). A bundled site never fetches.
-- [ ] `SiteView.tsx`, only when `site.interactions` is set (a fetched place; Ionut's decision, hour 37): "Talk" only when it lists `talk`, "Catch a colour" only when it lists `colours`, "Raise a lamp" from `site.lamp` as today, "Leave an echo" never (`POST /echoes` answers 404 for it). Bundled sites show what they show today.
-- [ ] The states above follow `DESIGN.md` 7.1 and 7.2 as updated at hour 37.
-- [ ] New strings through `t()`; their ro values drafted by this agent and listed in its report. Ionut reviews them before the `ionut/b4-new-place` PR, the same way as B4-1.d.
+- [x] `Join.tsx`: when `siteId` is given and `findSite` misses, `fetchSite(siteId)` runs on mount. While it runs: the join layout with the line `join.looking` "Looking for this place…" and no button. `null` (404) → the existing "We could not find this place." view, unchanged. Any other failure → an error `Notice` `join.unreachable` "We could not reach LAMPA. Check your connection, then try again." with a secondary L `join.try_again` "Try again" that fetches again (Ionut's decision, hour 37). A found place renders exactly as a bundled site from then on (join tap, `SiteView`). A bundled site never fetches.
+- [x] `SiteView.tsx`, only when `site.interactions` is set (a fetched place; Ionut's decision, hour 37): "Talk" only when it lists `talk`, "Catch a colour" only when it lists `colours`, "Raise a lamp" from `site.lamp` as today, "Leave an echo" never (`POST /echoes` answers 404 for it). Bundled sites show what they show today.
+- [x] The states above follow `DESIGN.md` 7.1 and 7.2 as updated at hour 37.
+- [x] New strings through `t()`; their ro values drafted by this agent and listed in its report. Ionut reviews them before the `ionut/b4-new-place` PR, the same way as B4-1.d.
 - Verify: `npm run typecheck -w @lampa/web && npm run build -w @lampa/web && npm test -w @lampa/web`. Paste the summary lines.
 - Session browser check (headless Chrome, 390×844, `GET /sites/:id` routed by Playwright): `/s/newplace` with a 200 `SiteDetail` whose `interactions` are `["colours", "lamp"]` → "Looking for this place…", then the join view with its name, the tap, then the Site view with "Catch a colour" and "Raise a lamp" only; 404 → "We could not find this place."; 503 then 200 → the Notice, "Try again", then the join view; `/s/unirii` → no request to `/sites/unirii`; on the fetched place no page error, "Talk" hidden and "Next site" opens Between sites.
 - Done when: the verify lines pass and the browser check passes.
@@ -358,9 +358,9 @@ Ionut's check. Do not mark it done. After Cristea merges and redeploys the web a
 
 ### B4-last Integrate and hand over (last, this session)
 
-- [ ] The three branches of this block merged into a local throwaway branch, `npm run typecheck && npm run build && npm test` green on it.
-- [ ] Push each branch and open its PR, in this order: `ionut/b4-memorial`, then `ionut/b4-lang`, then `ionut/b4-new-place`. Each PR lists what was verified, what waits for a phone, and that the web app needs Cristea's manual redeploy.
-- [ ] Glossary complete: every ID of this prompt is under Done or Blocked; Hand-offs lists `t()`, `LANG`, `Lang`, the dictionary files, `Memorial`, `setBedMuted`, `testimoniesFor`, the `testimonies` field, `siteName`, `fetchSite` and `PhoneSite.interactions`; and for Cristea: `/s/<id>` of a published place opens on a phone.
+- [x] The three branches of this block merged into a local throwaway branch, `npm run typecheck && npm run build && npm test` green on it.
+- [x] Push each branch and open its PR, in this order: `ionut/b4-memorial`, then `ionut/b4-lang`, then `ionut/b4-new-place`. Each PR lists what was verified, what waits for a phone, and that the web app needs Cristea's manual redeploy.
+- [x] Glossary complete: every ID of this prompt is under Done or Blocked; Hand-offs lists `t()`, `LANG`, `Lang`, the dictionary files, `Memorial`, `setBedMuted`, `testimoniesFor`, the `testimonies` field, `siteName`, `fetchSite` and `PhoneSite.interactions`; and for Cristea: `/s/<id>` of a published place opens on a phone.
 - [ ] Ionut's checks on real phones, listed and not claimed: B4-2.d per phone; a phone set to Romanian shows the join, Site view, lens, echo, Between sites and memorial in Romanian, and an English phone in English; the Freeze line (full demo script, twice per phone) with the Build 4 items that survived.
 - Done when: every box is ticked or listed as Ionut's, and the report below is posted.
 

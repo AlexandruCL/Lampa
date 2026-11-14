@@ -6,7 +6,8 @@ import { siteName, t } from "../i18n/t";
 import { markVisited } from "../nav/visited";
 import { isDemo } from "../sensors/demo";
 import { primeDevice, type PrimerResult } from "../sensors/primer";
-import { findSite } from "../sites/sites";
+import { fetchSite } from "../api/sites";
+import { findSite, type PhoneSite } from "../sites/sites";
 import { DemoBadge } from "./DemoBadge";
 import styles from "./Join.module.css";
 import { Memorial } from "./Memorial";
@@ -44,7 +45,23 @@ export default function Join({ siteId }: { siteId?: string }) {
   const [busy, setBusy] = useState(false);
   const [audioBlocked, setAudioBlocked] = useState(result?.audio === "blocked");
 
-  const site = siteId === undefined ? undefined : findSite(siteId);
+  const bundled = siteId === undefined ? undefined : findSite(siteId);
+  // undefined: looking; null: 404; "error": any other failure. A bundled site never fetches.
+  const [fetched, setFetched] = useState<PhoneSite | null | "error" | undefined>();
+  const [attempt, setAttempt] = useState(0);
+  useEffect(() => {
+    if (siteId === undefined || bundled) return;
+    let live = true;
+    setFetched(undefined);
+    fetchSite(siteId).then(
+      (s) => live && setFetched(s),
+      () => live && setFetched("error"),
+    );
+    return () => {
+      live = false;
+    };
+  }, [siteId, bundled, attempt]);
+  const site = bundled ?? (typeof fetched === "object" ? (fetched ?? undefined) : undefined);
   const city = siteId === undefined;
   const name = city ? "Timișoara" : site && siteName(site);
 
@@ -53,6 +70,30 @@ export default function Join({ siteId }: { siteId?: string }) {
   }, [result, site]);
 
   const top = <div className={styles.top}>{demo && <DemoBadge />}</div>;
+
+  if (!city && !site && fetched !== null) {
+    const failed = fetched === "error";
+    return (
+      <main className={styles.page}>
+        {top}
+        {failed ? (
+          <>
+            <Notice variant="error">{t("join.unreachable")}</Notice>
+            <div className={styles.actions}>
+              <Button variant="secondary" size="l" block onClick={() => setAttempt((n) => n + 1)}>
+                {t("join.try_again")}
+              </Button>
+            </div>
+          </>
+        ) : (
+          <>
+            <p className={styles.wordmark}>LAMPA</p>
+            <p className={styles.line} role="status">{t("join.looking")}</p>
+          </>
+        )}
+      </main>
+    );
+  }
 
   if (!city && !site) {
     return (
