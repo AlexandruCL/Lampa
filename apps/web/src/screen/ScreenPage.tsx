@@ -1,4 +1,4 @@
-import { MAP_LINES, sites, type SiteDetail } from "@lampa/shared";
+import { LAMP_TARGET, MAP_LINES, sites, type SiteDetail } from "@lampa/shared";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { unlockAudio } from "../audio/context";
 import { useRoomSound } from "../audio/room";
@@ -32,7 +32,7 @@ function LivingMap({ demo }: { demo: boolean }) {
   const placed = useMemo(() => layout(allSites, MAP_LINES), [allSites]);
   const onSite = useCallback((d: SiteDetail) => setAdded((list) => (list.some((s) => s.id === d.id) ? list : [...list, d])), []);
   const sitesRef = useRef(allSites);
-  const { glowRef, windowsRef, effectsRef, candlesRef, connected, coloursToday, events, subtitles } = useScreenSocket(
+  const { glowRef, windowsRef, effectsRef, candlesRef, connected, coloursToday, lampsToday, events, subtitles } = useScreenSocket(
     colourSiteIds,
     demo,
     knownIds,
@@ -81,8 +81,10 @@ function LivingMap({ demo }: { demo: boolean }) {
         <p className={styles.mark}>LAMPA</p>
         <div className={styles.stat}>
           <p className={styles.statLabel}>Lamps lit today</p>
-          {/* The lamps message is Fabi's Build 3 row. */}
-          <p className={`${styles.number} ${styles.numberLamps}`}>...</p>
+          <p className={`${styles.number} ${styles.numberLamps}`}>
+            {lampsToday === null ? "..." : <span className={styles.lit}>{lampsToday}</span>}
+            {lampsToday !== null && ` / ${LAMP_TARGET}`}
+          </p>
         </div>
         <div className={styles.stat}>
           <p className={styles.statLabel}>Colours caught today</p>

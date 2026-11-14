@@ -1,6 +1,6 @@
 import { colourName } from "@lampa/shared";
 import { expect, it } from "vitest";
-import { addTickerEvent, parseEcho, tickerText, timeAgo } from "./tickerCopy";
+import { addTickerEvent, paneName, parseEcho, tickerText, timeAgo } from "./tickerCopy";
 
 const COLOUR_SITE_IDS = ["mx", "unirii", "victoriei", "bastion"];
 const echo = (siteId: string) => ({ echoId: "e1", siteId, audioUrl: "https://example.test/e1.mp3", transcript: "Aici", lang: "ro" });
@@ -8,6 +8,16 @@ const echo = (siteId: string) => ({ echoId: "e1", siteId, audioUrl: "https://exa
 it("an echo line names the site", () => {
   expect(parseEcho(echo("unirii"), COLOUR_SITE_IDS)?.siteId).toBe("unirii");
   expect(tickerText({ kind: "echo", siteId: "unirii", at: 0 }, "Piața Unirii", "")).toBe("New echo at Piața Unirii");
+});
+
+it("a harmony line names the site", () => {
+  expect(tickerText({ kind: "harmony", siteId: "unirii", at: 0 }, "Piața Unirii", "")).toBe("The bells rang together at Piața Unirii.");
+});
+
+it("a pane is named by the bin the phone sent, not by the hue of its hex", () => {
+  expect(paneName({ hex: "#3a2f2a", bin: null })).toBe("Night glass");
+  expect(paneName({ hex: "#ff0000", bin: 1 })).toBe("Orange");
+  expect(paneName({ hex: "#ff0000" })).toBe("Red");
 });
 
 it("an echo for the cathedral adds no line", () => {

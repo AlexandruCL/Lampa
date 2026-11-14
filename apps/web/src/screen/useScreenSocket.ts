@@ -1,4 +1,4 @@
-import { CandleMessage, HarmonyMessage, PaneMessage, ScreenState, SiteDetail, SocketMessage, WindowCompleteMessage } from "@lampa/shared";
+import { CandleMessage, HarmonyMessage, LampsMessage, PaneMessage, ScreenState, SiteDetail, SocketMessage, WindowCompleteMessage } from "@lampa/shared";
 import { useEffect, useRef, useState, type RefObject } from "react";
 import { io } from "socket.io-client";
 import { API_URL } from "../api/client";
@@ -16,9 +16,11 @@ export type ScreenEffect =
   | { kind: "harmony"; siteId: string; at: number };
 
 export type ScreenEvent =
-  | { kind: "pane"; siteId: string; hex: string; at: number }
+  // bin is the hue bin the phone named the catch by; null is night glass, undefined an older sender.
+  | { kind: "pane"; siteId: string; hex: string; bin?: number | null; at: number }
   | { kind: "complete"; siteId: string; at: number }
   | { kind: "echo"; siteId: string; at: number }
+  | { kind: "harmony"; siteId: string; at: number }
   | { kind: "place"; siteId: string; at: number }
   | { kind: "candle"; at: number };
 
@@ -42,6 +44,7 @@ export function useScreenSocket(
   candlesRef: RefObject<Candle[]>;
   connected: boolean;
   coloursToday: number | null;
+  lampsToday: number | null;
   events: ScreenEvent[];
   subtitles: ScreenSubtitle[];
 } {
@@ -51,6 +54,7 @@ export function useScreenSocket(
   const candlesRef = useRef<Candle[]>([]);
   const [connected, setConnected] = useState(false);
   const [coloursToday, setColoursToday] = useState<number | null>(null);
+  const [lampsToday, setLampsToday] = useState<number | null>(null);
   const [events, setEvents] = useState<ScreenEvent[]>([]);
   const [subtitles, setSubtitles] = useState<ScreenSubtitle[]>([]);
   const siteIdsRef = useRef(siteIds);
@@ -76,9 +80,9 @@ export function useScreenSocket(
       const after = applyPane(before, message);
       if (after === before) return;
       windowsRef.current = after;
-      const { siteId, slot, hex } = PaneMessage.parse(message);
+      const { siteId, slot, hex, bin } = PaneMessage.parse(message);
       effectsRef.current.push({ kind: "pane", siteId, slot, hex, at: performance.now() });
-      addEvent({ kind: "pane", siteId, hex, at: Date.now() });
+      addEvent({ kind: "pane", siteId, hex, bin, at: Date.now() });
       setColoursToday(after.coloursToday);
     };
     const onComplete = (message: unknown) => {
@@ -182,10 +186,16 @@ export function useScreenSocket(
     socket.on(SocketMessage.enum.window_complete, onComplete);
     socket.on(SocketMessage.enum.candle, onCandle);
     socket.on(SocketMessage.enum.echo_approved, onEcho);
-    // The bells rang together: the window flares and keeps its panes; no ticker line.
+    socket.on(SocketMessage.enum.lamps, (message: unknown) => {
+      const l = LampsMessage.safeParse(message);
+      if (l.success) setLampsToday(l.data.litToday);
+    });
+    // The bells rang together: the window flares and keeps its panes.
     socket.on(SocketMessage.enum.harmony, (message: unknown) => {
       const h = HarmonyMessage.safeParse(message);
-      if (h.success) effectsRef.current.push({ kind: "harmony", siteId: h.data.siteId, at: performance.now() });
+      if (!h.success) return;
+      effectsRef.current.push({ kind: "harmony", siteId: h.data.siteId, at: performance.now() });
+      addEvent({ kind: "harmony", siteId: h.data.siteId, at: Date.now() });
     });
     return () => {
       live = false;
@@ -193,5 +203,5 @@ export function useScreenSocket(
     };
   }, [demo, onSite]);
 
-  return { glowRef, windowsRef, effectsRef, candlesRef, connected, coloursToday, events, subtitles };
+  return { glowRef, windowsRef, effectsRef, candlesRef, connected, coloursToday, lampsToday, events, subtitles };
 }

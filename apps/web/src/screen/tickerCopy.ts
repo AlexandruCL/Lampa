@@ -1,4 +1,4 @@
-import { EchoApprovedMessage } from "@lampa/shared";
+import { COLOUR_NAMES, colourName, EchoApprovedMessage, NIGHT_GLASS } from "@lampa/shared";
 import type { ScreenEvent } from "./useScreenSocket";
 
 const MINUTE_MS = 60_000;
@@ -9,7 +9,13 @@ export function tickerText(event: ScreenEvent, siteName: string, name: string): 
   if (event.kind === "candle") return "A candle was lit at the Cathedral.";
   if (event.kind === "echo") return `New echo at ${siteName}`;
   if (event.kind === "place") return `New place: ${siteName}`;
+  if (event.kind === "harmony") return `The bells rang together at ${siteName}.`;
   return event.kind === "pane" ? `New colour at ${siteName}: ${name}` : `The ${siteName} window is complete.`;
+}
+
+/** The name the phone showed: by the bin it sent, as the averaged hex can fall in another bin or give night glass a hue. */
+export function paneName(pane: { hex: string; bin?: number | null }): string {
+  return (pane.bin === undefined ? colourName(pane.hex) : pane.bin === null ? NIGHT_GLASS : COLOUR_NAMES[pane.bin]!).en;
 }
 
 /** Newest first, at most six lines, the one memorial line pinned last: a newer candle replaces it (DESIGN.md 6.18). */

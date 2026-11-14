@@ -1,6 +1,5 @@
-import { colourName } from "@lampa/shared";
 import { useEffect, useState } from "react";
-import { tickerText, timeAgo } from "./tickerCopy";
+import { paneName, tickerText, timeAgo } from "./tickerCopy";
 import styles from "./Ticker.module.css";
 import type { ScreenEvent } from "./useScreenSocket";
 
@@ -30,7 +29,7 @@ export function Ticker({ events, siteNames }: { events: ScreenEvent[]; siteNames
               {e.kind === "pane" && <span className={styles.swatch} style={{ background: e.hex }} />}
               <span className={styles.body}>
                 <span className={styles.text}>
-                  {tickerText(e, siteNames[e.siteId] ?? e.siteId, e.kind === "pane" ? colourName(e.hex).en : "")}
+                  {tickerText(e, siteNames[e.siteId] ?? e.siteId, e.kind === "pane" ? paneName(e) : "")}
                 </span>
                 <span className={styles.ago}>{timeAgo(e.at, Math.max(now, e.at))}</span>
               </span>

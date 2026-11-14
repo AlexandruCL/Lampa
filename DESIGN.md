@@ -798,7 +798,7 @@ Layout at 1920 × 1080: the map takes the left 1380px (72%); a side panel takes 
 - Side panel, top to bottom: wordmark; "Lamps lit today" label (`--screen-meta` `--text-2`) over "412 / 731" (`--screen-numeral`, value `--lamp`); "Colours caught today" over its number (`--screen-numeral` `--text`); the Ticker; the QRBlock pinned to the bottom.
 - Echo subtitle: under the window, a `--surface` box (radius `--radius-s`, max width 520 × `--u`) with the first 90 characters of the transcript (`--screen-subtitle` `--text`) and the language code in `--screen-meta`; shown 8 s, fades out over 600ms.
 
-Ticker copy: "New colour at {Site}: {colour name}" (with swatch; name from 2.4), "New echo at {Site}", "Lamp lit at {Site}", "The {Site} window is complete.", "New place: {Site}", and the calmer memorial line "A candle was lit at the Cathedral." (6.18).
+Ticker copy: "New colour at {Site}: {colour name}" (with swatch; name from 2.4), "New echo at {Site}", "Lamp lit at {Site}", "The {Site} window is complete.", "The bells rang together at {Site}.", "New place: {Site}", and the calmer memorial line "A candle was lit at the Cathedral." (6.18).
 
 The lamps and colours counters never include the memorial, and the room sound mixes only the four colour sites.
 
