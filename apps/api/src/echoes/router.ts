@@ -114,10 +114,12 @@ export function createEchoesRouter(deps: EchoesDeps): Router {
       console.error("blob read failed: " + (err instanceof Error ? err.message : "unknown"));
       return void res.status(503).json({ error: "unavailable" });
     }
-    // shortcut: a blob with no echo row is 404 until add-a-place audio arrives in Build 4
-    if (!row?.status) return void res.status(404).json({ error: "unknown_blob" });
+    if (!row) return void res.status(404).json({ error: "unknown_blob" });
     const { content_type, data, status } = row;
     const send = (cache: string) => void res.set({ "Content-Type": content_type, "Cache-Control": cache }).send(data);
+    // Site audio (greetings and beds of added places) is public, drafts included.
+    if (!status && (req.params.key as string).startsWith("site-")) return send("public, max-age=3600");
+    if (!status) return void res.status(404).json({ error: "unknown_blob" });
     if (status === "approved") return send("public, max-age=3600");
     // Pending and rejected audio are for curators only.
     await requireVisitor(req, res, () => curatorOnly(req, res, () => send("no-store")));

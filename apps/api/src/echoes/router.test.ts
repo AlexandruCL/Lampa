@@ -256,6 +256,18 @@ describe("GET /blob/:key", () => {
     await expectError(await (await start({ db: readDb([]).db })).get("/blob/echo-none"), 404, "unknown_blob");
     await expectError(await (await start({ db: readDb([blobRow(null)]).db })).get("/blob/place-x"), 404, "unknown_blob");
   });
+  it("a site blob is public", async () => {
+    const r = readDb([blobRow(null, "audio/mpeg")]);
+    const res = await (await start({ db: r.db })).get("/blob/site-theresia-bastion_greeting-en-0123456789ab.mp3");
+    expect(res.status).toBe(200);
+    expect(res.headers.get("content-type")).toBe("audio/mpeg");
+    expect(res.headers.get("cache-control")).toBe("public, max-age=3600");
+    expect(new Uint8Array(await res.arrayBuffer())).toEqual(AUDIO);
+  });
+
+  it("a blob with no echo and no site prefix is 404", async () => {
+    await expectError(await (await start({ db: readDb([blobRow(null, "audio/mpeg")]).db })).get("/blob/sites_x.mp3"), 404, "unknown_blob");
+  });
 });
 
 describe("GET /echoes?status=pending", () => {

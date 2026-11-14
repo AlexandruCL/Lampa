@@ -2,10 +2,11 @@ import type { Server } from "node:http";
 import type { AddressInfo } from "node:net";
 import express from "express";
 import { SignJWT } from "jose";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { PlaceIn } from "@lampa/shared";
-import { PLACE_LIMIT } from "./content.js";
-import { UPSERT_DRAFT, createPlacesRouter } from "./router.js";
+import { PLACE_LIMIT, greeting, placeSiteFile } from "./content.js";
+import { INSERT_SITE_BLOB, SELECT_SITE_KEYS } from "./publish.js";
+import { PUBLISH_DRAFT, SELECT_PLACE, UPSERT_DRAFT, createPlacesRouter } from "./router.js";
 
 const keys = vi.hoisted(() => import("jose").then((jose) => jose.generateKeyPair("RS256")));
 // The production requireVisitor with a local key resolver in place of the Auth0 JWKS, as in auth/session.test.ts.
@@ -173,5 +174,125 @@ describe("POST /sites", () => {
 
   it("no database is 503", async () => {
     await expectError(await (await start({}))(PLACE, await adminToken()), 503, "unavailable");
+  });
+});
+
+/** One place row and a blobs table in memory. */
+function placeDb({ status = "draft", row = true } = {}) {
+  const site = placeSiteFile(ID, PLACE);
+  const place = {
+    id: ID, name: site.name, lat: PLACE.lat, lng: PLACE.lng, interactions: site.interactions,
+    persona: site.persona, facts: site.facts, status,
+  };
+  const keys = new Set<string>();
+  const calls: Call[] = [];
+  const db = {
+    query: async (text: string, params: any[] = []) => {
+      calls.push({ text, params });
+      if (text === SELECT_PLACE) return { rows: row ? [place] : [], rowCount: row ? 1 : 0 };
+      if (text === SELECT_SITE_KEYS) {
+        const rows = [...keys].filter((k) => k.startsWith(params[0])).map((key) => ({ key }));
+        return { rows, rowCount: rows.length };
+      }
+      if (text === INSERT_SITE_BLOB) keys.add(params[0]);
+      return { rows: [], rowCount: 1 };
+    },
+  };
+  return { db, calls, keys };
+}
+
+const okFetch = () => vi.fn(async () => new Response(new Uint8Array([1, 2, 3]), { status: 200 }));
+
+async function startPublish(deps: Parameters<typeof createPlacesRouter>[0]) {
+  const app = express();
+  app.use(express.json());
+  app.use(createPlacesRouter(deps));
+  const server = app.listen(0);
+  servers.push(server);
+  await new Promise((resolve) => server.once("listening", resolve));
+  const base = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
+  return async (body: unknown, { id = ID, bearer }: { id?: string; bearer?: string } = {}) =>
+    fetch(`${base}/sites/${id}/publish`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${bearer ?? (await adminToken())}` },
+      body: JSON.stringify(body),
+    });
+}
+
+describe("POST /sites/:id/publish", () => {
+  beforeEach(() => void (process.env.ELEVENLABS_API_KEY = "sk_test_key"));
+  afterEach(() => void delete process.env.ELEVENLABS_API_KEY);
+
+  it("publish without write:site is 403", async () => {
+    const p = placeDb();
+    const publish = await startPublish({ db: p.db, fetch: okFetch() });
+    await expectError(await publish({ step: "live" }, { bearer: await auth0Token(["moderate:echo"]) }), 403, "forbidden");
+    expect(p.calls).toHaveLength(0);
+  });
+
+  it("an unknown step is 400", async () => {
+    const publish = await startPublish({ db: placeDb().db });
+    await expectError(await publish({ step: "music" }), 400, "invalid_step");
+  });
+
+  it("an unknown site is 404", async () => {
+    const publish = await startPublish({ db: placeDb({ row: false }).db });
+    await expectError(await publish({ step: "greeting" }), 404, "unknown_site");
+    await expectError(await publish({ step: "greeting" }, { id: "Bad_Id" }), 404, "unknown_site");
+  });
+
+  it("a published site is 409", async () => {
+    const f = okFetch();
+    const publish = await startPublish({ db: placeDb({ status: "published" }).db, fetch: f });
+    for (const step of ["greeting", "bed", "live"]) await expectError(await publish({ step }), 409, "already_published");
+    expect(f).not.toHaveBeenCalled();
+  });
+
+  it("greeting answers 200 with its credits", async () => {
+    const p = placeDb();
+    const f = okFetch();
+    const res = await (await startPublish({ db: p.db, fetch: f }))({ step: "greeting" });
+    expect(res.status).toBe(200);
+    const { ro, en } = greeting(PLACE.name);
+    expect(await res.json()).toEqual({ step: "greeting", credits: [...ro].length + [...en].length });
+    expect(f).toHaveBeenCalledTimes(2);
+    expect(p.keys.size).toBe(2);
+  });
+
+  it("a second greeting answers 200 with 0 credits", async () => {
+    const p = placeDb();
+    const f = okFetch();
+    const publish = await startPublish({ db: p.db, fetch: f });
+    expect((await publish({ step: "greeting" })).status).toBe(200);
+    const res = await publish({ step: "greeting" });
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({ step: "greeting", credits: 0 });
+    expect(f).toHaveBeenCalledTimes(2);
+  });
+
+  it("a failed generation is 502", async () => {
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+    const f = vi.fn(async () => new Response("nope", { status: 500 }));
+    await expectError(await (await startPublish({ db: placeDb().db, fetch: f }))({ step: "bed" }), 502, "generation_failed");
+    expect(error).toHaveBeenCalledTimes(1);
+    expect(error.mock.calls[0]![0]).toMatch(/^place publish failed: theresia-bastion\/bed-1-[0-9a-f]{12}\.wav 500$/);
+  });
+
+  it("no key is 503", async () => {
+    delete process.env.ELEVENLABS_API_KEY;
+    const f = okFetch();
+    await expectError(await (await startPublish({ db: placeDb().db, fetch: f }))({ step: "greeting" }), 503, "unavailable");
+    expect(f).not.toHaveBeenCalled();
+  });
+
+  it("live publishes the draft and nudges glow", async () => {
+    const p = placeDb();
+    const onStored = vi.fn();
+    const res = await (await startPublish({ db: p.db, onStored }))({ step: "live" });
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({ step: "live", credits: 0 });
+    expect(p.calls.map((c) => c.text)).toEqual([SELECT_PLACE, PUBLISH_DRAFT]);
+    expect(p.calls[1]!.params).toEqual([ID]);
+    expect(onStored).toHaveBeenCalledTimes(1);
   });
 });
