@@ -9,10 +9,10 @@ import type { PhoneSite } from "../sites/sites";
 import { LampCounter } from "./LampCounter";
 import { LIGHT_LEAVE_MS, LightSurface } from "./LightSurface";
 import { LOWER_DEG, RAISE_START, type RaiseState, stepRaise } from "./lampMaths";
-import { presenceLine } from "./presence";
+import { presenceLine, withoutSelf } from "./presence";
 import { startClockOffset } from "./pulse";
 import styles from "./Lamp.module.css";
-import { useLampEvents } from "./useLampEvents";
+import { lastLampSent, useLampEvents } from "./useLampEvents";
 import { usePitch } from "./usePitch";
 
 /** How often the raise gesture is stepped; also the Ring's linear fill between steps. */
@@ -92,7 +92,8 @@ export function Lamp({ site, demo, lamps, connected, motion, onBack }: Props) {
     return () => clearTimeout(timer);
   }, [surface]);
 
-  const here = connected ? (lamps?.sites.find((s) => s.siteId === site.id)?.lightingNow ?? null) : null;
+  const counted = connected ? (lamps?.sites.find((s) => s.siteId === site.id)?.lightingNow ?? null) : null;
+  const here = surface === "off" ? withoutSelf(counted, Date.now() - (lastLampSent.get(site.id) ?? -Infinity)) : counted;
 
   return (
     <LampView

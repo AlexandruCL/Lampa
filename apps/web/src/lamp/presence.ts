@@ -4,6 +4,14 @@ const roPlural = new Intl.PluralRules("ro");
 /** Romanian "de " before a noun counted by `n`: exactly when its plural category is "other" (Patrick, hour 27). English has no {de} slot. */
 export const roDe = (n: number): string => (roPlural.select(n) === "other" ? "de " : "");
 
+// The API counts a phone for 90 s after its last lamp event (LAMP_PRESENCE_S) and sends the count every 5 s.
+export const OWN_PRESENCE_MS = 95_000;
+
+/** The count without this phone, which the API still includes for a while after its lamp is lowered. */
+export function withoutSelf(count: number | null, msSinceOwnEvent: number): number | null {
+  return count !== null && msSinceOwnEvent < OWN_PRESENCE_MS ? Math.max(0, count - 1) : count;
+}
+
 /** The presence line under LampCounter L (DESIGN 6.13). `null` count, or a `null` return, hides the line. */
 export function presenceLine(count: number | null, lit: boolean, site: string, lang: Lang): string | null {
   if (count === null) return null;

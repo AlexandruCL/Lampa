@@ -1,7 +1,18 @@
 import { describe, expect, it } from "vitest";
-import { presenceLine } from "./presence";
+import { OWN_PRESENCE_MS, presenceLine, withoutSelf } from "./presence";
 
 const S = "Piața Victoriei";
+
+describe("withoutSelf", () => {
+  it("leaves this phone out while the API still counts it, and never after", () => {
+    expect(withoutSelf(1, 3000)).toBe(0);
+    expect(withoutSelf(3, 3000)).toBe(2);
+    expect(withoutSelf(0, 3000)).toBe(0);
+    expect(withoutSelf(1, OWN_PRESENCE_MS)).toBe(1);
+    expect(withoutSelf(1, Infinity)).toBe(1);
+    expect(withoutSelf(null, 3000)).toBeNull();
+  });
+});
 
 describe("presenceLine", () => {
   it.each([
