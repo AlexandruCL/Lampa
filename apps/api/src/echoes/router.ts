@@ -18,8 +18,9 @@ VALUES ($1, $2, $3, $4) RETURNING id`;
 export const SELECT_BLOB = `SELECT b.content_type, b.data, e.status FROM blobs b
 LEFT JOIN echoes e ON e.audio_url = '/blob/' || b.key
 WHERE b.key = $1`;
-export const SELECT_PENDING = `SELECT id, site_id, created_at, lang, transcript, audio_url FROM echoes
-WHERE status = 'pending' ORDER BY created_at ASC, id ASC`;
+export const SELECT_PENDING = `SELECT e.id, e.site_id, e.created_at, e.lang, e.transcript, e.audio_url, s.name->>'en' AS site_name
+FROM echoes e LEFT JOIN sites s ON s.id = e.site_id
+WHERE e.status = 'pending' ORDER BY e.created_at ASC, e.id ASC`;
 export const APPROVE_ECHO = `UPDATE echoes SET status = 'approved', public_audio_url = audio_url
 WHERE id = $1 AND status = 'pending' RETURNING site_id, audio_url, transcript, lang, anon_id, author_sub`;
 export const REJECT_ECHO = "UPDATE echoes SET status = 'rejected' WHERE id = $1 AND status = 'pending' RETURNING audio_url";
@@ -137,6 +138,7 @@ export function createEchoesRouter(deps: EchoesDeps): Router {
         lang: r.lang,
         transcript: r.transcript,
         audioUrl: r.audio_url,
+        ...(r.site_name != null ? { siteName: r.site_name } : {}),
       }));
       res.set("Cache-Control", "no-store").json(PendingEchoes.parse({ echoes }));
     } catch (err) {
