@@ -1,7 +1,7 @@
 import { MAP_LINES, sites, type Site, type SiteDetail } from "@lampa/shared";
 import { expect, it } from "vitest";
 import { toSite, unknownIds } from "./newSites";
-import { layout, MIN_SPACING, SITE_RADIUS } from "./projection";
+import { crossesCircle, labelBox, labelWidth, layout, MIN_SPACING, SITE_RADIUS } from "./projection";
 
 const EPS = 1e-9;
 const [MIN_X, MAX_X, MIN_Y, MAX_Y] = [0.12 * 1380, 0.88 * 1380, 0.12 * 1080, 0.88 * 1080];
@@ -57,6 +57,17 @@ it("six sites still land inside the map area and no two closer than 2.95R", () =
   // 400 m east: one degree of longitude is 111,320 m times cos(latitude).
   const lng = victoriei.lng + 400 / (111_320 * Math.cos((victoriei.lat * Math.PI) / 180));
   expectRefit({ id: "east", name: "East", lat: victoriei.lat, lng, is_memorial: false });
+});
+
+it("with a sixth site, MX's full name label crosses no other site's circle", () => {
+  const victoriei = sites.find((s) => s.id === "victoriei")!;
+  const lng = victoriei.lng + 400 / (111_320 * Math.cos((victoriei.lat * Math.PI) / 180));
+  const ps = layout([...sites, { id: "east", name: "Opera Națională", lat: victoriei.lat, lng, is_memorial: false }], MAP_LINES);
+  const mx = ps.find((p) => p.id === "mx")!;
+  // Chromium drew "Muzeul MX Corneliu Miklosi" about 405 units wide.
+  const width = labelWidth(sites.find((s) => s.id === "mx")!.name);
+  expect(width).toBeGreaterThanOrEqual(405);
+  for (const c of ps) if (c !== mx) expect(crossesCircle(labelBox(mx, mx.label, width), c)).toBe(false);
 });
 
 it("a sixth site on MX's coordinates stays finite, inside the map and 2.95R apart", () => {
