@@ -23,7 +23,7 @@ Checkpoint this block must pass: *Run the demo script from section 10.4, steps 0
 - **Live ElevenLabs calls cost credits.** No paid generation in this block: the compass, beacon and room sound reuse the beds, the whispers play visitor echoes, the Lamp plays the crackle already made. One live Talk smoke test by Patrick on the iPhone after `patrick/b3-nav` is merged, plus one retry after a fix (B3-4.e; Patrick's decision, hour 24). No agent makes a live call.
 - The Cathedral is a memorial: no persona, no game, no counter, no microphone prompt, and no generated text about 1989 at runtime. No Lamp, no LampCounter, no whisper there. It is in the sound compass like any site; arriving there plays no chime and fades the beacon out over 3 s (DESIGN 5.8).
 - Screens follow `DESIGN.md` and the tokens and base components in `design/css/` (`apps/web/src/styles/tokens.css` and `apps/web/src/components/`). Do not add a colour, font or spacing value that is not a token. The one value that is not a token is the pulse's darkest point `#E2D9C8`, which DESIGN 6.14 gives as a result of the `--bg` overlay at 0.12, not a new colour.
-- Write in `patrick/` only. Other members' folders are read-only. Files outside the lane that this prompt lets you touch, each only after its owner agrees and each with a Changes line: Ionut's `apps/web/src/phone/SiteView.tsx`, `Between.tsx`, `Join.tsx`, `useSiteGlow.ts`; Cristea's `apps/web/src/screen/ScreenPage.tsx` (one hook line) and `apps/api/src/echoes/router.ts` (the approved route); `packages/shared/src/contract.ts` (`ApprovedEchoes`, after the team agrees); `apps/api/src/content.ts` (`persona.archive`); `IMPLEMENTATION_PLAN.md` (the hour-24 update, already in the docs commit).
+- Write in `patrick/` only. Other members' folders are read-only. Files outside the lane that this prompt lets you touch, each only after its owner agrees and each with a Changes line: Ionut's `apps/web/src/phone/SiteView.tsx`, `Between.tsx`, `useSiteGlow.ts`; Cristea's `apps/web/src/screen/ScreenPage.tsx` (one hook line) and `apps/api/src/echoes/router.ts` (the approved route); `packages/shared/src/contract.ts` (`ApprovedEchoes`, after the team agrees); `apps/api/src/content.ts` (`persona.archive`); `IMPLEMENTATION_PLAN.md` (the hour-24 update, already in the docs commit).
 - **Keep `patrick/GLOSSARY.md` current.** Each finished ID gets a Done line, each deviation or file touched outside this lane a Changes line, each answer from Patrick a Decisions line, each new thing another lane can use a Hand-offs line. The line goes in the same commit as the work.
 - Before you claim anything done, run its verify command and paste the summary line. No claim without output.
 - For a failing test, find the cause first, then fix. Do not patch around a symptom.
@@ -92,7 +92,7 @@ Checkpoint this block must pass: *Run the demo script from section 10.4, steps 0
 
 Total: 8.5 h of plan tasks, 1 h of moved tools and 0.75 h of styling, 10.25 h in a 7 h block. Cut line above (ground rules).
 
-Order: B3-0 and the seams first. Then in parallel: stream L (one `patrick-web-audio` agent: B3-1.a.1 → B3-1.b.1 → B3-2.a.1) and stream N (a second `patrick-web-audio` agent: B3-3.a.1 → B3-3.b.1 → B3-3.c.1), with `patrick-api` on B3-4.a.1 and `patrick-elevenlabs` on B3-4.b.1 at the same time (API files only). Then B3-1.c.1 and B3-1.d.1 (Ionut's files, after his yes), `patrick/b3-lamp` PR. After it merges: B3-4.c.1 (Talk tools), B3-3.d.1 (Between and Join wiring), B3-4.d (Patrick adds the tools in the dashboard), `patrick/b3-nav` PR, then B3-4.e on the deployed build. Then B3-5.a.1 and, once the team has agreed B3-6.0, B3-6.a.1 and B3-6.b.1, `patrick/b3-screen` PR.
+Order: B3-0 and the seams first. Then in parallel: stream L (one `patrick-web-audio` agent: B3-1.a.1 → B3-1.b.1 → B3-2.a.1) and stream N (a second `patrick-web-audio` agent: B3-3.a.1 → B3-3.b.1 → B3-3.c.1), with `patrick-api` on B3-4.a.1 and `patrick-elevenlabs` on B3-4.b.1 at the same time (API files only). Then B3-1.c.1 and B3-1.d.1 (Ionut's files, after his yes), `patrick/b3-lamp` PR. After it merges: B3-4.c.1 (Talk tools), B3-3.d.1 (Between and Site view wiring), B3-4.d (Patrick adds the tools in the dashboard), `patrick/b3-nav` PR, then B3-4.e on the deployed build. Then B3-5.a.1 and, once the team has agreed B3-6.0, B3-6.a.1 and B3-6.b.1, `patrick/b3-screen` PR.
 
 Seams, committed by this session on `patrick/b3-work` before any agent starts:
 
@@ -162,7 +162,7 @@ Subagents for this block, in `.claude/agents/`:
 
 | Subagent | Kind of work | Model | New or reused |
 |---|---|---|---|
-| `patrick-web-audio` | Web Audio, the Lamp, Talk and navigation sound in `apps/web`, their hooks and Vitest tests | opus | reused from Build 2; scope widened to `apps/web/src/lamp/`, the room sound and the lines of `Between.tsx`, `Join.tsx`, `useSiteGlow.ts` and `ScreenPage.tsx` its tasks name |
+| `patrick-web-audio` | Web Audio, the Lamp, Talk and navigation sound in `apps/web`, their hooks and Vitest tests | opus | reused from Build 2; scope widened to `apps/web/src/lamp/`, the room sound and the lines of `Between.tsx`, `useSiteGlow.ts` and `ScreenPage.tsx` its tasks name |
 | `patrick-api` | Express routes, the persona renderer and the content schema in `apps/api`, with Vitest tests | opus | reused from Build 1; scope widened to `apps/api/src/echoes/router.ts` (the approved route only) |
 | `patrick-elevenlabs` | Publish code (`apps/api/src/publish/`) and its tests | opus | reused from Build 2 |
 
@@ -177,11 +177,11 @@ Agent tasks:
 | B3-1.d.1 | `patrick-web-audio` | Lamp wiring in the Site view | `apps/web/src/phone/SiteView.tsx` | after B3-1.c.1 |
 | B3-3.a.1 | `patrick-web-audio` | Navigation maths | `apps/web/src/audio/navMaths.ts`, `navMaths.test.ts` | parallel with stream L |
 | B3-3.b.1 | `patrick-web-audio` | Navigation voices | `apps/web/src/audio/nav.ts`, `useNavAudio.ts`, `apps/web/src/audio/useBed.ts` | after B3-3.a.1 |
-| B3-3.c.1 | `patrick-web-audio` | Ducking in Talk and clips | `apps/web/src/talk/Talk.tsx`, `apps/web/src/talk/useLiveTalk.ts`, `apps/web/src/audio/clip.ts` | after B3-3.b.1 |
+| B3-3.c.1 | `patrick-web-audio` | Ducking in Talk | `apps/web/src/talk/Talk.tsx`, `apps/web/src/talk/useLiveTalk.ts` | after B3-3.b.1 |
 | B3-4.a.1 | `patrick-api` | `persona.archive` schema and prompt lines | `apps/api/src/content.ts`, `apps/api/src/agent/persona.ts`, `persona.test.ts` | parallel with streams L and N |
 | B3-4.b.1 | `patrick-elevenlabs` | `archive` copied into `clips.json` | `apps/api/src/publish/publish.ts`, `publish.test.ts` | parallel with streams L and N (after B3-0's seams) |
 | B3-4.c.1 | `patrick-web-audio` | The three client tools and the archive card | `apps/web/src/talk/tools.ts`, `tools.test.ts`, `useLiveTalk.ts`, `Talk.tsx`, `Captions.tsx`, `Captions.module.css`, `Archive.tsx`, `Archive.module.css`, `talk.test.tsx` | after `patrick/b3-lamp` merges and B3-3.c.1 |
-| B3-3.d.1 | `patrick-web-audio` | Between, Join and Site view wiring for nav and tools | `apps/web/src/phone/Between.tsx`, `Join.tsx`, `SiteView.tsx` | after B3-4.c.1 and Ionut's yes |
+| B3-3.d.1 | `patrick-web-audio` | Between and Site view wiring for nav and tools | `apps/web/src/phone/Between.tsx`, `SiteView.tsx` | after B3-4.c.1 and Ionut's yes |
 | B3-5.a.1 | `patrick-web-audio` | Room sound on `/screen` | `apps/web/src/audio/room.ts`, `room.test.ts`, `apps/web/src/screen/ScreenPage.tsx` (one hook line) | after `patrick/b3-nav` merges and Cristea's yes |
 | B3-6.a.1 | `patrick-api` | `GET /echoes/approved` | `apps/api/src/echoes/router.ts`, `router.test.ts` (the new route's tests only) | after B3-6.0; parallel with B3-5.a.1 |
 | B3-6.b.1 | `patrick-web-audio` | Whispers on the phone | `apps/web/src/audio/whisper.ts`, `whisper.test.ts`, `useWhispers.ts`, `apps/web/src/phone/SiteView.tsx`, `Between.tsx` (one hook line each) | after B3-6.a.1 and B3-5.a.1 |
@@ -200,8 +200,9 @@ Rules for this session:
 - [ ] `git status`, `git branch --show-current`, `git pull`. List local changes; do not touch them.
 - [ ] Baseline before any change, summary lines recorded: `npm run typecheck`, `npm run build`, `npm test`.
 - [ ] Re-check each "Needs from others" item of section 1: `lamps` and `GET /time` on the deployed API; Ionut's `Between` props unchanged.
-- [ ] Remove the glossary's Blocked row B1-1.b (answered, section 1).
-- [ ] Ask Patrick to ask Ionut for the lines in `SiteView.tsx`, `Between.tsx`, `Join.tsx`, `useSiteGlow.ts`, and Cristea for the `ScreenPage.tsx` line and B3-6.0. Record each answer.
+- [ ] Push the docs commit (this prompt, the glossary, the two plan rows) to `main` and tell Patrick the team needs to see the plan rows.
+- [ ] The glossary's Blocked row B1-1.b is removed (answered, section 1; done in the docs commit).
+- [ ] Ask Patrick to ask Ionut for the lines in `SiteView.tsx`, `Between.tsx`, `useSiteGlow.ts`, and Cristea for the `ScreenPage.tsx` line and B3-6.0. Record each answer.
 - [ ] Commit the seams above on `patrick/b3-work`: `bus.ts`; `loadBuffer` and `ambientBus()` in `engine.ts`; `ArchiveImage` and `archive` in `clips.ts`, `clips.json` and the `engine.test.ts` fixture. Verify `npm run typecheck -w @lampa/web` exit 0 and `npm test -w @lampa/web` passing.
 - Done when: the baseline is recorded, failures that were already there are listed, not fixed silently, and the seams are committed.
 
@@ -226,7 +227,7 @@ Rules for this session:
 **B3-1.b.1** Lamp view, LightSurface, LampCounter. Subagent: `patrick-web-audio`. Files: `apps/web/src/lamp/Lamp.tsx`, `Lamp.module.css`, `LightSurface.tsx`, `LightSurface.module.css`, `LampCounter.tsx`, `LampCounter.module.css`, `lamp.test.tsx`, `presence.ts`, `presence.test.ts`.
 
 - [ ] `Lamp` props: `site: PhoneSite`, `demo: boolean`, `lamps: LampsMessage | null`, `connected: boolean`, `motion: "granted" | "denied" | "unavailable"`, `onBack: () => void`. Layout and copy as DESIGN 7.7: top bar; "Raise your phone above your head."; Ring 160 px filled by `progress`; LampCounter L dark variant with the presence line; "Light without raising" (quiet); "Back to {Site}" (secondary L).
-- [ ] Lit: LightSurface (DESIGN 6.14: z 40, `--lamp-white`, enters 600 ms `--ease-out`, leaves 450 ms) with "Your lamp is lit.", LampCounter L light variant with presence, "Lower your phone to stop.", and the quiet "Lower the lamp" button. On lighting: `playClip(AUDIO_BASE + clips.project.crackle)` when `crackle` is present (it is optional in `ProjectClips`) and `navigator.vibrate?.([20])`. Lowering returns to the instruction with "Lamp lowered. Raise it again to keep it lit."
+- [ ] Lit: LightSurface (DESIGN 6.14: z 40, `--lamp-white`, enters 600 ms `--ease-out`, leaves 450 ms) with "Your lamp is lit.", LampCounter L light variant with presence, "Lower your phone to stop.", and the quiet "Lower the lamp" button. On lighting: `playClip(clips.project.crackle)` (`playClip` adds `AUDIO_BASE` itself) when `crackle` is present (it is optional in `ProjectClips`) and `navigator.vibrate?.([20])`. Lowering returns to the instruction with "Lamp lowered. Raise it again to keep it lit."
 - [ ] `motion` not `granted`, or `usePitch().available` false: Ring and instruction replaced by "This phone cannot tell when it is raised. Tap to light the lamp." and a primary L "Light the lamp" (DESIGN 7.7).
 - [ ] "Light without raising" and "Light the lamp" light the lamp with the same events, crackle and Wake Lock; "Lower the lamp" lowers it.
 - [ ] `LampCounter` sizes S and L, states loading ("... / 731"), live, offline ("(last known)" when `connected` is false and a value is known), as DESIGN 6.13; `role="status"` `aria-atomic="true"`, its announced text changed at most once a minute.
@@ -239,7 +240,7 @@ Rules for this session:
 
 **B3-1.c.1** `lamps` folded into `useSiteGlow`. Subagent: `patrick-web-audio`. Files: `apps/web/src/phone/useSiteGlow.ts` (Ionut's file; only after Ionut agrees).
 
-- [ ] Add `lamps: LampsMessage | null` to the returned object; the existing socket listens for `SocketMessage.enum.lamps` and parses with `LampsMessage.safeParse`, ignoring a failed parse. The last value stays when the socket disconnects.
+- [ ] Add `lamps: LampsMessage | null` to the returned object; the existing socket listens for `SocketMessage.enum.lamps` and parses with `LampsMessage.safeParse`, ignoring a failed parse. The last value stays when the socket disconnects (the counter shows it as "(last known)"); the Lamp and the Site view pass `null` as the presence count while `connected` is false, which hides the line (DESIGN 6.13; Patrick's decision, hour 24).
 - Verify: `npm run typecheck -w @lampa/web` exit 0 and `npm test -w @lampa/web` passing. Paste the summary lines.
 - Done when: `useSiteGlow(siteId).lamps` is typed and filled from the socket; the diff touches only the `lamps` lines.
 
@@ -290,33 +291,32 @@ Rules for this session:
 
 **B3-3.b.1** Navigation voices. Subagent: `patrick-web-audio`. Files: `apps/web/src/audio/nav.ts`, `useNavAudio.ts`, `apps/web/src/audio/useBed.ts`.
 
-- [ ] `nav.ts`: one voice per site: `AudioBufferSourceNode` (looping, the picked bed through `bedUrl` and `loadBuffer`) → `BiquadFilterNode` lowpass → `PannerNode` (`panningModel = "HRTF"`) → `GainNode` → `ambientBus()`. `setNav({ position, heading, targetId, sites })` adds and removes voices to match `compassSites` plus the target, and sets each voice's cutoff, position and gain with `setTargetAtTime(…, SMOOTH_S)`: the target at `BEACON_GAIN × distanceFactor`, the others at `COMPASS_GAIN × distanceFactor`. No position: the target only, centred, at 400 Hz. Voices fade in over `FADE_IN_S` and out over `RAMP_S` (engine constants).
-- [ ] `stopNav()`, `arrive(siteId, memorial)`: not memorial → `playClip(AUDIO_BASE + clips.project.chime)` when present; memorial → no chime, the beacon fades to 0 over `MEMORIAL_FADE_S`; both then stop the other nav voices. A `stopNav()` that comes after `arrive()` (Between unmounts when the Site view opens) leaves the chime and the 3 s fade running to their end.
+- [ ] `nav.ts`: one voice per site: `AudioBufferSourceNode` (looping, the picked bed through `bedUrl` and `loadBuffer`) → `BiquadFilterNode` lowpass → `PannerNode` (`panningModel = "HRTF"`) → `GainNode` → `ambientBus()`. `setNav({ position, heading, targetId, sites })` adds and removes voices to match `compassSites` plus the target, and sets each voice's cutoff, position and gain with `setTargetAtTime(…, SMOOTH_S)`: the target at `BEACON_GAIN × distanceFactor`, the others at `COMPASS_GAIN × distanceFactor`. No position: the target only, centred, at 400 Hz. Demo mode (`demo` true): the target's distance counts as `NEAR_M` (gain 1, 8000 Hz), so only its pan follows the heading; the compass voices keep their real distances (Patrick's decision, hour 24, for demo step 1:40). Voices fade in over `FADE_IN_S` and out over `RAMP_S` (engine constants).
+- [ ] `stopNav()`, `arrive(siteId, memorial)`: not memorial → `playClip(clips.project.chime)` when present; memorial → no chime, the beacon fades to 0 over `MEMORIAL_FADE_S`; both then stop the other nav voices. A `stopNav()` that comes after `arrive()` (Between unmounts when the Site view opens) leaves the chime and the 3 s fade running to their end.
 - [ ] Heal: nav voices are rebuilt after the page returns from another app, with the same `healStep` rule as the bed.
-- [ ] `useNavAudio({ position, heading, targetId })`: calls `setNav` on each change and `stopNav` on unmount.
+- [ ] `useNavAudio({ position, heading, targetId, demo })`: calls `setNav` on each change and `stopNav` on unmount.
 - [ ] `useBed(siteId, glow, on = true)`: with `on` false the bed stops (`stopBed`); back to true it plays again. Existing callers unchanged.
 - Verify: `npm test -w @lampa/web` passing, `npm run typecheck -w @lampa/web` exit 0. Paste the summary lines.
 - Done when: typecheck and tests pass; the graph and the heal are read in the report, as there is no Web Audio in node.
 
 #### B3-3.c Ducking under the persona voice
 
-**B3-3.c.1** Ducking in Talk and clips. Subagent: `patrick-web-audio`. Files: `apps/web/src/talk/Talk.tsx`, `apps/web/src/talk/useLiveTalk.ts`, `apps/web/src/audio/clip.ts`.
+**B3-3.c.1** Ducking in Talk. Subagent: `patrick-web-audio`. Files: `apps/web/src/talk/Talk.tsx`, `apps/web/src/talk/useLiveTalk.ts`.
 
 - [ ] `duck("live", conversation.isSpeaking)` on each change of `isSpeaking`, and `duck("live", false)` when Talk closes.
-- [ ] `playClip` calls `duck("clip", true)` when a clip starts and `duck("clip", false)` when it ends, stops or fails. The browser voice in `speak.ts` is not ducked.
+- [ ] At Talk's two `playClip` call sites only (the tap-to-ask answer in `Talk.tsx`, the greeting in `useLiveTalk.ts`): `duck("clip", true)` before the call and `duck("clip", false)` when its promise resolves (ended, stopped or failed). `clip.ts` is not changed, so the Lamp crackle and the arrival chime do not duck (Patrick's decision, hour 24). The browser voice in `speak.ts` is not ducked.
 - Verify: `npm test -w @lampa/web` passing, `npm run typecheck -w @lampa/web` exit 0. Paste the summary lines.
 - Done when: both holders are set and released on every path, read in the report.
 
-#### B3-3.d Wiring into Between sites, Join and the Site view
+#### B3-3.d Wiring into Between sites and the Site view
 
-**B3-3.d.1** Between, Join and Site view wiring. Subagent: `patrick-web-audio`. Files: `apps/web/src/phone/Between.tsx`, `Join.tsx`, `SiteView.tsx` (Ionut's files; only after Ionut agrees).
+**B3-3.d.1** Between and Site view wiring. Subagent: `patrick-web-audio`. Files: `apps/web/src/phone/Between.tsx`, `SiteView.tsx` (Ionut's files; only after Ionut agrees). `Join.tsx` needs no line: `Between` calls `useNavAudio` itself, so `/` gets the sound too.
 
-- [ ] `Between`: the `initialTarget` prop of the seam, used as the first `targetId`; one line `useNavAudio({ position: here, heading: blendHeading(heading, position), targetId: shownId })`; the arrival effect calls `arrive(shown.id, shown.is_memorial)` (for the memorial too, which today skips `onArrive`).
+- [ ] `Between`: the `initialTarget` prop of the seam, used as the first `targetId`; one line `useNavAudio({ position: here, heading: blendHeading(heading, position), targetId: shownId, demo })`; the arrival effect calls `arrive(shown.id, shown.is_memorial)` (for the memorial too, which today skips `onArrive`).
 - [ ] `SiteView`: `useBed(site.id, glow, view !== "between")`; a `nextTarget` state passed to `Between` as `initialTarget`; `Talk` gets `onEcho={(p) => { setEchoPrompt(p); setView("echo"); }}` and `onNextSite={(id) => { setNextTarget(id); setView("between"); }}` (B3-4.c.1's props).
-- [ ] `Join.tsx`: nothing beyond what `Between` does by itself; the line is checked and left unchanged if `Between` covers it.
 - Verify: `npm run typecheck -w @lampa/web` exit 0; `npm run build -w @lampa/web` ok; `npm test -w @lampa/web` passing. Paste the summary lines.
 - Done when: the diff touches only these lines in Ionut's files.
-- [ ] Patrick's check. Do not mark it done. iPhone with headphones, `/?demo=1&at=mx`: the Unirii bed is centred when the phone faces Piața Unirii and moves to one ear when turned away, and the arrow card agrees (Checkpoint 3 step 1:40); the bed of the site just left stops in Between; arrival plays the chime; after Google Maps and back, "Tap to listen again" brings the sounds back; in Talk the bed drops while the persona speaks.
+- [ ] Patrick's check. Do not mark it done. iPhone with headphones, `/s/mx?demo=1`, then "Next site" (that tap asks for the motion permission) and Piața Unirii from Sites: the Unirii bed is centred when the phone faces Piața Unirii and moves to one ear when turned away, and the arrow card agrees (Checkpoint 3 step 1:40); the bed of the site just left stops in Between; arrival plays the chime; after Google Maps and back, "Tap to listen again" brings the sounds back; in Talk the bed drops while the persona speaks.
 
 ### B3-4 Talk client tools moved from Build 2 (1 h estimated)
 
@@ -344,11 +344,12 @@ Rules for this session:
 **B3-4.c.1** Client tools and archive card. Subagent: `patrick-web-audio`. Files: `apps/web/src/talk/tools.ts`, `tools.test.ts`, `useLiveTalk.ts`, `Talk.tsx`, `Captions.tsx`, `Captions.module.css`, `Archive.tsx`, `Archive.module.css`, `talk.test.tsx`.
 
 - [ ] `show_archive_image({ image_id })`: finds the id in `clips.sites[site.id].archive`; found → an image card in Captions (max height 40dvh, `--radius-s`, credit line `--type-meta` `--text-3`) and returns `"shown"`; tapping the card opens a `Sheet` with the image full width, `object-fit: contain`, alt text, credit and year (DESIGN 7.4: loading "Loading image", error "This image did not load." and the alt text); unknown id → `"no such image"`. Image URL `/archive/{file}`.
-- [ ] `start_echo_recording({ prompt })`: returns `"opened"`; after the persona's current line ends (`isSpeaking` false) ends the session and calls a new prop `onEcho(prompt)` (Patrick's decision, hour 24).
-- [ ] `suggest_next_site()`: `suggestNext({ sites: SITES.filter((s) => s.id !== site.id), position: { lat: site.lat, lng: site.lng }, glow: null, visited: visitedSites() }).suggestion` (the visitor stands at this site); returns `"{name}: {directions_hint.en}"` from `GET /sites/{id}?lang=en` within 3 s, else `"{name}"`; after the persona's line ends the session and calls a new prop `onNextSite(siteId)` (DESIGN 7.3).
+- [ ] `start_echo_recording({ prompt })`: returns `"opened"`; ends the session when the next agent speaking turn finishes (`isSpeaking` goes true, then false), or `TOOL_END_CAP_MS = 8000` after the call if no turn starts, then calls a new prop `onEcho(prompt)` (Patrick's decisions, hour 24).
+- [ ] `suggest_next_site()`: `suggestNext({ sites: SITES.filter((s) => s.id !== site.id), position: { lat: site.lat, lng: site.lng }, glow: null, visited: visitedSites() }).suggestion` (the visitor stands at this site); returns `"{name}: {directions_hint.en}"` from `GET /sites/{id}?lang=en` within 3 s, else `"{name}"`; ends the session by the same rule as `start_echo_recording` and calls a new prop `onNextSite(siteId)` (DESIGN 7.3).
 - [ ] Tests: `tools.test.ts` for each parser and return string, the unknown image id, a missing `prompt`; `talk.test.tsx` renders the image card.
 - Verify: `npm test -w @lampa/web` passing, `npm run typecheck -w @lampa/web` exit 0, `npm run build -w @lampa/web` ok. Paste the summary lines.
-- Done when: the tests pass; the "after the line" timing is read in the report.
+- [ ] Tests: the end rule through an exported `shouldEnd({ calledAt, sawSpeaking, speaking, now })`: not before a turn, at the end of a turn, at 8000 ms with no turn, not at 7999.
+- Done when: the tests pass.
 - The `onEcho` and `onNextSite` props are wired in `SiteView.tsx` by B3-3.d.1.
 
 #### B3-4.d The tools on the agent
@@ -366,8 +367,8 @@ Rules for this session:
 **B3-5.a.1** Room sound. Subagent: `patrick-web-audio`. Files: `apps/web/src/audio/room.ts`, `room.test.ts`, `apps/web/src/screen/ScreenPage.tsx` (one hook line; only after Cristea agrees).
 
 - [ ] `ROOM_MASTER = 0.8`, `ROOM_PAN_MAX = 0.8` (Patrick's decisions, hour 24). `roomGain(glow) = ROOM_MASTER × clamp(glow, 0, 1)`; `roomPan(x, width) = ROOM_PAN_MAX × (2x / width − 1)`.
-- [ ] `useRoomSound(glow: Record<string, number> | null, positions: Record<string, number>)`: for the four colour sites only (never the memorial, never the Gallery), each picked bed `source → StereoPannerNode → GainNode → destination`, gain ramped to `roomGain` over `RAMP_S` on each glow message, pan from the projected x. It starts after the "Start the Living Map" click, which already ran in a tap; it calls `unlockAudio()` there.
-- [ ] One line in `ScreenPage.tsx` calling `useRoomSound` inside `LivingMap` with the glow and projected positions it already has.
+- [ ] `useRoomSound(glowRef, placed, width)`: `glowRef` and the placed positions are the ones `LivingMap` already has (`useScreenSocket`'s `glowRef`, `PLACED`); the hook reads `glowRef.current` once a second (Patrick's decision, hour 24); for the four colour sites only (never the memorial, never the Gallery), each picked bed `source → StereoPannerNode → GainNode → destination`, gain ramped to `roomGain` over `RAMP_S` on each glow message, pan from the projected x. It starts after the "Start the Living Map" click, which already ran in a tap; it calls `unlockAudio()` there.
+- [ ] One line in `ScreenPage.tsx` calling `useRoomSound(glowRef, PLACED, <map width>)` inside `LivingMap`, the map width being the one its projection uses. Room sound does not go through the duck bus (Patrick's decision, hour 24).
 - [ ] Tests: `roomGain` at 0, 0.5, 1, 1.2; `roomPan` at the left edge, centre and right edge; the memorial is never in the list.
 - Verify: `npm test -w @lampa/web -- room` passing, `npm run typecheck -w @lampa/web` exit 0, `npm run build -w @lampa/web` ok. Paste the summary lines.
 - Done when: the tests pass and the `ScreenPage.tsx` diff is one hook line and its import.
@@ -383,7 +384,7 @@ Rules for this session:
 
 **B3-6.a.1** `GET /echoes/approved`. Subagent: `patrick-api`. Files: `apps/api/src/echoes/router.ts`, `router.test.ts` (the new route's tests only; Cristea's file, after she agrees).
 
-- [ ] The route as B3-6.0, one SQL query on `echoes` with `status = 'approved'`, ordered by approval time, newest first, limit 5.
+- [ ] The route as B3-6.0, one SQL query on `echoes` with `status = 'approved'` and the site, ordered by `created_at` descending (the table has no approval time), limit 5; `audioUrl` built the same way as in the `echo_approved` broadcast.
 - [ ] Tests: approved only, newest first, at most 5; Cathedral 404; unknown site 404; no database 503.
 - Verify: `npm test -w @lampa/api` passing, `npm run typecheck -w @lampa/api` exit 0. Paste the summary lines.
 - Done when: the tests pass and removing the status filter fails a test.
@@ -405,14 +406,14 @@ Rules for this session:
 - [ ] All branches of this block merged into a local throwaway branch, `npm test`, `npm run typecheck` and `npm run build` green on it.
 - [ ] Push each branch and open its PR, in this order: `patrick/b3-lamp`, `patrick/b3-nav`, `patrick/b3-screen`. Each PR lists what was verified and what is waiting for a phone.
 - [ ] Glossary complete: every ID of this prompt is under Done or Blocked, and Hand-offs lists what other lanes can now use (`useSiteGlow().lamps`, `ambientBus`/`duck`, `useBed`'s `on`, `Between`'s `initialTarget`, `persona.archive`, `GET /echoes/approved`).
-- [ ] Patrick's checks on real phones, listed and not claimed: on the iPhone B3-1.e, B3-2.a, B3-3.d, B3-4.e, B3-5.a, B3-6.b; on Ionut's Android B3-1.e and the carried lens-sound check. Checkpoint 3: step 1:40 at `/?demo=1&at=mx` facing the Unirii poster, and step 2:00 with `npm run simulate:crowd -- --lamps` raising the counter, twice from a cold start.
+- [ ] Patrick's checks on real phones, listed and not claimed: on the iPhone B3-1.e, B3-2.a, B3-3.d, B3-4.e, B3-5.a, B3-6.b; on Ionut's Android B3-1.e and the carried lens-sound check. Checkpoint 3: step 1:40 at `/s/mx?demo=1` → Next site → Piața Unirii, facing the Unirii poster, and step 2:00 with `npm run simulate:crowd -- --lamps` raising the counter, twice from a cold start.
 - Done when: every box is ticked or listed as Patrick's, and the report below is posted.
 
 ## 4. Report
 
 After each ID, post one line and add it to the glossary's Done table: `<ID> done | verify: <command> → <summary line> | commit: <sha>`. End the block with:
 
-- **Blocked:** one line each, the question and your recommendation. Expected: B3-6.0 (the team's answer on `GET /echoes/approved`), Ionut's yes for his four files, Cristea's yes for `ScreenPage.tsx` and her router, the speech-clip content (team), archive images with sources (team).
+- **Blocked:** one line each, the question and your recommendation. Expected: B3-6.0 (the team's answer on `GET /echoes/approved`), Ionut's yes for his three files, Cristea's yes for `ScreenPage.tsx` and her router, the speech-clip content (team), archive images with sources (team).
 - **Not finished at hour 31:** each ID, what is left, and its place in the cut order.
 - **Phone checks for Patrick:** what you could not run here.
 - **For the checkpoint:** what the other lanes should know before integrating.
