@@ -35,7 +35,7 @@ describe("presenceLine", () => {
     [2, true, "ro", "Tu și încă o persoană aprindeți Piața Victoriei acum."],
     [3, true, "ro", "Tu și încă 2 persoane aprindeți Piața Victoriei acum."],
     [19, true, "ro", "Tu și încă 18 persoane aprindeți Piața Victoriei acum."],
-    [20, true, "ro", "Tu și încă 19 de persoane aprindeți Piața Victoriei acum."],
+    [20, true, "ro", "Tu și încă 19 persoane aprindeți Piața Victoriei acum."],
     [21, true, "ro", "Tu și încă 20 de persoane aprindeți Piața Victoriei acum."],
   ] as const)("%s, lit %s, %s", (count, lit, lang, line) => {
     expect(presenceLine(count, lit, S, lang)).toBe(line);

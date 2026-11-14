@@ -2,8 +2,8 @@
 export function presenceLine(count: number | null, lit: boolean, site: string, lang: "en" | "ro"): string | null {
   if (count === null) return null;
   const n = lit ? Math.max(1, count) : count; // 0 while lit: the visitor is lighting
-  // DESIGN 6.13 row "20 and more": keyed on the count n in both columns, as the table says.
-  const de = n >= 20 ? "de " : "";
+  // Romanian "de" follows the number shown: n before lighting, n - 1 while lit (Patrick, hour 25).
+  const de = (lit ? n - 1 : n) >= 20 ? "de " : "";
   if (lang === "ro") {
     if (lit) {
       if (n === 1) return `Tu aprinzi ${site}.`;

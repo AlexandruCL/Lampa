@@ -2,7 +2,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import type { LampsMessage } from "@lampa/shared";
 import type { PhoneSite } from "../sites/sites";
-import { Lamp, LampView } from "./Lamp";
+import { Lamp, LampView, rearms } from "./Lamp";
 import { LampCounter } from "./LampCounter";
 
 const site = { id: "victoriei", name: "Piața Victoriei", lamp: true } as PhoneSite;
@@ -19,6 +19,7 @@ const view = (over: Partial<Parameters<typeof LampView>[0]> = {}) =>
       progress={0}
       surface="off"
       lowered={false}
+      hint
       presence="5 people are lighting Piața Victoriei now."
       onLight={noop}
       onLower={noop}
@@ -56,6 +57,20 @@ describe("Lamp", () => {
     expect(out).not.toContain("progressbar");
     expect(out).not.toContain("Raise your phone above your head.");
     expect(out).not.toContain("Light without raising");
+  });
+
+  it("hides the lower-your-phone hint on a lamp lit by tap", () => {
+    const out = view({ surface: "on", hint: false });
+    expect(out).toContain("Your lamp is lit.");
+    expect(out).not.toContain("Lower your phone to stop.");
+    expect(out).toContain("Lower the lamp");
+  });
+
+  it("re-arms the raise after the button only once the phone is under 40", () => {
+    expect(rearms(39)).toBe(true);
+    expect(rearms(40)).toBe(false);
+    expect(rearms(70)).toBe(false);
+    expect(rearms(null)).toBe(false);
   });
 
   it("says the lamp was lowered", () => {

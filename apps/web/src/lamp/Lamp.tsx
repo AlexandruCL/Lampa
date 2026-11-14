@@ -8,7 +8,7 @@ import type { PhoneSite } from "../sites/sites";
 import { visitorLang } from "../talk/lang";
 import { LampCounter } from "./LampCounter";
 import { LIGHT_LEAVE_MS, LightSurface } from "./LightSurface";
-import { RAISE_START, type RaiseState, stepRaise } from "./lampMaths";
+import { LOWER_DEG, RAISE_START, type RaiseState, stepRaise } from "./lampMaths";
 import { presenceLine } from "./presence";
 import { startClockOffset } from "./pulse";
 import styles from "./Lamp.module.css";
@@ -19,6 +19,9 @@ import { usePitch } from "./usePitch";
 const TICK_MS = 100;
 
 export type Surface = "off" | "on" | "leaving";
+
+/** After "Lower the lamp", the raise path waits for the phone to come down first, so a phone still held up does not relight. */
+export const rearms = (pitch: number | null) => pitch !== null && pitch < LOWER_DEG;
 
 type Props = {
   site: PhoneSite;
@@ -34,7 +37,9 @@ export function Lamp({ site, demo, lamps, connected, motion, onBack }: Props) {
   const { pitch, available } = usePitch();
   const canRaise = motion === "granted" && available;
   const [surface, setSurface] = useState<Surface>("off");
-  const [manual, setManual] = useState(false); // lit by a tap: pitch cannot lower it
+  // raise: pitch drives the lamp; tap: lit by a tap, pitch cannot lower it; wait: lowered by the button, see `rearms`
+  const [mode, setMode] = useState<"raise" | "tap" | "wait">("raise");
+  const [litByTap, setLitByTap] = useState(false);
   const [progress, setProgress] = useState(0);
   const [lowered, setLowered] = useState(false);
   const pitchRef = useRef(pitch);
@@ -50,21 +55,25 @@ export function Lamp({ site, demo, lamps, connected, motion, onBack }: Props) {
   const light = (inTap: boolean) => {
     setSurface("on");
     setLowered(false);
+    setLitByTap(inTap);
     // inTap only from a tap: playClip then resumes the context, which must stay inside a tap.
     if (clips.project.crackle) void playClip(clips.project.crackle, inTap);
     navigator.vibrate?.([20]);
   };
   const lower = () => {
     raise.current = RAISE_START;
-    setManual(false);
     setSurface("leaving");
     setLowered(true);
   };
 
   // Stepped on a timer, not on pitch changes: a steady reading must still complete the hold.
   useEffect(() => {
-    if (!canRaise || manual) return;
+    if (!canRaise || mode === "tap") return;
     const id = setInterval(() => {
+      if (mode === "wait") {
+        if (rearms(pitchRef.current)) setMode("raise");
+        return;
+      }
       const was = raise.current.phase;
       const next = stepRaise(raise.current, pitchRef.current, Date.now());
       raise.current = next.state;
@@ -75,7 +84,7 @@ export function Lamp({ site, demo, lamps, connected, motion, onBack }: Props) {
       }
     }, TICK_MS);
     return () => clearInterval(id);
-  }, [canRaise, manual]);
+  }, [canRaise, mode]);
 
   useEffect(() => {
     if (surface !== "leaving") return;
@@ -96,12 +105,16 @@ export function Lamp({ site, demo, lamps, connected, motion, onBack }: Props) {
       progress={progress}
       surface={surface}
       lowered={lowered}
+      hint={!litByTap}
       presence={presenceLine(here, surface !== "off", site.name, lang)}
       onLight={() => {
-        setManual(true);
+        setMode("tap");
         light(true);
       }}
-      onLower={lower}
+      onLower={() => {
+        setMode("wait");
+        lower();
+      }}
       onBack={onBack}
     />
   );
@@ -116,6 +129,8 @@ type ViewProps = {
   progress: number;
   surface: Surface;
   lowered: boolean;
+  /** "Lower your phone to stop." on the lit surface: raise-lit only, a tap-lit lamp ignores the phone's angle. */
+  hint: boolean;
   presence: string | null;
   onLight: () => void;
   onLower: () => void;
@@ -123,7 +138,7 @@ type ViewProps = {
 };
 
 /** The Lamp screen for given state, without sensors or timers. */
-export function LampView({ site, demo, lamps, connected, canRaise, progress, surface, lowered, presence, onLight, onLower, onBack }: ViewProps) {
+export function LampView({ site, demo, lamps, connected, canRaise, progress, surface, lowered, hint, presence, onLight, onLower, onBack }: ViewProps) {
   const counter = (light: boolean) => <LampCounter lamps={lamps} connected={connected} size="l" light={light} presence={presence} />;
   return (
     <>
@@ -172,7 +187,7 @@ export function LampView({ site, demo, lamps, connected, canRaise, progress, sur
         >
           <p className={styles.litTitle}>Your lamp is lit.</p>
           {counter(true)}
-          <p className={styles.hint}>Lower your phone to stop.</p>
+          {hint && <p className={styles.hint}>Lower your phone to stop.</p>}
         </LightSurface>
       )}
     </>
