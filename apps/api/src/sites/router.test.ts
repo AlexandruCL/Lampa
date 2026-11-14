@@ -3,6 +3,8 @@ import type { AddressInfo } from "node:net";
 import express from "express";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { Db } from "../seam.js";
+import { SiteDetail } from "@lampa/shared";
+import { SELECT_SITE_KEYS } from "../places/publish.js";
 import { createSitesRouter, parseNear, SITE_SQL } from "./router.js";
 
 let servers: Server[] = [];
@@ -18,12 +20,17 @@ const siteRow = {
   radius_m: 40, interactions: ["candle"], facts: [{ a: 1 }], directions_hint: { en: "Go left", ro: "Stanga" },
 };
 
-async function start(rows: any[] = [], opts: { glow?: any; noDb?: boolean; fail?: boolean } = {}) {
+async function start(rows: any[] = [], opts: { glow?: any; noDb?: boolean; fail?: boolean; keys?: string[] | "fail" } = {}) {
   const calls: { text: string; params?: unknown[] }[] = [];
   const db: Db = {
     query: async (text, params) => {
       calls.push({ text, params });
       if (opts.fail) throw new Error("boom");
+      if (text === SELECT_SITE_KEYS) {
+        if (opts.keys === "fail") throw new Error("keys down");
+        const keys = (opts.keys ?? []).map((key) => ({ key }));
+        return { rows: keys, rowCount: keys.length };
+      }
       return { rows, rowCount: rows.length };
     },
   };
@@ -101,6 +108,44 @@ describe("GET /sites/:id", () => {
     expect(SITE_SQL).not.toMatch(/persona/i);
     const body = await (await (await start([{ ...siteRow, persona: { prompt: "x" } }])).get("/sites/mx")).json();
     expect(body).not.toHaveProperty("persona");
+  });
+});
+
+describe("GET /sites/:id sound", () => {
+  const bed1 = "site-mx_bed-1-0123456789ab.wav";
+  const bed2 = "site-mx_bed-2-ba9876543210.wav";
+  const en = "site-mx_greeting-en-aaaaaaaaaaaa.mp3";
+  const ro = "site-mx_greeting-ro-bbbbbbbbbbbb.mp3";
+  const answer = "site-mx_answer-q1-en-cccccccccccc.mp3";
+  const sound = async (keys: string[] | "fail") => (await (await start([siteRow], { keys })).get("/sites/mx")).json();
+
+  it("a place with bed takes 1 and 2 and greetings en and ro answers bed take 1 and both greetings", async () => {
+    const { get, calls } = await start([siteRow], { keys: [bed2, en, answer, bed1, ro] });
+    const body = await (await get("/sites/mx")).json();
+    expect(body.sound).toEqual({ bed: "/blob/" + bed1, greeting: { en: "/blob/" + en, ro: "/blob/" + ro } });
+    expect(SiteDetail.parse(body)).toEqual(body);
+    expect(calls[1]).toEqual({ text: SELECT_SITE_KEYS, params: ["site-mx_"] });
+  });
+  it("only take 2 present answers take 2, and greetings alone answer a null bed", async () => {
+    expect((await sound([bed2])).sound).toEqual({ bed: "/blob/" + bed2, greeting: {} });
+    expect((await sound([en])).sound).toEqual({ bed: null, greeting: { en: "/blob/" + en } });
+  });
+  it("no blobs answers no sound key", async () => {
+    expect(await sound([])).not.toHaveProperty("sound");
+    expect(await sound([answer])).not.toHaveProperty("sound");
+  });
+  it("blobs of a site whose id starts with this id are not mixed in", async () => {
+    const other = ["site-mx2_bed-1-0123456789ab.wav", "site-mx_x_greeting-ro-bbbbbbbbbbbb.mp3", "site-mx_x_bed-1-0123456789ab.wav"];
+    expect((await sound([bed2, ...other])).sound).toEqual({ bed: "/blob/" + bed2, greeting: {} });
+    expect(await sound(other)).not.toHaveProperty("sound");
+  });
+  it("a failing key query answers 200 without sound and logs one line", async () => {
+    const err = vi.spyOn(console, "error").mockImplementation(() => {});
+    const res = await (await start([siteRow], { keys: "fail" })).get("/sites/mx");
+    expect(res.status).toBe(200);
+    expect(await res.json()).not.toHaveProperty("sound");
+    expect(err).toHaveBeenCalledTimes(1);
+    expect(err).toHaveBeenCalledWith("sites query failed: keys down");
   });
 });
 
