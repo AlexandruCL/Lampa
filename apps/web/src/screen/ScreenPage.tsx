@@ -5,7 +5,7 @@ import { DemoBadge } from "../phone/DemoBadge";
 import { isDemo } from "../sensors/demo";
 import { startCanvas } from "./canvas";
 import { toSite } from "./newSites";
-import { layout, SITE_RADIUS } from "./projection";
+import { layout } from "./projection";
 import { QRBlock } from "./QRBlock";
 import styles from "./ScreenPage.module.css";
 import { Subtitle } from "./Subtitle";
@@ -26,7 +26,7 @@ function LivingMap({ demo }: { demo: boolean }) {
   );
   const knownIds = useMemo(() => allSites.map((s) => s.id), [allSites]);
   const siteNames = useMemo(() => Object.fromEntries(allSites.map((s) => [s.id, s.name])), [allSites]);
-  const placed = useMemo(() => new Map(layout(allSites, MAP_LINES).map((p) => [p.id, p])), [allSites]);
+  const placed = useMemo(() => layout(allSites, MAP_LINES), [allSites]);
   const onSite = useCallback((d: SiteDetail) => setAdded((list) => (list.some((s) => s.id === d.id) ? list : [...list, d])), []);
   const sitesRef = useRef(allSites);
   const { glowRef, windowsRef, effectsRef, candlesRef, connected, coloursToday, events, subtitles } = useScreenSocket(
@@ -61,20 +61,8 @@ function LivingMap({ demo }: { demo: boolean }) {
       <div className={styles.map}>
         <canvas ref={canvasRef} className={styles.canvas} aria-hidden="true" />
         {subtitles.map((s) => {
-          const p = placed.get(s.siteId);
-          return (
-            p && (
-              <Subtitle
-                key={`${s.siteId}-${s.at}`}
-                x={p.x}
-                y={p.y}
-                r={SITE_RADIUS}
-                labelBelow={p.label === "below"}
-                text={s.text}
-                lang={s.lang}
-              />
-            )
-          );
+          const p = placed.find((q) => q.id === s.siteId);
+          return p && <Subtitle key={`${s.siteId}-${s.at}`} point={p} others={placed} text={s.text} lang={s.lang} />;
         })}
         <p className={styles.credit}>© OpenStreetMap contributors</p>
         {demo && (
