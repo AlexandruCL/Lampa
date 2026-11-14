@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { z } from "zod";
 import { API_URL, ApiError, SESSION_KEY } from "../api/client";
-import { cancelledReturn, claimAnonymous, nextClaimStep } from "./claimFlow";
+import { cancelledReturn, claimAnonymous, nextClaimStep, shouldPromptKeep } from "./claimFlow";
 
 const auth0Token = async () => "auth0tok";
 
@@ -66,5 +66,14 @@ describe("nextClaimStep", () => {
 
   it("a signed-in visit with no stored returnTo waits", () => {
     expect(nextClaimStep({ isAuthenticated: true, returnTo: null })).toBe("wait");
+  });
+});
+
+describe("shouldPromptKeep", () => {
+  it("prompts a signed-out visitor until the site's flag is set, and never while Auth0 loads", () => {
+    expect(shouldPromptKeep({ isLoading: false, isAuthenticated: false, seen: null })).toBe(true);
+    expect(shouldPromptKeep({ isLoading: false, isAuthenticated: false, seen: "1" })).toBe(false);
+    expect(shouldPromptKeep({ isLoading: false, isAuthenticated: true, seen: null })).toBe(false);
+    expect(shouldPromptKeep({ isLoading: true, isAuthenticated: false, seen: null })).toBe(false);
   });
 });

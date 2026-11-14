@@ -1,1 +1,2 @@
 .root { display: flex; flex-direction: column; gap: var(--space-s); }
+.body { margin: 0 0 var(--space-s); font: var(--type-body); color: var(--text-2); }
