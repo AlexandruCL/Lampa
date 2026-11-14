@@ -12,6 +12,8 @@ import type { PhoneSite } from "../sites/sites";
 import { DemoBadge } from "./DemoBadge";
 import { EchoRecorder } from "./EchoRecorder";
 import { GlowMark } from "./GlowMark";
+import { Lamp } from "../lamp/Lamp";
+import { LampCounter } from "../lamp/LampCounter";
 import { applyPane, emptyWindow } from "./panes";
 import { RoseWindow } from "./RoseWindow";
 import styles from "./SiteView.module.css";
@@ -32,7 +34,8 @@ export function SiteView({ site, demo, remote, notice, compass, primer, arrived 
   const [waited, setWaited] = useState(false);
   const [camera, setCamera] = useState<Promise<CameraResult> | null>(null);
   const [mic, setMic] = useState<Promise<"granted" | "denied"> | null>(null);
-  const [view, setView] = useState<"site" | "lens" | "echo" | "between" | "talk">("site");
+  const [view, setView] = useState<"site" | "lens" | "echo" | "between" | "talk" | "lamp">("site");
+  const [motion, setMotion] = useState<CompassStatus | null>(null);
   const [echoPrompt, setEchoPrompt] = useState<string | undefined>();
 
   useEffect(() => {
@@ -82,6 +85,10 @@ export function SiteView({ site, demo, remote, notice, compass, primer, arrived 
     return <Between from={site} primer={primer} demo={demo} remote={remote} onBack={() => setView("site")} />;
   }
 
+  if (view === "lamp" && motion) {
+    return <Lamp site={site} demo={demo} lamps={live.lamps} connected={connected} motion={motion} onBack={() => setView("site")} />;
+  }
+
   if (view === "talk" && mic) {
     return (
       <Talk
@@ -106,6 +113,7 @@ export function SiteView({ site, demo, remote, notice, compass, primer, arrived 
       <h1 className={styles.name}>{site.name}</h1>
       {arrivedLine && <p className={styles.arrived}>{site.name} is waking.</p>}
       <GlowMark siteName={site.name} glow={glow} connected={connected} />
+      {site.lamp && !remote && <LampCounter lamps={live.lamps} connected={connected} size="s" />}
       <div className={styles.visual}>
         <RoseWindow name={site.name} size="l" filled={live.panes.filled} glow={glow !== null && glow >= 0.15 ? glow : undefined} />
       </div>
@@ -145,7 +153,21 @@ export function SiteView({ site, demo, remote, notice, compass, primer, arrived 
           >
             Catch a colour
           </Button>
-          {site.lamp && !remote && <Button variant="secondary" size="l" block>Raise a lamp</Button>}
+          {site.lamp && !remote && (
+            <Button
+              variant="secondary"
+              size="l"
+              block
+              onClick={() => {
+                // inside the tap: iOS asks for motion here, which the demo primer skips; the site view stays until it answers
+                setMotion(null);
+                void requestCompass().then(setMotion);
+                setView("lamp");
+              }}
+            >
+              Raise a lamp
+            </Button>
+          )}
           <Button
             variant="secondary"
             size="l"

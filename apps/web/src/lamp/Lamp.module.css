@@ -1,0 +1,32 @@
+/* Station view as EchoRecorder.module.css, with the 5.2 view shift token. */
+.view {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  max-width: var(--column-wide);
+  margin: 0 auto;
+  background: var(--bg);
+  animation: open var(--dur-base) var(--ease-out);
+}
+@keyframes open { from { opacity: 0; transform: translateY(var(--view-shift)); } to { opacity: 1; transform: none; } }
+.body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-l);
+  padding: var(--space-m) var(--space-l);
+  text-align: center;
+}
+.title { margin: 0; font: var(--type-title); letter-spacing: var(--type-title-tracking); color: var(--text); text-wrap: balance; }
+.line { margin: 0; font: var(--type-body); color: var(--text-2); }
+.bottom {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-s);
+  padding: var(--space-m) var(--space-l) calc(var(--space-l) + env(safe-area-inset-bottom, 0px));
+}
+.litTitle { margin: 0; font: var(--type-title); letter-spacing: var(--type-title-tracking); color: var(--ink-on-light); }
+.hint { margin: 0; font: var(--type-meta); color: var(--ink-on-light-2); }
