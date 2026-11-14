@@ -1,6 +1,6 @@
 import { ConversationProvider } from "@elevenlabs/react";
 import { useEffect, useRef, useState, type ComponentProps } from "react";
-import { playClip, stopClip } from "../audio/clip";
+import { stopClip } from "../audio/clip";
 import { caughtClink, readingTone, windowChord } from "../audio/note";
 import { Button, Notice, RoundControl } from "../components";
 import { ColourLens } from "../phone/ColourLens";
@@ -14,7 +14,7 @@ import { questionsFor, type Question } from "./questions";
 import { speak, stopSpeaking } from "./speak";
 import styles from "./Talk.module.css";
 import { LENS_CLOSED, caughtLine } from "./tools";
-import { useLiveTalk } from "./useLiveTalk";
+import { playDuckedClip, useLiveTalk } from "./useLiveTalk";
 
 type Props = {
   site: PhoneSite;
@@ -90,7 +90,7 @@ function TalkScreen({ site, demo, remote, mic, onBack, panes, addPane }: Props) 
     // no file: speak inside the tap, iOS wants a gesture for the browser voice
     const voice = () => speak(q.a, lang).then(done);
     if (!q.file) return void voice();
-    void playClip(q.file, true).then((end) => (end === "failed" && turn.current === t ? voice() : done(end)));
+    void playDuckedClip(q.file, true).then((end) => (end === "failed" && turn.current === t ? voice() : done(end)));
   };
 
   return (

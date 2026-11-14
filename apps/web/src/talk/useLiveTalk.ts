@@ -2,12 +2,28 @@ import { useConversation } from "@elevenlabs/react";
 import { AgentSession, type AgentLang } from "@lampa/shared";
 import { useEffect, useRef, useState } from "react";
 import { api } from "../api/client";
-import { playClip, stopClip } from "../audio/clip";
+import { duck } from "../audio/bus";
+import { playClip, stopClip, type ClipEnd } from "../audio/clip";
 import type { PhoneSite } from "../sites/sites";
 import type { Line } from "./Captions";
 import { TALK_CONNECT_MS, step, type TalkEvent, type TalkMode, type TalkStep } from "./machine";
 import { greetingFor } from "./questions";
 import { LENS_CLOSED, LIGHT_OK, LIGHT_UNKNOWN, parseLight } from "./tools";
+
+let clipTurn = 0;
+
+/**
+ * Talk's clips (greeting, tap-to-ask answers) duck the ambient bus until they end, stop or fail.
+ * Only the latest one releases: a clip stopped by the next resolves after the next has taken the duck.
+ */
+export function playDuckedClip(file: string, inTap = false): Promise<ClipEnd> {
+  const t = ++clipTurn;
+  duck("clip", true);
+  return playClip(file, inTap).then((end) => {
+    if (t === clipTurn) duck("clip", false);
+    return end;
+  });
+}
 
 /** The live session of the Talk screen. Must be called inside a `ConversationProvider`. */
 export function useLiveTalk(site: PhoneSite, lang: AgentLang, mic: Promise<"granted" | "denied">) {
@@ -48,7 +64,7 @@ export function useLiveTalk(site: PhoneSite, lang: AgentLang, mic: Promise<"gran
 
     (async () => {
       const greeting = greetingFor(site.id, lang);
-      if (greeting) void playClip(greeting);
+      if (greeting) void playDuckedClip(greeting);
       if ((await mic) === "denied") return dispatch({ type: "mic_denied" });
       if (cancelled) return;
       // the iOS microphone prompt does not count against the 8 s
@@ -96,6 +112,12 @@ export function useLiveTalk(site: PhoneSite, lang: AgentLang, mic: Promise<"gran
       conv.current.endSession();
     };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps -- once on mount
+
+  // the persona speaks through the SDK's own audio, so its duck follows isSpeaking
+  useEffect(() => {
+    duck("live", conversation.isSpeaking);
+  }, [conversation.isSpeaking]);
+  useEffect(() => () => duck("live", false), []);
 
   /** A tapped question's answer, shown as a persona line. */
   const addAnswer = (text: string) => setLines((ls) => [...ls, { key: `tap-${ls.length}`, role: "agent", text }]);
