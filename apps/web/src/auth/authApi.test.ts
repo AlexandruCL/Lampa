@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { z } from "zod";
 import { API_URL, ApiError } from "../api/client";
-import { authApi, authBlob } from "./authApi";
+import { AuthApiError, authApi, authBlob, postJson } from "./authApi";
 
 function stubFetch(response: Response) {
   const fetchMock = vi.fn(async (_url: string, _init?: RequestInit) => response);
@@ -37,6 +37,26 @@ describe("authApi", () => {
   it("a body that fails the schema throws", async () => {
     stubFetch(new Response(JSON.stringify({ ok: "yes" })));
     await expect(authApi("/admin/echoes", "auth0tok", Ok)).rejects.toThrow(z.ZodError);
+  });
+
+  it("an error body's code is on the thrown error", async () => {
+    const fetchMock = stubFetch(new Response(JSON.stringify({ error: "site_exists" }), { status: 409 }));
+    const err = await authApi("/sites", "auth0tok", Ok, postJson({ a: 1 })).catch((e: unknown) => e);
+    expect(err).toBeInstanceOf(AuthApiError);
+    expect(err).toBeInstanceOf(ApiError);
+    expect((err as AuthApiError).status).toBe(409);
+    expect((err as AuthApiError).code).toBe("site_exists");
+    const headers = new Headers(fetchMock.mock.calls[0]![1]?.headers);
+    expect(headers.get("content-type")).toBe("application/json");
+    expect(headers.get("Authorization")).toBe("Bearer auth0tok");
+  });
+
+  it("an error without a JSON body still throws ApiError with the status", async () => {
+    stubFetch(new Response("Bad Gateway", { status: 502 }));
+    const err = await authApi("/sites", "auth0tok", Ok).catch((e: unknown) => e);
+    expect(err).toBeInstanceOf(ApiError);
+    expect((err as ApiError).status).toBe(502);
+    expect((err as AuthApiError).code).toBeUndefined();
   });
 
   it("authBlob returns the response blob", async () => {
