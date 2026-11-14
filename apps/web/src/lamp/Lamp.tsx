@@ -10,6 +10,7 @@ import { LampCounter } from "./LampCounter";
 import { LIGHT_LEAVE_MS, LightSurface } from "./LightSurface";
 import { RAISE_START, type RaiseState, stepRaise } from "./lampMaths";
 import { presenceLine } from "./presence";
+import { startClockOffset } from "./pulse";
 import styles from "./Lamp.module.css";
 import { useLampEvents } from "./useLampEvents";
 import { usePitch } from "./usePitch";
@@ -40,6 +41,7 @@ export function Lamp({ site, demo, lamps, connected, motion, onBack }: Props) {
   const raise = useRef<RaiseState>(RAISE_START);
 
   useLampEvents(site.id, surface === "on");
+  useEffect(() => void startClockOffset(), []); // first Lamp open measures the offset for the page
 
   useEffect(() => {
     pitchRef.current = pitch;

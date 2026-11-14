@@ -1,4 +1,4 @@
-/* Ported from the 6.14 .light-surface block of design/css/components.css; the pulse comes with B3-2. */
+/* Ported from the 6.14 .light-surface block of design/css/components.css. */
 .surface {
   position: fixed;
   inset: 0;
@@ -21,7 +21,12 @@
 .exit button,
 .exit button:active,
 .exit button:hover:not(:disabled) { color: var(--ink-on-light); background: transparent; }
+/* --bg over everything, text included; animation-delay is -(serverNow mod 4000)ms so every phone is in phase */
+.pulse { position: absolute; inset: 0; background: var(--bg); opacity: 0; pointer-events: none; }
+.pulsing { animation: lamp-pulse 4000ms ease-in-out infinite; }
+@keyframes lamp-pulse { 0%, 100% { opacity: 0; } 50% { opacity: 0.12; } }
 @media (prefers-reduced-motion: reduce) {
   .surface { animation-duration: 150ms; }
   .leaving { transition-duration: 150ms; }
+  .pulsing { animation: none; }
 }
