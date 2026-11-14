@@ -18,6 +18,7 @@ import { GlowMark } from "./GlowMark";
 import { Lamp } from "../lamp/Lamp";
 import { LampCounter } from "../lamp/LampCounter";
 import { applyPane, emptyWindow } from "./panes";
+import { PhotoStrip } from "./PhotoStrip";
 import { RoseWindow } from "./RoseWindow";
 import styles from "./SiteView.module.css";
 import { useSiteGlow } from "./useSiteGlow";
@@ -126,6 +127,7 @@ export function SiteView({ site, demo, remote, notice, compass, primer, arrived 
       <div className={styles.visual}>
         <RoseWindow name={siteName(site)} size="l" filled={live.panes.filled} glow={glow !== null && glow >= 0.15 ? glow : undefined} />
       </div>
+      <PhotoStrip siteId={site.id} />
       <div className={styles.actions}>
         {has("talk") && <Button
           variant="primary"

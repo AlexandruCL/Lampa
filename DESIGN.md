@@ -759,7 +759,7 @@ Auth0 Universal Login branding (set in the Auth0 dashboard, no code), two settin
 
 The Metropolitan Cathedral is the place where the December 1989 revolution is remembered. User goal: listen, and if they wish, leave a candle. This view is required, not optional.
 
-Allowed here: narrated, sourced testimonies and the minute-of-stillness candle. Not allowed here: Talk, the colour lens, the lamp, visitor echoes, glow words or percentages, counters, points, the rose window, the finale, "Keep my colours", persona characters.
+Allowed here: narrated, sourced testimonies, the minute-of-stillness candle and one or two sourced, credited photographs from December 1989 (decided 14 November). Not allowed here: Talk, the colour lens, the lamp, visitor echoes, glow words or percentages, counters, points, the rose window, the finale, "Keep my colours", persona characters.
 
 Layout (phone, top to bottom): top bar (back, DemoBadge); the name "Metropolitan Cathedral" / "Catedrala Mitropolitană" (`--type-display`); the line "A place of remembrance for December 1989." (`--type-lead` `--text-2`); the heading "Testimonies" / "Mărturii" (`--type-title`) with "Read by a narrator. AI voice." (`--type-meta` `--text-3`); two to four Testimony items (6.23), and none of the heading, narrator line or items while the content has no testimony (Ionut, hour 23); then, with `--space-2xl` above it, the Candle (6.22) centred; bottom: "Next site" / "Următorul loc" (quiet L), which opens Between sites from the Cathedral. The top bar's back goes to the previous page when the visitor came from inside the app and is hidden on a cold open from a link or QR (Ionut, hour 23). No primary amber button anywhere on this view.
 
