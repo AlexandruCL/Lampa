@@ -1,15 +1,23 @@
+import { LANG, t, type Key, type Lang } from "../i18n/t";
 import { WALK_M_PER_MIN } from "./score";
 
 const mod360 = (x: number) => ((x % 360) + 360) % 360;
 
-/** "220 m" under 995 m, "1.2 km" from 995 m. */
-export function formatDistance(m: number): string {
-  return m < 995 ? `${Math.round(m / 10) * 10} m` : `${(m / 1000).toFixed(1)} km`;
+const roundMetres = (m: number) => Math.round(m / 10) * 10;
+/** One decimal; Romanian uses a decimal comma (Ionut's decision, hour 23). */
+const km = (m: number, lang: Lang) => {
+  const s = (m / 1000).toFixed(1);
+  return lang === "ro" ? s.replace(".", ",") : s;
+};
+
+/** "220 m" under 995 m, "1.2 km" ("1,2 km" in ro) from 995 m. */
+export function formatDistance(m: number, lang: Lang = LANG): string {
+  return m < 995 ? t("nav.metres", { n: roundMetres(m) }, lang) : t("nav.km", { n: km(m, lang) }, lang);
 }
 
 /** For a weak position: "about 300 m", never under 100. */
-export function formatWeakDistance(m: number): string {
-  return `about ${Math.max(100, Math.round(m / 100) * 100)} m`;
+export function formatWeakDistance(m: number, lang: Lang = LANG): string {
+  return t("nav.about_metres", { n: Math.max(100, Math.round(m / 100) * 100) }, lang);
 }
 
 export function walkMinutes(m: number): number {
@@ -17,15 +25,24 @@ export function walkMinutes(m: number): number {
 }
 
 /** "220 m, about 3 min walk". */
-export function metaLine(m: number): string {
-  return `${formatDistance(m)}, about ${walkMinutes(m)} min walk`;
+export function metaLine(m: number, lang: Lang = LANG): string {
+  return t("nav.meta", { distance: formatDistance(m, lang), min: walkMinutes(m) }, lang);
 }
 
-const COMPASS = ["north", "north-east", "east", "south-east", "south", "south-west", "west", "north-west"];
+const COMPASS: Key[] = [
+  "nav.compass_north",
+  "nav.compass_north_east",
+  "nav.compass_east",
+  "nav.compass_south_east",
+  "nav.compass_south",
+  "nav.compass_south_west",
+  "nav.compass_west",
+  "nav.compass_north_west",
+];
 
 /** "To the north-east": eight 45-degree sectors centred on the compass points. */
-export function compassWord(bearing: number): string {
-  return `To the ${COMPASS[Math.round(mod360(bearing) / 45) % 8]}`;
+export function compassWord(bearing: number, lang: Lang = LANG): string {
+  return t(COMPASS[Math.round(mod360(bearing) / 45) % 8], {}, lang);
 }
 
 /** -180 to under 180; 0 straight ahead, negative to the left. */
@@ -34,19 +51,24 @@ export function relativeAngle(bearing: number, heading: number): number {
 }
 
 /** Ionut's decision, hour 7. */
-export function spokenDirection(rel: number): string {
+export function spokenDirection(rel: number, lang: Lang = LANG): string {
   const a = Math.abs(rel);
-  const side = rel < 0 ? "left" : "right";
-  if (a <= 15) return "ahead";
-  if (a <= 60) return `ahead and slightly ${side}`;
-  if (a <= 120) return `to your ${side}`;
-  return "behind you";
+  const left = rel < 0;
+  if (a <= 15) return t("nav.ahead", {}, lang);
+  if (a <= 60) return t(left ? "nav.ahead_left" : "nav.ahead_right", {}, lang);
+  if (a <= 120) return t(left ? "nav.to_left" : "nav.to_right", {}, lang);
+  return t("nav.behind", {}, lang);
 }
 
 /** "Muzeul MX Corneliu Miklosi, 220 metres, ahead and slightly left". */
-export function spokenLine(name: string, m: number, direction: string): string {
-  const distance = formatDistance(m).replace(/ km$/, " kilometres").replace(/ m$/, " metres");
-  return `${name}, ${distance}, ${direction}`;
+export function spokenLine(name: string, m: number, direction: string, lang: Lang = LANG): string {
+  const n = roundMetres(m);
+  // Romanian drops "de" when the last two digits are 1 to 19, or for 0 ("110 metri", "220 de metri"): CLDR's "few".
+  const distance =
+    m >= 995
+      ? t("nav.spoken_km", { n: km(m, lang) }, lang)
+      : t(new Intl.PluralRules(lang).select(n) === "few" ? "nav.spoken_metres_few" : "nav.spoken_metres", { n }, lang);
+  return t("nav.spoken_line", { name, distance, direction }, lang);
 }
 
 /** The angle equal to `next` mod 360 nearest to `previous`, so the arrow turns the short way (5.2). */
