@@ -231,7 +231,7 @@ Three hours, so each person gets one main item. Anything not working at hour 40 
 | Fabi | Finale trigger at 731 lamps, using the clock offset from Build 3 | 0.5 | broadcast "start now" without sync |
 | Fabi | Compression and retention policies. `EXPLAIN ANALYZE` of raw table against aggregate, numbers into the README | 1 | policies only |
 | Fabi | `npm run demo:reset`: clean state, one window at 47 of 48, lamps just under 731 | 0.5 | not optional, do this first |
-| Cristea | Add a place: form in the console (use my location, name, facts, persona), `POST /sites` and `/sites/:id/publish` behind `write:site`, calling the same publish code as the script. QR code for the new URL | 2.5 | show a pre-filled form and a pre-published sixth site |
+| Cristea | Add a place: form in the console (use my location, name, facts, persona), `POST /sites` and `/sites/:id/publish` behind `write:site`, calling the same publish code as the script. QR code for the new URL. Added by Cristea, hour 37, from slack: `npm run place:reset` puts a rehearsal's place back to draft; carried from Build 3: `/curate` clears the visitor return key, `siteName` on pending echoes, the echo subtitle flips above when it covers another site | 2.5 | show a pre-filled form and a pre-published sixth site |
 
 ### Freeze (hours 40 to 44)
 
@@ -435,7 +435,7 @@ Needs from others: `requireVisitor` middleware from Cristea by hour 6. Everyone 
 | Build 3 | Curator console: echo queue | 2 |
 | Build 3 | Keep my colours and `POST /me/claim` | 0.5 |
 | Build 3 | Memorial candles and ticker line on `/screen` | 0.5 |
-| Build 4 | Add a place: form, endpoints, QR code | 2.5 |
+| Build 4 | Add a place: form, endpoints, QR code; `place:reset` and three Build 3 carry-overs from slack (hour 37) | 2.5 |
 
 Needs from others: socket messages from Fabi by hour 6, the signed-URL call and Scribe snippet from Patrick, `publish-site.ts` as an importable function from Patrick for add-a-place.
 
