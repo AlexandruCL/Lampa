@@ -1,7 +1,9 @@
 import { sites } from "@lampa/shared";
+import { API_URL } from "../api/client";
 import { AUDIO_BASE, clips, picks, type Clips } from "./clips";
 import { ambientBus } from "./bus";
 import { getAudioContext } from "./context";
+import { siteSound } from "./siteSound";
 
 export const ASLEEP_GAIN = 0.3;
 export const MEMORIAL_GAIN = 0.5;
@@ -38,9 +40,12 @@ export function bedTarget(glow: number | null, memorial: boolean, muted: boolean
   return muted ? 0 : bedGain(glow, memorial);
 }
 
+/** The clips.json bed, else the bed registered for a place added from /curate. */
 export function bedUrl(siteId: string, c: Clips = clips, p: Record<string, 1 | 2> = picks): string | null {
   const file = c.sites[siteId]?.beds[(p[siteId] ?? 1) - 1];
-  return file ? AUDIO_BASE + file : null;
+  if (file) return AUDIO_BASE + file;
+  const bed = siteSound(siteId)?.bed;
+  return bed ? API_URL + bed : null;
 }
 
 export async function loadBuffer(url: string): Promise<AudioBuffer> {

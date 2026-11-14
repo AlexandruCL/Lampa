@@ -1,4 +1,5 @@
 import { SiteDetail } from "@lampa/shared";
+import { registerSiteSound } from "../audio/siteSound";
 import { LANG, type Lang } from "../i18n/t";
 import type { PhoneSite } from "../sites/sites";
 import { ApiError, api } from "./client";
@@ -7,6 +8,7 @@ import { ApiError, api } from "./client";
 export async function fetchSite(id: string, lang: Lang = LANG): Promise<PhoneSite | null> {
   try {
     const s = await api(`/sites/${encodeURIComponent(id)}?lang=${lang}`, { schema: SiteDetail });
+    if (s.sound) registerSiteSound(s.id, s.sound);
     return {
       id: s.id,
       name: s.name,

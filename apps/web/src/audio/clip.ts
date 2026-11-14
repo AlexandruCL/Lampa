@@ -7,10 +7,13 @@ type Clip = { resolve: (end: ClipEnd) => void; source?: AudioBufferSourceNode };
 let current: Clip | null = null;
 const buffers = new Map<string, AudioBuffer>();
 
+/** A full http(s) URL (an added place's greeting) is used as given; anything else is a path under AUDIO_BASE. */
+export const clipUrl = (file: string): string => (/^https?:\/\//.test(file) ? file : AUDIO_BASE + file);
+
 async function load(file: string): Promise<AudioBuffer> {
   const cached = buffers.get(file);
   if (cached) return cached;
-  const res = await fetch(AUDIO_BASE + file);
+  const res = await fetch(clipUrl(file));
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   // Vercel answers a missing file with index.html and a 200: the decode rejects it
   const buffer = await getAudioContext().decodeAudioData(await res.arrayBuffer());
