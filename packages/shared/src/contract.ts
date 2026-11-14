@@ -188,6 +188,12 @@ export const EchoApprovedMessage = z.object({
 });
 export type EchoApprovedMessage = z.infer<typeof EchoApprovedMessage>;
 
+// GET /echoes/approved?site=<id>: the 5 newest approved echoes of the site, newest first (whispers)
+export const ApprovedEchoes = z.object({
+  echoes: z.array(z.object({ echoId: z.string(), audioUrl: z.string(), lang: z.string().nullable() })),
+});
+export type ApprovedEchoes = z.infer<typeof ApprovedEchoes>;
+
 // POST /me/claim with an Auth0 token; anonToken is the visitor's anonymous token
 export const ClaimIn = z.object({ anonToken: z.string().min(1) });
 export type ClaimIn = z.infer<typeof ClaimIn>;
