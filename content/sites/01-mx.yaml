@@ -5,9 +5,9 @@ name:
   ro: "Muzeul MX Corneliu Miklosi"
   en: "Muzeul MX Corneliu Miklosi"
 location:
-  lat: 45.761
-  lng: 21.248
-radius_m: 40
+  lat: 45.762803
+  lng: 21.246156
+radius_m: 60
 interactions: [talk, colours, lamp, echo]
 is_memorial: false
 glow_k: 30
