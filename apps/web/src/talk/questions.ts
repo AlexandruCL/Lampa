@@ -1,5 +1,7 @@
 import type { AgentLang } from "@lampa/shared";
+import { API_URL } from "../api/client";
 import { type Clips, clips } from "../audio/clips";
+import { siteSound } from "../audio/siteSound";
 
 export type Question = { id: string; q: string; a: string; file: string | null };
 
@@ -16,6 +18,13 @@ export function questionsFor(siteId: string, lang: AgentLang, c: Clips = clips):
   });
 }
 
-/** The greeting clip in `lang` only: it must match the session's language, so no English fallback. */
-export const greetingFor = (siteId: string, lang: AgentLang, c: Clips = clips): string | null =>
-  c.sites[siteId]?.greeting[lang] || null;
+/**
+ * The greeting clip in `lang` only: it must match the session's language, so no English fallback.
+ * A place added from /curate has no clips entry: its registered greeting in `lang`, as a full URL, by the same rule.
+ */
+export function greetingFor(siteId: string, lang: AgentLang, c: Clips = clips): string | null {
+  const file = c.sites[siteId]?.greeting[lang];
+  if (file) return file;
+  const blob = siteSound(siteId)?.greeting[lang];
+  return blob ? API_URL + blob : null;
+}

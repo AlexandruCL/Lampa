@@ -3,9 +3,9 @@ import type { LampsMessage } from "@lampa/shared";
 import { playClip } from "../audio/clip";
 import { clips } from "../audio/clips";
 import { Button, Ring } from "../components";
+import { LANG, siteName, t, type Lang } from "../i18n/t";
 import { TopBar } from "../phone/TopBar";
 import type { PhoneSite } from "../sites/sites";
-import { visitorLang } from "../talk/lang";
 import { LampCounter } from "./LampCounter";
 import { LIGHT_LEAVE_MS, LightSurface } from "./LightSurface";
 import { LOWER_DEG, RAISE_START, type RaiseState, stepRaise } from "./lampMaths";
@@ -20,7 +20,7 @@ const TICK_MS = 100;
 
 export type Surface = "off" | "on" | "leaving";
 
-/** After "Lower the lamp", the raise path waits for the phone to come down first, so a phone still held up does not relight. */
+/** After `lamp.lower`, the raise path waits for the phone to come down first, so a phone still held up does not relight. */
 export const rearms = (pitch: number | null) => pitch !== null && pitch < LOWER_DEG;
 
 type Props = {
@@ -92,7 +92,6 @@ export function Lamp({ site, demo, lamps, connected, motion, onBack }: Props) {
     return () => clearTimeout(timer);
   }, [surface]);
 
-  const lang = visitorLang(globalThis.navigator?.language) === "ro" ? "ro" : "en";
   const here = connected ? (lamps?.sites.find((s) => s.siteId === site.id)?.lightingNow ?? null) : null;
 
   return (
@@ -106,7 +105,7 @@ export function Lamp({ site, demo, lamps, connected, motion, onBack }: Props) {
       surface={surface}
       lowered={lowered}
       hint={!litByTap}
-      presence={presenceLine(here, surface !== "off", site.name, lang)}
+      presence={presenceLine(here, surface !== "off", siteName(site), LANG)}
       onLight={() => {
         setMode("tap");
         light(true);
@@ -129,50 +128,52 @@ type ViewProps = {
   progress: number;
   surface: Surface;
   lowered: boolean;
-  /** "Lower your phone to stop." on the lit surface: raise-lit only, a tap-lit lamp ignores the phone's angle. */
+  /** `lamp.hint` on the lit surface: raise-lit only, a tap-lit lamp ignores the phone's angle. */
   hint: boolean;
   presence: string | null;
+  lang?: Lang;
   onLight: () => void;
   onLower: () => void;
   onBack: () => void;
 };
 
 /** The Lamp screen for given state, without sensors or timers. */
-export function LampView({ site, demo, lamps, connected, canRaise, progress, surface, lowered, hint, presence, onLight, onLower, onBack }: ViewProps) {
-  const counter = (light: boolean) => <LampCounter lamps={lamps} connected={connected} size="l" light={light} presence={presence} />;
+export function LampView({ site, demo, lamps, connected, canRaise, progress, surface, lowered, hint, presence, lang = LANG, onLight, onLower, onBack }: ViewProps) {
+  const name = siteName(site, lang);
+  const counter = (light: boolean) => <LampCounter lamps={lamps} connected={connected} size="l" light={light} presence={presence} lang={lang} />;
   return (
     <>
       <main className={styles.view} inert={surface !== "off"}>
-        <TopBar siteName={site.name} onBack={onBack} demo={demo} />
+        <TopBar siteName={name} onBack={onBack} backLabel={t("back_to", { name }, lang)} demo={demo} />
         <div className={styles.body}>
           {canRaise ? (
             <>
-              <h1 className={styles.title}>Raise your phone above your head.</h1>
-              {/* Only on the raise path: "Raise it again" means nothing to a phone that cannot tell. */}
+              <h1 className={styles.title}>{t("lamp.raise", {}, lang)}</h1>
+              {/* Only on the raise path: `lamp.lowered` means nothing to a phone that cannot tell. */}
               {lowered && (
                 <p className={styles.line} role="status">
-                  Lamp lowered. Raise it again to keep it lit.
+                  {t("lamp.lowered", {}, lang)}
                 </p>
               )}
-              <Ring size={160} progress={progress} filling={progress > 0} holdMs={TICK_MS} label="Raise to light the lamp" />
+              <Ring size={160} progress={progress} filling={progress > 0} holdMs={TICK_MS} label={t("lamp.ring", {}, lang)} />
             </>
           ) : (
-            <h1 className={styles.title}>This phone cannot tell when it is raised. Tap to light the lamp.</h1>
+            <h1 className={styles.title}>{t("lamp.no_motion", {}, lang)}</h1>
           )}
           {counter(false)}
         </div>
         <div className={styles.bottom}>
           {canRaise ? (
             <Button variant="quiet" onClick={onLight}>
-              Light without raising
+              {t("lamp.light_without_raising", {}, lang)}
             </Button>
           ) : (
             <Button variant="primary" size="l" block onClick={onLight}>
-              Light the lamp
+              {t("lamp.light", {}, lang)}
             </Button>
           )}
           <Button variant="secondary" size="l" block onClick={onBack}>
-            Back to {site.name}
+            {t("back_to", { name }, lang)}
           </Button>
         </div>
       </main>
@@ -181,13 +182,13 @@ export function LampView({ site, demo, lamps, connected, canRaise, progress, sur
           leaving={surface === "leaving"}
           exit={
             <Button variant="quiet" onClick={onLower}>
-              Lower the lamp
+              {t("lamp.lower", {}, lang)}
             </Button>
           }
         >
-          <p className={styles.litTitle}>Your lamp is lit.</p>
+          <p className={styles.litTitle}>{t("lamp.lit", {}, lang)}</p>
           {counter(true)}
-          {hint && <p className={styles.hint}>Lower your phone to stop.</p>}
+          {hint && <p className={styles.hint}>{t("lamp.hint", {}, lang)}</p>}
         </LightSurface>
       )}
     </>

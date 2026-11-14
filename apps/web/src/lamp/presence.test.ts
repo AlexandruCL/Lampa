@@ -37,6 +37,13 @@ describe("presenceLine", () => {
     [19, true, "ro", "Tu și încă 18 persoane aprindeți Piața Victoriei acum."],
     [20, true, "ro", "Tu și încă 19 persoane aprindeți Piața Victoriei acum."],
     [21, true, "ro", "Tu și încă 20 de persoane aprindeți Piața Victoriei acum."],
+    // Intl.PluralRules("ro"): "de" exactly in the "other" category, not from 20 up
+    [101, false, "ro", "101 persoane aprind Piața Victoriei acum."],
+    [119, false, "ro", "119 persoane aprind Piața Victoriei acum."],
+    [120, false, "ro", "120 de persoane aprind Piața Victoriei acum."],
+    [101, true, "ro", "Tu și încă 100 de persoane aprindeți Piața Victoriei acum."],
+    [119, true, "ro", "Tu și încă 118 persoane aprindeți Piața Victoriei acum."],
+    [120, true, "ro", "Tu și încă 119 persoane aprindeți Piața Victoriei acum."],
   ] as const)("%s, lit %s, %s", (count, lit, lang, line) => {
     expect(presenceLine(count, lit, S, lang)).toBe(line);
   });

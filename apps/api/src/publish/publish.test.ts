@@ -238,7 +238,15 @@ describe("publish", () => {
       tapToAsk: persona.persona!.tap_to_ask,
       archive: [],
     });
-    expect(clips.sites.garden).toEqual({ beds: [], greeting: {}, answers: {}, narrations: {}, tapToAsk: [], archive: [] });
+    expect(clips.sites.garden).toEqual({
+      beds: [],
+      greeting: {},
+      answers: {},
+      narrations: {},
+      tapToAsk: [],
+      archive: [],
+      testimonies: memorial.narrations,
+    });
     const pf = p.items.map((i) => i.file);
     expect(clips.project).toEqual({ glass: pf[0], crackle: pf[1], chime: pf[2], waltz: [pf[3], pf[4]] });
     expect(toClips([], () => false)).toEqual({ sites: {}, project: { waltz: [] } });
@@ -294,5 +302,28 @@ describe("publish", () => {
     const clips = toClips([persona, withArchive], () => true);
     expect(clips.sites.kiosk!.archive).toEqual([]);
     expect(clips.sites.garden!.archive).toEqual([]);
+  });
+
+  it("toClips copies the memorial's narrations into testimonies in file order", () => {
+    const narrations = [
+      { id: "seeds", title: { ro: "Semințe", en: "Seeds" }, text: { ro: "Semințe.", en: "Seeds fall." }, source: "Test notebook" },
+      { id: "roots", title: { en: "Roots" }, text: { en: "Roots hold." }, source: "Test letter" },
+    ];
+    const site = SiteFile.parse({ ...memorial, narrations });
+    expect(toClips([site], () => true).sites.garden!.testimonies).toEqual(narrations);
+  });
+
+  it("toClips gives [] testimonies without narrations and none on a persona site", () => {
+    const { narrations: _, ...rest } = memorial;
+    const clips = toClips([persona, SiteFile.parse(rest)], () => true);
+    expect(clips.sites.garden!.testimonies).toEqual([]);
+    expect(clips.sites.kiosk).not.toHaveProperty("testimonies");
+  });
+
+  it("toClips does not throw on a memorial with malformed narrations", () => {
+    const bad = SiteFile.parse({ ...memorial, narrations: [{ id: "x" }] });
+    const c = toClips([bad], () => true).sites.garden!;
+    expect(c.testimonies).toEqual([]);
+    expect(c.beds).toEqual([]);
   });
 });

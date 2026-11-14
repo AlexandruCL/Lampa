@@ -2,6 +2,7 @@ import { Router } from "express";
 import { rateLimit } from "express-rate-limit";
 import { NearbySites, SiteDetail } from "@lampa/shared";
 import type { Db, LatestGlow } from "../seam.js";
+import { SELECT_SITE_KEYS, siteBlobKey } from "../places/publish.js";
 
 export const NEAR_SQL = `SELECT id, name, ST_Y(geom::geometry) AS lat, ST_X(geom::geometry) AS lng, is_memorial,
        ST_Distance(geom, ST_SetSRID(ST_MakePoint($1, $2), 4326)::geography)::float8 AS distance_m
@@ -25,6 +26,21 @@ export function parseNear(text: unknown): { lat: number; lng: number } | null {
   const [lat, lng] = parts.map(Number);
   if (!Number.isFinite(lat) || !Number.isFinite(lng) || Math.abs(lat) > 90 || Math.abs(lng) > 180) return null;
   return { lat, lng };
+}
+
+const siteKeyPrefix = (id: string) => siteBlobKey(id + "/");
+// The rest of a key after its site prefix, as publishSite names greetings: greeting-<lang>-<hash>.mp3.
+const GREETING_FILE = /^greeting-(.+)-[0-9a-f]{12}\.mp3$/;
+
+/** The greetings of an added place from its blob keys (language → "/blob/<key>"), or {} when it has none. Its bed comes from SITE_SQL. */
+export function greetingsOf(id: string, keys: string[]): { greeting?: Record<string, string> } {
+  const prefix = siteKeyPrefix(id);
+  const greeting: Record<string, string> = {};
+  for (const key of keys) {
+    const m = key.startsWith(prefix) ? GREETING_FILE.exec(key.slice(prefix.length)) : null;
+    if (m) greeting[m[1]] = "/blob/" + key;
+  }
+  return Object.keys(greeting).length ? { greeting } : {};
 }
 
 // shortcut: memory store, counts reset on restart and are per instance; move to a shared store if the API runs on more than one instance
@@ -62,7 +78,9 @@ export function createSitesRouter(deps: { db?: Db; latestGlow: LatestGlow }): Ro
     const r = rows[0];
     if (!r) return void res.status(404).json({ error: "unknown_site" });
     const lang = req.query.lang === "ro" ? "ro" : "en";
+    const keys = await run(deps.db, SELECT_SITE_KEYS, [siteKeyPrefix(r.id)]);
     res.json(SiteDetail.parse({
+      ...(keys && greetingsOf(r.id, keys.map((k) => k.key))),
       id: r.id, name: r.name[lang], lat: r.lat, lng: r.lng, is_memorial: r.is_memorial,
       radius_m: r.radius_m, interactions: r.interactions, facts: r.facts,
       directions_hint: r.directions_hint?.[lang] ?? r.directions_hint?.en ?? "",

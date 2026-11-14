@@ -147,6 +147,8 @@ export const SiteDetail = Site.extend({
   glow: z.number().min(0).max(1),
   /** Path of the sound bed of a place added in the console (`/blob/site-<id>_bed-1-…`); absent for the bundled sites. */
   bed: z.string().optional(),
+  /** Greetings of a place added in the console, language → `/blob/site-<id>_greeting-<lang>-…`; absent for the bundled sites. */
+  greeting: z.record(z.string(), z.string()).optional(),
 });
 export type SiteDetail = z.infer<typeof SiteDetail>;
 

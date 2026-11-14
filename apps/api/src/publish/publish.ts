@@ -57,6 +57,7 @@ export type SiteClips = {
   narrations: Record<string, Record<string, string>>; // narration id -> lang -> file
   tapToAsk: { id: string; q: Record<string, string>; a: Record<string, string> }[]; // persona.tap_to_ask text, file order
   archive: NonNullable<PersonaContent["archive"]>; // persona.archive, file order; `file` is relative to /archive/
+  testimonies?: NonNullable<MemorialContent["narrations"]>; // memorial only: narrations' text, file order; audio in `narrations`
 };
 type ProjectClips = { glass?: string; crackle?: string; chime?: string; waltz: string[] };
 
@@ -193,6 +194,7 @@ export function toClips(
   for (const site of sites) {
     // the text goes in whether or not a clip exists: Talk speaks it with the browser voice
     const persona = site.is_memorial ? undefined : PersonaContent.safeParse(site.persona).data;
+    const memorial = site.is_memorial ? MemorialContent.safeParse(site) : undefined;
     const c: SiteClips = {
       beds: [],
       greeting: {},
@@ -200,7 +202,13 @@ export function toClips(
       narrations: {},
       tapToAsk: persona?.tap_to_ask ?? [],
       archive: persona?.archive ?? [],
+      ...(memorial ? { testimonies: memorial.data?.narrations ?? [] } : {}),
     };
+    // a malformed memorial gets no clips instead of throwing; publishSite still rejects it
+    if (memorial && !memorial.success) {
+      out.sites[site.id] = c;
+      continue;
+    }
     for (const { file, reason, slot } of planSite(site)) {
       if (reason || !exists(file)) continue;
       if (slot.kind === "bed") c.beds.push(file);

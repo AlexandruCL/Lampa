@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
+import { API_URL } from "../api/client";
 import type { Clips } from "../audio/clips";
+import { registerSiteSound } from "../audio/siteSound";
 import { greetingFor, questionsFor } from "./questions";
 
 const c: Clips = {
@@ -37,4 +39,22 @@ describe("greetingFor", () => {
   it("the greeting in the session's language", () => expect(greetingFor("s", "ro", c)).toBe("s/greeting-ro.mp3"));
   it("no greeting in that language gives null, not en", () => expect(greetingFor("s", "en", c)).toBeNull());
   it("an unknown site gives null", () => expect(greetingFor("nowhere", "ro", c)).toBeNull());
+
+  it("an added place plays its registered greeting in the visitor's language, from the API", () => {
+    registerSiteSound("added", { bed: null, greeting: { ro: "/blob/added/greeting-ro.mp3", en: "/blob/added/greeting-en.mp3" } });
+    expect(greetingFor("added", "ro", c)).toBe(`${API_URL}/blob/added/greeting-ro.mp3`);
+    expect(greetingFor("added", "en", c)).toBe(`${API_URL}/blob/added/greeting-en.mp3`);
+  });
+  it("an added place without the visitor's language gives null, not en", () => {
+    registerSiteSound("added-en", { bed: null, greeting: { en: "/blob/added-en/greeting-en.mp3" } });
+    expect(greetingFor("added-en", "ro", c)).toBeNull();
+  });
+  it("an added place with no greeting gives null", () => {
+    registerSiteSound("added-quiet", { bed: null, greeting: {} });
+    expect(greetingFor("added-quiet", "ro", c)).toBeNull();
+  });
+  it("a bundled site ignores a registration: clips.json wins", () => {
+    registerSiteSound("s", { bed: null, greeting: { ro: "/blob/s/greeting-ro.mp3" } });
+    expect(greetingFor("s", "ro", c)).toBe("s/greeting-ro.mp3");
+  });
 });

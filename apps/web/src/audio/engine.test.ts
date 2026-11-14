@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 import type { Clips, SiteClips } from "./clips";
+import { API_URL } from "../api/client";
+import { clipUrl } from "./clip";
 import { bedGain, bedTarget, bedUrl, healStep } from "./engine";
+import { registerSiteSound } from "./siteSound";
 
 const site = (beds: string[]): SiteClips => ({ beds, greeting: {}, answers: {}, narrations: {}, tapToAsk: [], archive: [] });
 const c: Clips = {
@@ -64,6 +67,30 @@ describe("bedUrl", () => {
     expect(bedUrl("b", c, {})).toBeNull();
     expect(bedUrl("unknown", c, {})).toBeNull();
   });
+
+  it("an added place with no clips entry plays its registered bed from the API", () => {
+    registerSiteSound("added", { bed: "/blob/added/bed.mp3", greeting: {} });
+    expect(bedUrl("added", c, {})).toBe(`${API_URL}/blob/added/bed.mp3`);
+  });
+
+  it("an added place registered without a bed has none", () => {
+    registerSiteSound("added-silent", { bed: null, greeting: {} });
+    expect(bedUrl("added-silent", c, {})).toBeNull();
+  });
+
+  it("a bundled site ignores a registration: clips.json wins", () => {
+    registerSiteSound("a", { bed: "/blob/a/bed.mp3", greeting: {} });
+    expect(bedUrl("a", c, {})).toBe("/audio/a/bed-1-x.wav");
+  });
+});
+
+describe("clipUrl", () => {
+  it("a clips.json path is served under AUDIO_BASE", () => expect(clipUrl("s/greeting-ro.mp3")).toBe("/audio/s/greeting-ro.mp3"));
+  it("a full http(s) URL is used as given", () => {
+    expect(clipUrl("https://api.example/blob/k.mp3")).toBe("https://api.example/blob/k.mp3");
+    expect(clipUrl("http://localhost:3000/blob/k.mp3")).toBe("http://localhost:3000/blob/k.mp3");
+  });
+  it("a path that only starts with the letters http stays under AUDIO_BASE", () => expect(clipUrl("http-site/a.mp3")).toBe("/audio/http-site/a.mp3"));
 });
 
 describe("healStep", () => {

@@ -3,6 +3,8 @@ import type { AddressInfo } from "node:net";
 import express from "express";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { Db } from "../seam.js";
+import { SiteDetail } from "@lampa/shared";
+import { SELECT_SITE_KEYS } from "../places/publish.js";
 import { createSitesRouter, parseNear, SITE_SQL } from "./router.js";
 
 let servers: Server[] = [];
@@ -18,12 +20,17 @@ const siteRow = {
   radius_m: 40, interactions: ["candle"], facts: [{ a: 1 }], directions_hint: { en: "Go left", ro: "Stanga" },
 };
 
-async function start(rows: any[] = [], opts: { glow?: any; noDb?: boolean; fail?: boolean } = {}) {
+async function start(rows: any[] = [], opts: { glow?: any; noDb?: boolean; fail?: boolean; keys?: string[] | "fail" } = {}) {
   const calls: { text: string; params?: unknown[] }[] = [];
   const db: Db = {
     query: async (text, params) => {
       calls.push({ text, params });
       if (opts.fail) throw new Error("boom");
+      if (text === SELECT_SITE_KEYS) {
+        if (opts.keys === "fail") throw new Error("keys down");
+        const keys = (opts.keys ?? []).map((key) => ({ key }));
+        return { rows: keys, rowCount: keys.length };
+      }
       return { rows, rowCount: rows.length };
     },
   };
@@ -106,6 +113,39 @@ describe("GET /sites/:id", () => {
     expect(SITE_SQL).not.toMatch(/persona/i);
     const body = await (await (await start([{ ...siteRow, persona: { prompt: "x" } }])).get("/sites/mx")).json();
     expect(body).not.toHaveProperty("persona");
+  });
+});
+
+describe("GET /sites/:id greeting", () => {
+  const bed1 = "site-mx_bed-1-0123456789ab.wav";
+  const en = "site-mx_greeting-en-aaaaaaaaaaaa.mp3";
+  const ro = "site-mx_greeting-ro-bbbbbbbbbbbb.mp3";
+  const answer = "site-mx_answer-q1-en-cccccccccccc.mp3";
+  const body = async (keys: string[] | "fail") => (await (await start([siteRow], { keys })).get("/sites/mx")).json();
+
+  it("an added place with greetings en and ro answers both, and asks for the site prefix", async () => {
+    const { get, calls } = await start([siteRow], { keys: [bed1, en, answer, ro] });
+    const b = await (await get("/sites/mx")).json();
+    expect(b.greeting).toEqual({ en: "/blob/" + en, ro: "/blob/" + ro });
+    expect(SiteDetail.parse(b)).toEqual(b);
+    expect(calls[1]).toEqual({ text: SELECT_SITE_KEYS, params: ["site-mx_"] });
+  });
+  it("no greeting blob answers no greeting key", async () => {
+    expect(await body([])).not.toHaveProperty("greeting");
+    expect(await body([bed1, answer])).not.toHaveProperty("greeting");
+  });
+  it("greetings of a site whose id starts with this id are not mixed in", async () => {
+    const other = ["site-mx2_greeting-en-aaaaaaaaaaaa.mp3", "site-mx_x_greeting-ro-bbbbbbbbbbbb.mp3"];
+    expect((await body([en, ...other])).greeting).toEqual({ en: "/blob/" + en });
+    expect(await body(other)).not.toHaveProperty("greeting");
+  });
+  it("a failing key query answers 200 without greeting and logs one line", async () => {
+    const err = vi.spyOn(console, "error").mockImplementation(() => {});
+    const res = await (await start([siteRow], { keys: "fail" })).get("/sites/mx");
+    expect(res.status).toBe(200);
+    expect(await res.json()).not.toHaveProperty("greeting");
+    expect(err).toHaveBeenCalledTimes(1);
+    expect(err).toHaveBeenCalledWith("sites query failed: keys down");
   });
 });
 
