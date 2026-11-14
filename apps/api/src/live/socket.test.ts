@@ -4,7 +4,7 @@ import { type CandleMessage, GlowMessage, type LampsMessage, type PaneMessage, S
 import { Server, type Namespace } from "socket.io";
 import { io, type Socket } from "socket.io-client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { Live } from "../seam.js";
+import type { Db, Live } from "../seam.js";
 import { attachLive, paneRooms, roomsFor } from "./socket.js";
 
 const ids = sites.map((s) => s.id);
@@ -264,5 +264,50 @@ describe("candle", () => {
     // Messages arrive in order: had the invalid candle gone out, it would be first.
     await vi.waitFor(() => expect(kinds(screen.all, SocketMessage.enum.candle)).toHaveLength(1));
     expect(kinds(screen.all, SocketMessage.enum.candle)).toEqual([candle]);
+  });
+});
+
+describe("site rooms from the sites table", () => {
+  /** A second /live with this db; returns the rooms of the server socket a client with `room` lands in. */
+  async function roomsWith(db: Db, room: string) {
+    const of = vi.spyOn(Server.prototype, "of");
+    const http2 = createServer();
+    const live2 = attachLive(http2, { origin: undefined, latestGlow: () => null, db });
+    const nsp2 = of.mock.results[of.mock.calls.findIndex(([name]) => name === "/live")].value as Namespace;
+    of.mockRestore();
+    http2.listen(0, "127.0.0.1");
+    await new Promise((resolve) => http2.once("listening", resolve));
+    const socket = io(`http://127.0.0.1:${(http2.address() as AddressInfo).port}/live`, { transports: ["websocket"], query: { room } });
+    try {
+      // The join waits for the query, so wait until the socket has more than its own room.
+      return await vi.waitFor(async () => {
+        const [server] = await nsp2.fetchSockets();
+        expect(server?.rooms.size).toBeGreaterThan(1);
+        return new Set(server.rooms);
+      });
+    } finally {
+      socket.close();
+      await live2.close();
+    }
+  }
+  const table = (...ids: string[]): Db => ({ query: async () => ({ rows: ids.map((id) => ({ id })), rowCount: ids.length }) });
+
+  it("a place published after the seed gets its site room", async () => {
+    const rooms = await roomsWith(table(...ids, "added"), "site:added");
+    expect(rooms.has("site:added")).toBe(true);
+    expect(rooms.has("city")).toBe(true);
+  });
+
+  it("a seeded site that is not published in the table gets city alone", async () => {
+    const rooms = await roomsWith(table(...ids.filter((id) => id !== "mx")), "site:mx");
+    expect([...rooms].filter((r) => r.startsWith("site:") || r === "city")).toEqual(["city"]);
+  });
+
+  it("a failed query falls back to the seeded sites", async () => {
+    const err = vi.spyOn(console, "error").mockImplementation(() => {});
+    const rooms = await roomsWith({ query: async () => { throw new Error("down"); } }, "site:mx");
+    expect(rooms.has("site:mx")).toBe(true);
+    expect(err).toHaveBeenCalledWith("live rooms query failed: down");
+    err.mockRestore();
   });
 });

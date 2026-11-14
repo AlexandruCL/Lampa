@@ -1,5 +1,4 @@
 import { timingSafeEqual } from "node:crypto";
-import { sites } from "@lampa/shared";
 import { Router } from "express";
 import { z } from "zod";
 import type { SiteStats } from "../agent/session.js";
@@ -9,6 +8,8 @@ import type { Db } from "../seam.js";
 export const RECENT_ECHO_SQL = `SELECT transcript, lang, created_at FROM echoes
   WHERE site_id = $1 AND status = 'approved' AND transcript IS NOT NULL
   ORDER BY created_at DESC LIMIT 1`;
+
+export const TOOL_SITE_SQL = "SELECT 1 FROM sites WHERE id = $1 AND status = 'published' AND NOT is_memorial";
 
 const Body = z.object({ site_id: z.string() });
 
@@ -35,28 +36,38 @@ export function createToolsRouter(deps: { db?: Db; getSiteStats?: (siteId: strin
     next();
   });
 
+  const unavailable = (res: any, err: unknown) => {
+    console.error(`tools failed: ${err instanceof Error ? err.message : String(err)}`);
+    res.status(503).json({ error: "unavailable" });
+  };
+
   // Validates the body; answers and returns null on failure.
-  const siteIdOf = (req: any, res: any): string | null => {
+  const siteIdOf = async (req: any, res: any): Promise<string | null> => {
     const parsed = Body.safeParse(req.body);
     if (!parsed.success) {
       res.status(400).json({ error: "invalid_body" });
       return null;
     }
     const id = parsed.data.site_id;
-    if (!sites.some((s) => s.id === id && !s.is_memorial)) {
-      res.status(404).json({ error: "unknown_site" });
+    if (!deps.db) {
+      res.status(503).json({ error: "unavailable" });
+      return null;
+    }
+    try {
+      const { rows } = await deps.db.query(TOOL_SITE_SQL, [id]);
+      if (rows.length === 0) {
+        res.status(404).json({ error: "unknown_site" });
+        return null;
+      }
+    } catch (err) {
+      unavailable(res, err);
       return null;
     }
     return id;
   };
 
-  const unavailable = (res: any, err: unknown) => {
-    console.error(`tools failed: ${err instanceof Error ? err.message : String(err)}`);
-    res.status(503).json({ error: "unavailable" });
-  };
-
   router.post("/tools/get_site_stats", async (req, res) => {
-    const siteId = siteIdOf(req, res);
+    const siteId = await siteIdOf(req, res);
     if (siteId === null) return;
     if (!deps.getSiteStats) {
       res.status(503).json({ error: "unavailable" });
@@ -71,7 +82,7 @@ export function createToolsRouter(deps: { db?: Db; getSiteStats?: (siteId: strin
   });
 
   router.post("/tools/get_recent_echo", async (req, res) => {
-    const siteId = siteIdOf(req, res);
+    const siteId = await siteIdOf(req, res);
     if (siteId === null) return;
     if (!deps.db) {
       res.status(503).json({ error: "unavailable" });
