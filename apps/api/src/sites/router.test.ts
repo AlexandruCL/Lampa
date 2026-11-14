@@ -82,6 +82,13 @@ describe("GET /sites", () => {
 });
 
 describe("GET /sites/:id", () => {
+  it("a Romanian request for a place with only an English name answers 200 with the English name", async () => {
+    const { get } = await start([{ ...siteRow, name: { en: "Mix" } }]);
+    const res = await get("/sites/mx?lang=ro");
+    expect(res.status).toBe(200);
+    expect((await res.json()).name).toBe("Mix");
+  });
+
   it("sites/:id answers SiteDetail in Romanian for lang=ro and in English for any other lang", async () => {
     const { get, calls } = await start([siteRow], { glow: { sites: [{ siteId: "mx", glow: 0.2 }] } });
     const ro = await (await get("/sites/mx?lang=ro")).json();

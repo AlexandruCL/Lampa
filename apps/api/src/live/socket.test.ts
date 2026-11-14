@@ -1,10 +1,10 @@
 import { createServer, type Server as HttpServer } from "node:http";
 import type { AddressInfo } from "node:net";
-import { type CandleMessage, GlowMessage, type LampsMessage, type PaneMessage, SocketMessage, sites, type WindowCompleteMessage } from "@lampa/shared";
+import { type CandleMessage, type FinaleMessage, GlowMessage, type LampsMessage, type PaneMessage, SocketMessage, sites, type WindowCompleteMessage } from "@lampa/shared";
 import { Server, type Namespace } from "socket.io";
 import { io, type Socket } from "socket.io-client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { Live } from "../seam.js";
+import type { Db, Live } from "../seam.js";
 import { attachLive, paneRooms, roomsFor } from "./socket.js";
 
 const ids = sites.map((s) => s.id);
@@ -15,6 +15,7 @@ const paneMx: PaneMessage = { siteId: "mx", windowId: "w-mx", slot: 3, hex: "#a1
 const paneGallery: PaneMessage = { siteId: "gallery", windowId: "w-gallery", slot: 0, hex: "#102030" };
 const completeMx: WindowCompleteMessage = { siteId: "mx", windowId: "w-mx" };
 const candle: CandleMessage = { id: "0123456789abcdef", siteId: "cathedral", litAt: "2026-11-14T18:00:00.000Z" };
+const finale: FinaleMessage = { startAt: Date.parse("2026-11-14T18:00:03Z") };
 const lampsA: LampsMessage = { litToday: 7, target: 731, sites: [{ siteId: "mx", lightingNow: 2 }, { siteId: "unirii", lightingNow: 0 }] };
 
 let http: HttpServer;
@@ -264,5 +265,85 @@ describe("candle", () => {
     // Messages arrive in order: had the invalid candle gone out, it would be first.
     await vi.waitFor(() => expect(kinds(screen.all, SocketMessage.enum.candle)).toHaveLength(1));
     expect(kinds(screen.all, SocketMessage.enum.candle)).toEqual([candle]);
+  });
+});
+
+describe("finale", () => {
+  it("emitFinale reaches a socket in city, one in screen and one in a site room", async () => {
+    const city = await connect();
+    const screen = await connect("screen");
+    const site = await connect("site:mx");
+    live.emitFinale(finale);
+    await barrier(city, screen, site);
+    for (const c of [city, screen, site]) expect(kinds(c.all, SocketMessage.enum.finale)).toEqual([finale]);
+  });
+
+  it("a bad payload throws before anything is sent", async () => {
+    const city = await connect();
+    expect(() => live.emitFinale({ startAt: 1.5 })).toThrow();
+    live.emitFinale(finale);
+    // Messages arrive in order: had the bad finale gone out, it would be first.
+    await vi.waitFor(() => expect(kinds(city.all, SocketMessage.enum.finale)).toHaveLength(1));
+    expect(kinds(city.all, SocketMessage.enum.finale)).toEqual([finale]);
+  });
+
+  it("a socket connecting after a finale gets glow and lamps but no finale", async () => {
+    latest = glowA;
+    latestLamps = lampsA;
+    const early = await connect();
+    live.emitFinale(finale);
+    await vi.waitFor(() => expect(kinds(early.all, SocketMessage.enum.finale)).toEqual([finale]));
+    const late = await connect();
+    await barrier(late);
+    expect(late.all).toEqual([
+      [SocketMessage.enum.glow, glowA],
+      [SocketMessage.enum.lamps, lampsA],
+      [SocketMessage.enum.glow, glowB],
+    ]);
+  });
+});
+
+describe("site rooms from the sites table", () => {
+  /** A second /live with this db; returns the rooms of the server socket a client with `room` lands in. */
+  async function roomsWith(db: Db, room: string) {
+    const of = vi.spyOn(Server.prototype, "of");
+    const http2 = createServer();
+    const live2 = attachLive(http2, { origin: undefined, latestGlow: () => null, db });
+    const nsp2 = of.mock.results[of.mock.calls.findIndex(([name]) => name === "/live")].value as Namespace;
+    of.mockRestore();
+    http2.listen(0, "127.0.0.1");
+    await new Promise((resolve) => http2.once("listening", resolve));
+    const socket = io(`http://127.0.0.1:${(http2.address() as AddressInfo).port}/live`, { transports: ["websocket"], query: { room } });
+    try {
+      // The join waits for the query, so wait until the socket has more than its own room.
+      return await vi.waitFor(async () => {
+        const [server] = await nsp2.fetchSockets();
+        expect(server?.rooms.size).toBeGreaterThan(1);
+        return new Set(server.rooms);
+      });
+    } finally {
+      socket.close();
+      await live2.close();
+    }
+  }
+  const table = (...ids: string[]): Db => ({ query: async () => ({ rows: ids.map((id) => ({ id })), rowCount: ids.length }) });
+
+  it("a place published after the seed gets its site room", async () => {
+    const rooms = await roomsWith(table(...ids, "added"), "site:added");
+    expect(rooms.has("site:added")).toBe(true);
+    expect(rooms.has("city")).toBe(true);
+  });
+
+  it("a seeded site that is not published in the table gets city alone", async () => {
+    const rooms = await roomsWith(table(...ids.filter((id) => id !== "mx")), "site:mx");
+    expect([...rooms].filter((r) => r.startsWith("site:") || r === "city")).toEqual(["city"]);
+  });
+
+  it("a failed query falls back to the seeded sites", async () => {
+    const err = vi.spyOn(console, "error").mockImplementation(() => {});
+    const rooms = await roomsWith({ query: async () => { throw new Error("down"); } }, "site:mx");
+    expect(rooms.has("site:mx")).toBe(true);
+    expect(err).toHaveBeenCalledWith("live rooms query failed: down");
+    err.mockRestore();
   });
 });

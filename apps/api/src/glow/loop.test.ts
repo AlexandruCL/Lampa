@@ -1,9 +1,9 @@
-import type { GlowMessage, LampsMessage } from "@lampa/shared";
+import type { FinaleMessage, GlowMessage, LampsMessage } from "@lampa/shared";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { Db, GlowLoop } from "../seam.js";
 import { glowSql } from "./glow.js";
 import { LAMPS_SQL } from "./lamps.js";
-import { startGlowLoop } from "./loop.js";
+import { FINALE_LEAD_MS, startGlowLoop } from "./loop.js";
 
 type Row = { site_id: string; glow: unknown };
 
@@ -227,5 +227,76 @@ describe("lamps in the loop", () => {
     await vi.advanceTimersByTimeAsync(5000);
     expect(query.mock.calls.map(([text]) => text)).toEqual([glowSql(), glowSql()]);
     expect(l.latestLamps()).toBeNull();
+  });
+});
+
+describe("finale in the loop", () => {
+  const at = new Date("2026-11-14T18:00:00Z");
+  let emitFinale: ReturnType<typeof vi.fn<(message: FinaleMessage) => void>>;
+
+  let ticks: number; // lamps queries so far
+  let onTick: number[]; // the tick of each finale
+
+  /** Ticks once per value; a value of "fail" fails that tick's lamps query. */
+  async function run(seq: (number | "fail")[], withFinale = true) {
+    query.mockImplementation(async (text) => {
+      if (text !== LAMPS_SQL) return { rows: [], rowCount: 0 };
+      const v = seq[ticks++];
+      if (v === "fail") throw new Error("lamps gone");
+      return { rows: [{ site_id: "mx", lit_today: v, lighting_now: 0 }], rowCount: 1 };
+    });
+    const l = (loop = startGlowLoop({ db: { query }, emit, emitLamps: vi.fn(), emitFinale: withFinale ? emitFinale : undefined, now: () => at }));
+    await l.tick(); // the tick started by startGlowLoop
+    for (let n = 1; n < seq.length; n++) await vi.advanceTimersByTimeAsync(5000);
+    expect(ticks).toBe(seq.length);
+  }
+
+  beforeEach(() => {
+    emitFinale = vi.fn<(message: FinaleMessage) => void>();
+    ticks = 0;
+    onTick = [];
+  });
+
+  it("38, 721, 731 sends one finale with startAt = now + 3000", async () => {
+    await run([38, 721, 731]);
+    expect(FINALE_LEAD_MS).toBe(3000);
+    expect(emitFinale).toHaveBeenCalledTimes(1);
+    expect(emitFinale).toHaveBeenCalledWith({ startAt: at.getTime() + 3000 });
+  });
+
+  it("731 on the first tick sends none", async () => {
+    await run([731]);
+    expect(emitFinale).not.toHaveBeenCalled();
+  });
+
+  it("731, 721, 731 sends one, on the third tick", async () => {
+    emitFinale.mockImplementation(() => void onTick.push(ticks));
+    await run([731, 721, 731]);
+    expect(onTick).toEqual([3]);
+  });
+
+  it("731, 740 sends none", async () => {
+    await run([731, 740]);
+    expect(emitFinale).not.toHaveBeenCalled();
+  });
+
+  it("a failed lamps tick between 721 and 731 still sends one when 731 arrives", async () => {
+    await run([721, "fail", 731]);
+    expect(errors).toHaveBeenCalledWith("lamps tick failed: lamps gone");
+    expect(emitFinale).toHaveBeenCalledTimes(1);
+  });
+
+  it("an emitFinale that throws is logged and does not fire again on the next tick", async () => {
+    emitFinale.mockImplementationOnce(() => {
+      throw new Error("socket gone");
+    });
+    await run([721, 731, 731]);
+    expect(errors).toHaveBeenCalledWith("finale emit failed: socket gone");
+    expect(emitFinale).toHaveBeenCalledTimes(1);
+  });
+
+  it("no emitFinale given: no throw", async () => {
+    await run([721, 731], false);
+    expect(errors).not.toHaveBeenCalled();
   });
 });

@@ -1,4 +1,4 @@
-import type { CandleMessage, GlowMessage, LampsMessage, PaneMessage, SocketMessage, WindowCompleteMessage } from "@lampa/shared";
+import type { CandleMessage, FinaleMessage, GlowMessage, LampsMessage, PaneMessage, SocketMessage, WindowCompleteMessage } from "@lampa/shared";
 
 /** The one database call the routers and the loop use. `asDb(pool)` in `db/pool.ts` makes one. */
 export type Db = {
@@ -25,6 +25,7 @@ export type Live = {
   emit: Emit;
   emitLamps: (message: LampsMessage) => void;
   emitCandle: (message: CandleMessage) => void;
+  emitFinale: (message: FinaleMessage) => void;
   close: () => Promise<void>;
 };
 
