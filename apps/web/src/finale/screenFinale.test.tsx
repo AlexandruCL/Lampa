@@ -1,9 +1,12 @@
 import { MAP_LINES, sites, type FinaleMessage } from "@lampa/shared";
 import { renderToStaticMarkup } from "react-dom/server";
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { isRadioPlaying, playRadio, stopRadio } from "../audio/radio";
 import { layout, SITE_RADIUS } from "../screen/projection";
-import { FinaleMapLayer, FinalePanel, type ScreenShown } from "./ScreenFinale";
+import { FinaleMapLayer, FinalePanel, radioKey, radioOnFinale, type ScreenShown } from "./ScreenFinale";
 import styles from "./ScreenFinale.module.css";
+
+vi.mock("../audio/radio", () => ({ isRadioPlaying: vi.fn(() => false), playRadio: vi.fn(() => Promise.resolve("ended")), stopRadio: vi.fn() }));
 
 const message: FinaleMessage = { startAt: 50_000 };
 const shown = (phase: ScreenShown["phase"], reduced = false): ScreenShown => ({ phase, reduced, delayMs: 0 });
@@ -58,5 +61,56 @@ describe("FinaleMapLayer", () => {
   it("is gone once the burst is over, and absent with no finale", () => {
     expect(renderToStaticMarkup(<FinaleMapLayer finale={message} placed={placed} shown={shown("settle")} />)).toBe("");
     expect(renderToStaticMarkup(<FinaleMapLayer finale={null} placed={placed} />)).toBe("");
+  });
+});
+
+describe("Radio Lampa on the panel", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.mocked(isRadioPlaying).mockReturnValue(false);
+  });
+  const flush = () => new Promise((r) => setTimeout(r, 0));
+
+  it("R or r starts the episode and re-renders when it starts and ends; other keys do nothing", async () => {
+    const update = vi.fn();
+    radioKey("x", null, update);
+    expect(playRadio).not.toHaveBeenCalled();
+    radioKey("r", null, update);
+    radioKey("R", null, update);
+    expect(playRadio).toHaveBeenCalledTimes(2);
+    expect(update).toHaveBeenCalledTimes(2);
+    await flush();
+    expect(update).toHaveBeenCalledTimes(4);
+  });
+
+  it("a second R while the episode plays starts nothing", () => {
+    vi.mocked(isRadioPlaying).mockReturnValue(true);
+    const update = vi.fn();
+    radioKey("r", null, update);
+    expect(playRadio).not.toHaveBeenCalled();
+    expect(update).not.toHaveBeenCalled();
+    vi.mocked(isRadioPlaying).mockReturnValue(false);
+  });
+
+  it("R while the finale shows, from the crackle to the end of the settle, starts nothing", () => {
+    const update = vi.fn();
+    for (const phase of ["crackle", "silence", "burst", "settle"] as const) radioKey("r", shown(phase), update);
+    expect(playRadio).not.toHaveBeenCalled();
+    expect(update).not.toHaveBeenCalled();
+  });
+
+  it("a finale message stops the episode; no message does not", () => {
+    radioOnFinale(null);
+    expect(stopRadio).not.toHaveBeenCalled();
+    radioOnFinale(message);
+    expect(stopRadio).toHaveBeenCalledOnce();
+  });
+
+  it('shows "Radio Lampa" only while the episode plays, with no captions', () => {
+    expect(renderToStaticMarkup(<FinalePanel finale={null} />)).toBe("");
+    vi.mocked(isRadioPlaying).mockReturnValue(true);
+    expect(renderToStaticMarkup(<FinalePanel finale={null} />)).toBe(`<p class="${styles.date}">Radio Lampa</p>`);
+    vi.mocked(isRadioPlaying).mockReturnValue(false);
+    expect(renderToStaticMarkup(<FinalePanel finale={null} radio={false} />)).toBe("");
   });
 });

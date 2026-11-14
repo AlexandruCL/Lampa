@@ -1,6 +1,7 @@
 import { LAMP_TARGET, sites, type FinaleMessage } from "@lampa/shared";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { BURST_AT_MS, CRACKLE_MS, FINALE_END_MS, finaleClock, finalePhase, preloadFinale, startFinale } from "../audio/finale";
+import { isRadioPlaying, playRadio, stopRadio } from "../audio/radio";
 import { startClockOffset, useClockOffset } from "../lamp/pulse";
 import { DESIGN_HEIGHT, labelWidth, MAP_WIDTH, SITE_RADIUS, type layout } from "../screen/projection";
 import styles from "./ScreenFinale.module.css";
@@ -112,8 +113,43 @@ export function FinaleMapLayer({
   );
 }
 
-/** Side panel, above the Ticker: "731 / 731" and the date during the burst, then they settle back over 4 s. English, as /screen. */
-export function FinalePanel({ finale, shown = screenShown(finale) }: { finale: FinaleMessage | null; shown?: ScreenShown | null }) {
+/** The R key (Patrick, hour 37): starts the episode; while it plays, or while the finale shows (crackle to the end of the settle), nothing. `update` re-renders the panel when it starts and ends. */
+export function radioKey(key: string, shown: ScreenShown | null, update: () => void): void {
+  if ((key !== "r" && key !== "R") || isRadioPlaying() || shown) return;
+  void playRadio().then(update);
+  update();
+}
+
+/** A finale that comes in stops the episode (Patrick, hour 37); before the finale's own room ramp, which starts at `at`. */
+export function radioOnFinale(finale: FinaleMessage | null): void {
+  if (finale) stopRadio();
+}
+
+/** Side panel, above the Ticker: "731 / 731" and the date during the burst, then they settle back over 4 s; "Radio Lampa" while the episode plays. English, as /screen. */
+export function FinalePanel({
+  finale,
+  shown = screenShown(finale),
+  radio = isRadioPlaying(),
+}: {
+  finale: FinaleMessage | null;
+  shown?: ScreenShown | null;
+  radio?: boolean;
+}) {
+  const [, setTick] = useState(0);
+  const finaleRef = useRef(finale);
+  finaleRef.current = finale;
+  // Mounted with LivingMap only, so R before the start click does nothing.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => radioKey(e.key, screenShown(finaleRef.current), () => setTick((n) => n + 1));
+    window.addEventListener("keydown", onKey);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      stopRadio();
+    };
+  }, []);
+  useEffect(() => radioOnFinale(finale), [finale]);
+
+  if (radio) return <p className={styles.date}>Radio Lampa</p>;
   if (!shown || (shown.phase !== "burst" && shown.phase !== "settle")) return null;
   return (
     <div className={`${styles.panel} ${shown.phase === "settle" ? styles.settle : ""}`}>
