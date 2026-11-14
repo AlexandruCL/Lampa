@@ -10,7 +10,7 @@ location:
 radius_m: 40
 interactions: [talk, colours, lamp, echo]
 is_memorial: false
-glow_k: 5
+glow_k: 30
 persona:
   voice: "X6vOWkVPB3AcILSfttxa"
   traits: ""

@@ -1,5 +1,6 @@
 import { MAP_LINES, sites, type SiteDetail } from "@lampa/shared";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { unlockAudio } from "../audio/context";
 import { useRoomSound } from "../audio/room";
 import { Button } from "../components";
 import { DemoBadge } from "../phone/DemoBadge";
@@ -107,7 +108,12 @@ export default function ScreenPage() {
       ) : (
         <div className={styles.start}>
           <p className={styles.mark}>LAMPA</p>
-          <Button variant="primary" size="l" onClick={() => setStarted(true)}>
+          <Button variant="primary" size="l" 
+            onClick={() => {
+              void unlockAudio(); // inside the click itself: Safari does not count the effect that follows as the tap
+              setStarted(true);
+            }}
+          >
             Start the Living Map
           </Button>
           <p className={styles.startLine}>Turns on the room sound.</p>
