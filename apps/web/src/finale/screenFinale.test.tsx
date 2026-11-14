@@ -73,10 +73,10 @@ describe("Radio Lampa on the panel", () => {
 
   it("R or r starts the episode and re-renders when it starts and ends; other keys do nothing", async () => {
     const update = vi.fn();
-    radioKey("x", update);
+    radioKey("x", null, update);
     expect(playRadio).not.toHaveBeenCalled();
-    radioKey("r", update);
-    radioKey("R", update);
+    radioKey("r", null, update);
+    radioKey("R", null, update);
     expect(playRadio).toHaveBeenCalledTimes(2);
     expect(update).toHaveBeenCalledTimes(2);
     await flush();
@@ -86,10 +86,17 @@ describe("Radio Lampa on the panel", () => {
   it("a second R while the episode plays starts nothing", () => {
     vi.mocked(isRadioPlaying).mockReturnValue(true);
     const update = vi.fn();
-    radioKey("r", update);
+    radioKey("r", null, update);
     expect(playRadio).not.toHaveBeenCalled();
     expect(update).not.toHaveBeenCalled();
     vi.mocked(isRadioPlaying).mockReturnValue(false);
+  });
+
+  it("R while the finale shows, from the crackle to the end of the settle, starts nothing", () => {
+    const update = vi.fn();
+    for (const phase of ["crackle", "silence", "burst", "settle"] as const) radioKey("r", shown(phase), update);
+    expect(playRadio).not.toHaveBeenCalled();
+    expect(update).not.toHaveBeenCalled();
   });
 
   it("a finale message stops the episode; no message does not", () => {

@@ -1,5 +1,5 @@
 import { LAMP_TARGET, sites, type FinaleMessage } from "@lampa/shared";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { BURST_AT_MS, CRACKLE_MS, FINALE_END_MS, finaleClock, finalePhase, preloadFinale, startFinale } from "../audio/finale";
 import { isRadioPlaying, playRadio, stopRadio } from "../audio/radio";
 import { startClockOffset, useClockOffset } from "../lamp/pulse";
@@ -113,9 +113,9 @@ export function FinaleMapLayer({
   );
 }
 
-/** The R key (Patrick, hour 37): starts the episode; while it plays, nothing. `update` re-renders the panel when it starts and ends. */
-export function radioKey(key: string, update: () => void): void {
-  if ((key !== "r" && key !== "R") || isRadioPlaying()) return;
+/** The R key (Patrick, hour 37): starts the episode; while it plays, or while the finale shows (crackle to the end of the settle), nothing. `update` re-renders the panel when it starts and ends. */
+export function radioKey(key: string, shown: ScreenShown | null, update: () => void): void {
+  if ((key !== "r" && key !== "R") || isRadioPlaying() || shown) return;
   void playRadio().then(update);
   update();
 }
@@ -136,9 +136,11 @@ export function FinalePanel({
   radio?: boolean;
 }) {
   const [, setTick] = useState(0);
+  const finaleRef = useRef(finale);
+  finaleRef.current = finale;
   // Mounted with LivingMap only, so R before the start click does nothing.
   useEffect(() => {
-    const onKey = (e: KeyboardEvent) => radioKey(e.key, () => setTick((n) => n + 1));
+    const onKey = (e: KeyboardEvent) => radioKey(e.key, screenShown(finaleRef.current), () => setTick((n) => n + 1));
     window.addEventListener("keydown", onKey);
     return () => {
       window.removeEventListener("keydown", onKey);
