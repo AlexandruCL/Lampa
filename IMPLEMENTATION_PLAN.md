@@ -196,6 +196,7 @@ Before sleeping, Patrick starts `publish-site.ts` for all five sites.
 | Patrick | Navigation audio: sound compass for the 2 to 3 nearest sites (HRTF panner from bearing minus heading, low-pass by distance), beacon for the chosen site, arrival chime, 12 dB ducking under the persona voice | 3.5 |
 | Patrick | Approved echoes play as whispers from the site's direction | 1 |
 | Patrick | Room sound on `/screen`: each bed at gain equal to glow, panned by map position | 1.5 |
+| Patrick | Talk client tools moved from Build 2: `show_archive_image` (images listed under `persona.archive` in the site files), `start_echo_recording`, `suggest_next_site` (Patrick, hour 24) | 0 (inside the Build 2 Talk row) |
 | Fabi | Lamps lit today: query and broadcast | 1 |
 | Fabi | People lighting now: distinct sessions with a `lamp` event at each site in the last 90 s, sent per site in the `lamps` message | 0.5 |
 | Fabi | Clock offset endpoint (5 pings, lowest RTT), moved here from Build 4 for the lamp pulse | 0.5 |
@@ -381,6 +382,7 @@ Needs from others: `POST /events` and `GET /sites` from Fabi by hour 6, `POST /p
 | Build 3 | Navigation audio: sound compass, beacon, chime, ducking | 3.5 |
 | Build 3 | Echo whispers from the site's direction | 1 |
 | Build 3 | Room sound on `/screen` | 1.5 |
+| Build 3 | Talk client tools moved from Build 2: archive image, echo recording, next site (Patrick, hour 24) | 0 |
 | Build 4 | 1884 finale cue at a shared server time | 1.5 |
 | Build 4 | One Radio Lampa episode (first to cut) | 1 |
 
