@@ -12,6 +12,8 @@ export const SILENCE_MS = 2000;
 export const BURST_AT_MS = CRACKLE_MS + SILENCE_MS; // 3500
 export const WALTZ_MS = 45000;
 export const FINALE_END_MS = BURST_AT_MS + WALTZ_MS; // 48500
+/** Level of the crackle and the waltz; at full level the finale was too loud (Cristea, after Build 4). */
+export const FINALE_GAIN = 0.4;
 const ROOM_DOWN_S = 0.5;
 const ROOM_BACK_S = 4;
 
@@ -96,7 +98,8 @@ export function startFinale(at: number, serverNow: number, opts: { surface: "pho
         const gain = ctx.createGain();
         const fade = when(CRACKLE_MS);
         source.buffer = crackle;
-        gain.gain.setValueAtTime(1, fade);
+        gain.gain.value = FINALE_GAIN;
+        gain.gain.setValueAtTime(FINALE_GAIN, fade);
         gain.gain.linearRampToValueAtTime(0, fade + CRACKLE_FADE_S);
         source.connect(gain).connect(ctx.destination);
         source.onended = () => {
@@ -109,10 +112,13 @@ export function startFinale(at: number, serverNow: number, opts: { surface: "pho
       }
       if (waltz && serverNow < at + FINALE_END_MS) {
         const source = ctx.createBufferSource();
+        const gain = ctx.createGain();
         source.buffer = waltz;
-        source.connect(ctx.destination);
+        gain.gain.value = FINALE_GAIN;
+        source.connect(gain).connect(ctx.destination);
         source.onended = () => {
           source.disconnect();
+          gain.disconnect();
           end();
         };
         source.start(when(BURST_AT_MS), from(BURST_AT_MS));

@@ -1,6 +1,6 @@
 import { afterAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { clips } from "./clips";
-import { BURST_AT_MS, finaleClock, finalePhase, startFinale, type FinaleHandle } from "./finale";
+import { BURST_AT_MS, FINALE_GAIN, finaleClock, finalePhase, startFinale, type FinaleHandle } from "./finale";
 
 type FakeSource = { buffer?: { url: string }; start: ReturnType<typeof vi.fn>; stop: ReturnType<typeof vi.fn>; onended: (() => void) | null };
 const param = () => ({ value: 1, cancelScheduledValues: vi.fn(), setValueAtTime: vi.fn(), linearRampToValueAtTime: vi.fn() });
@@ -92,7 +92,8 @@ describe("startFinale", () => {
     const [crackle] = byUrl(CRACKLE);
     const [waltz] = byUrl(WALTZ);
     expect(crackle.start).toHaveBeenCalledWith(11, 0);
-    expect(gains[0].setValueAtTime).toHaveBeenCalledWith(1, 12.5);
+    expect(gains[0].setValueAtTime).toHaveBeenCalledWith(FINALE_GAIN, 12.5);
+    expect(gains.map((g) => g.value)).toEqual([FINALE_GAIN, FINALE_GAIN]); // crackle, waltz
     expect(gains[0].linearRampToValueAtTime).toHaveBeenCalledWith(0, 12.7);
     expect(waltz.start).toHaveBeenCalledWith(14.5, 0);
     expect(waltz.stop).toHaveBeenCalledWith(59.5);
