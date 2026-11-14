@@ -1,0 +1,75 @@
+/* Ported from design/css/console.css (Add a place, steps) and the 6.16 Field and 6.17 QRBlock blocks of
+   components.css (DESIGN.md 7.15). One column that also works on the curator's phone. */
+
+.placeForm { width: 100%; max-width: 640px; margin: 0 auto; padding: var(--space-xl) var(--space-l) var(--space-3xl); box-sizing: border-box; display: flex; flex-direction: column; gap: var(--space-l); }
+/* The fieldset that locks the form while publishing; zeroed so it does not widen the column at 390px */
+.lock { margin: 0; padding: 0; border: 0; min-width: 0; display: flex; flex-direction: column; gap: var(--space-l); }
+.group { margin: 0; padding: 0; border: 0; min-width: 0; display: flex; flex-direction: column; gap: var(--space-s); }
+.legend { padding: 0; margin-bottom: var(--space-xs); font: var(--type-label); color: var(--text); }
+.fact { display: flex; flex-direction: column; gap: var(--space-xs); padding-bottom: var(--space-m); border-bottom: var(--border-divider) solid var(--line); }
+.coords { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-s); }
+.actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-s); }
+
+/* 6.16 Field */
+.field { display: flex; flex-direction: column; gap: var(--space-xs); min-width: 0; }
+.fieldLabel { font: var(--type-label); color: var(--text); }
+.fieldInput {
+  width: 100%;
+  min-height: var(--tap-min);
+  padding: 0 var(--space-m);
+  box-sizing: border-box;
+  border: var(--border-control) solid var(--line-strong);
+  border-radius: var(--radius-s);
+  background: var(--surface-2);
+  color: var(--text);
+  font: var(--type-body);
+}
+textarea.fieldInput { min-height: 120px; padding: var(--space-s) var(--space-m); resize: vertical; hyphens: auto; }
+.fieldInput::placeholder { color: var(--text-3); }
+.fieldInput:focus-visible { border-color: var(--text); }
+.fieldInput[aria-invalid="true"] { border-color: var(--danger); }
+.fieldInput:disabled,
+.fieldInput[readonly] { border-color: var(--line); color: var(--text-3); }
+.fieldHelp { margin: 0; font: var(--type-meta); color: var(--text-2); }
+.fieldMeta { margin: 0; font: var(--type-meta); color: var(--text-2); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.fieldError { display: flex; align-items: flex-start; gap: var(--space-xs); margin: 0; font: var(--type-meta); color: var(--danger); }
+
+.check { display: flex; align-items: center; gap: var(--space-s); min-height: var(--tap-min); font: var(--type-body); color: var(--text); cursor: pointer; }
+.checkBox { position: relative; width: 24px; height: 24px; flex: none; }
+.checkInput {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  -webkit-appearance: none;
+  appearance: none;
+  box-sizing: border-box;
+  border: var(--border-control) solid var(--line-strong);
+  border-radius: 6px;
+  background: transparent;
+  cursor: pointer;
+}
+.checkInput:checked { background: var(--lamp); border-color: var(--lamp); }
+.checkMark { position: absolute; inset: 0; color: var(--on-lamp); opacity: 0; pointer-events: none; }
+.checkInput:checked + .checkMark { opacity: 1; }
+.checkInput:disabled { border-color: var(--line); cursor: default; }
+.check:has(.checkInput:disabled) { color: var(--text-3); cursor: default; }
+
+/* Publish steps */
+.steps { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: var(--space-s); }
+.step { display: flex; align-items: flex-start; gap: var(--space-s); font: var(--type-body); color: var(--text); }
+.stepMark { width: 24px; height: 24px; flex: none; display: grid; place-items: center; }
+.stepBody { display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-xs); min-width: 0; }
+.pending { color: var(--text-3); }
+.done .stepMark { color: var(--ok); }
+.failed .stepMark { color: var(--danger); }
+.stepError { display: block; font: var(--type-meta); color: var(--text-2); }
+.spinner { composes: spinner from "../components/Button/Button.module.css"; }
+
+/* 6.17 QRBlock, console size */
+.success { display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-m); }
+.qr { display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-s); max-width: 100%; }
+.qrCode { display: block; width: 200px; height: 200px; background: var(--lamp-white); }
+.qrCode svg { display: block; width: 100%; height: 100%; }
+.qrUrl { margin: 0; font: var(--type-meta); color: var(--text-2); overflow-wrap: anywhere; }
+
+.srOnly { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }

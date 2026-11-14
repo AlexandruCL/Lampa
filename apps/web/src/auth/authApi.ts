@@ -1,12 +1,32 @@
 import type { ZodType } from "zod";
 import { API_URL, ApiError } from "../api/client";
 
+/** An ApiError that also carries the body's `error` code, so the console can tell 409s apart. */
+export class AuthApiError extends ApiError {
+  readonly code?: string;
+
+  constructor(status: number, code?: string) {
+    super(status);
+    this.name = "AuthApiError";
+    this.code = code;
+  }
+}
+
+/** The `init` for a JSON POST through authApi. */
+export function postJson(body: unknown): RequestInit {
+  return { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) };
+}
+
 // Auth0 token only: phone calls keep the anonymous token through api() and authFetch.
 async function send(path: string, token: string, init: RequestInit = {}): Promise<Response> {
   const headers = new Headers(init.headers);
   headers.set("Authorization", `Bearer ${token}`);
   const res = await fetch(API_URL + path, { ...init, headers });
-  if (!res.ok) throw new ApiError(res.status);
+  if (!res.ok) {
+    const body: unknown = await res.json().catch(() => null);
+    const code = (body as { error?: unknown } | null)?.error;
+    throw new AuthApiError(res.status, typeof code === "string" ? code : undefined);
+  }
   return res;
 }
 

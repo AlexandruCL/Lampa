@@ -1,9 +1,10 @@
 import { useAuth0 } from "@auth0/auth0-react";
 import { PendingEchoes, type PendingEcho } from "@lampa/shared";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { ApiError } from "../api/client";
 import { authApi } from "../auth/authApi";
 import { Button, Notice } from "../components";
+import { AddPlace } from "./AddPlace";
 import { EchoDetail } from "./EchoDetail";
 import { keepSelection, metaLine, QUEUE_REFRESH_MS, removeEcho, sessionEnded, siteName } from "./queue";
 import styles from "./CuratePage.module.css";
@@ -33,7 +34,9 @@ export function CuratePage() {
 
   const latest = useRef(0);
   const rows = useRef(new Map<string, HTMLButtonElement>());
-  const tabRef = useRef<HTMLHeadingElement>(null);
+  const [tab, setTab] = useState<"queue" | "place">("queue");
+  const tabRef = useRef<HTMLButtonElement>(null);
+  const placeTabRef = useRef<HTMLButtonElement>(null);
   const detailRef = useRef<HTMLHeadingElement>(null);
 
   const signIn = () =>
@@ -153,77 +156,117 @@ export function CuratePage() {
 
   const selected = queue?.echoes.find((e) => e.id === queue.selected);
 
+  // Two tabs, so either arrow moves to the other one.
+  const onTabKey = (e: KeyboardEvent) => {
+    if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+    e.preventDefault();
+    const next = tab === "queue" ? "place" : "queue";
+    setTab(next);
+    (next === "queue" ? tabRef : placeTabRef).current?.focus();
+  };
+
   return (
     <main className={styles.console}>
-      <h1 className={styles.consoleTab} tabIndex={-1} ref={tabRef}>
-        {queue ? `Echo queue (${queue.echoes.length})` : "Echo queue"}
-      </h1>
-      {notice && (
-        <div className={styles.consoleNotice}>
-          <Notice
-            variant={notice.variant}
-            action={notice.retry ? { label: "Try again", onClick: () => void load() } : undefined}
-          >
-            {notice.text}
-          </Notice>
-        </div>
-      )}
-      <div className={`${styles.consolePanes} ${open && selected ? styles.open : ""}`}>
-        {!queue ? (
-          !notice?.retry && <ul className={styles.consoleList} aria-busy="true">
-            {Array.from({ length: LOADING_ROWS }, (_, i) => (
-              <li key={i}>
-                <div className={`${styles.queueRow} ${styles.queueRowLoading}`}>
-                  <span className={styles.queueRowSite}>Loading</span>
-                  <span className={styles.queueRowMeta}>&nbsp;</span>
-                </div>
-              </li>
-            ))}
-          </ul>
-        ) : queue.echoes.length === 0 ? (
-          <p className={styles.consoleEmpty}>No echoes waiting. New ones appear here as visitors record them.</p>
-        ) : (
-          <ul className={styles.consoleList}>
-            {queue.echoes.map((echo) => (
-              <li key={echo.id}>
-                <button
-                  type="button"
-                  className={styles.queueRow}
-                  aria-current={echo.id === queue.selected ? "true" : undefined}
-                  ref={(el) => {
-                    if (el) rows.current.set(echo.id, el);
-                    else rows.current.delete(echo.id);
-                  }}
-                  onClick={() => {
-                    setQueue((q) => q && { ...q, selected: echo.id });
-                    setOpen(true);
-                  }}
-                >
-                  <span className={styles.queueRowSite}>{siteName(echo.siteId)}</span>
-                  <span className={styles.queueRowMeta}>{metaLine(echo, now)}</span>
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
-        {selected && (
-          <div className={styles.detailPane}>
-            <EchoDetail
-              key={selected.id}
-              echo={selected}
-              now={now}
-              getToken={getToken}
-              busy={busy}
-              onApprove={() => void moderate("approve")}
-              onReject={() => void moderate("reject")}
-              onBack={() => {
-                setOpen(false);
-                setFocusRow(true);
-              }}
-              headingRef={detailRef}
-            />
+      <div className={styles.consoleTabs} role="tablist" onKeyDown={onTabKey}>
+        <button
+          type="button"
+          role="tab"
+          id="curate-tab-queue"
+          aria-controls="curate-panel-queue"
+          aria-selected={tab === "queue"}
+          tabIndex={tab === "queue" ? 0 : -1}
+          className={styles.consoleTab}
+          ref={tabRef}
+          onClick={() => setTab("queue")}
+        >
+          {queue ? `Echo queue (${queue.echoes.length})` : "Echo queue"}
+        </button>
+        <button
+          type="button"
+          role="tab"
+          id="curate-tab-place"
+          aria-controls="curate-panel-place"
+          aria-selected={tab === "place"}
+          tabIndex={tab === "place" ? 0 : -1}
+          className={styles.consoleTab}
+          ref={placeTabRef}
+          onClick={() => setTab("place")}
+        >
+          Add a place
+        </button>
+      </div>
+      <div className={styles.panel} role="tabpanel" id="curate-panel-queue" aria-labelledby="curate-tab-queue" hidden={tab !== "queue"}>
+        {notice && (
+          <div className={styles.consoleNotice}>
+            <Notice
+              variant={notice.variant}
+              action={notice.retry ? { label: "Try again", onClick: () => void load() } : undefined}
+            >
+              {notice.text}
+            </Notice>
           </div>
         )}
+        <div className={`${styles.consolePanes} ${open && selected ? styles.open : ""}`}>
+          {!queue ? (
+            !notice?.retry && <ul className={styles.consoleList} aria-busy="true">
+              {Array.from({ length: LOADING_ROWS }, (_, i) => (
+                <li key={i}>
+                  <div className={`${styles.queueRow} ${styles.queueRowLoading}`}>
+                    <span className={styles.queueRowSite}>Loading</span>
+                    <span className={styles.queueRowMeta}>&nbsp;</span>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          ) : queue.echoes.length === 0 ? (
+            <p className={styles.consoleEmpty}>No echoes waiting. New ones appear here as visitors record them.</p>
+          ) : (
+            <ul className={styles.consoleList}>
+              {queue.echoes.map((echo) => (
+                <li key={echo.id}>
+                  <button
+                    type="button"
+                    className={styles.queueRow}
+                    aria-current={echo.id === queue.selected ? "true" : undefined}
+                    ref={(el) => {
+                      if (el) rows.current.set(echo.id, el);
+                      else rows.current.delete(echo.id);
+                    }}
+                    onClick={() => {
+                      setQueue((q) => q && { ...q, selected: echo.id });
+                      setOpen(true);
+                    }}
+                  >
+                    <span className={styles.queueRowSite}>{siteName(echo.siteId)}</span>
+                    <span className={styles.queueRowMeta}>{metaLine(echo, now)}</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+          {selected && (
+            <div className={styles.detailPane}>
+              <EchoDetail
+                key={selected.id}
+                echo={selected}
+                now={now}
+                getToken={getToken}
+                busy={busy}
+                onApprove={() => void moderate("approve")}
+                onReject={() => void moderate("reject")}
+                onBack={() => {
+                  setOpen(false);
+                  setFocusRow(true);
+                }}
+                headingRef={detailRef}
+              />
+            </div>
+          )}
+        </div>
+      </div>
+      {/* Kept mounted while hidden, so a typed form or a running publish survives a tab switch */}
+      <div className={styles.panel} role="tabpanel" id="curate-panel-place" aria-labelledby="curate-tab-place" hidden={tab !== "place"}>
+        <AddPlace getToken={getToken} onSessionEnded={() => setAccess("ended")} />
       </div>
     </main>
   );
