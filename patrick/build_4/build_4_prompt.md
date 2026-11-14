@@ -1,6 +1,6 @@
 # Prompt: Patrick's Build 4: demo extras (Patrick, LAMPA)
 
-**Status: prompt completed and checked against `IMPLEMENTATION_PLAN.md` at hour 28.3 (2026-11-14 17:40 +0200). Updated at B4-0 (hour 37): Fabi's `FinaleMessage { startAt }` and `FINALE_LEAD_MS` 3000 were already on `main`; this prompt adopts them (Patrick's decision, hour 37). Implementation not started.**
+**Status: prompt completed and checked against `IMPLEMENTATION_PLAN.md` at hour 28.3 (2026-11-14 17:40 +0200). Updated at B4-0 (hour 37): Fabi's `FinaleMessage { startAt }` and `FINALE_LEAD_MS` 3000 were already on `main`; this prompt adopts them (Patrick's decision, hour 37). Closed by Patrick at hour 37 (PRs #69, #71, #75); the B4-3 checks run at the end (glossary).**
 
 You are implementing Patrick's part of Build 4: demo extras (hours 37 to 40 in the plan; Patrick runs it from clock hour 28.5 to 31.5, 17:51 to 20:51 on 2026-11-14) in this repository. Follow the checklist in section 3 in order, except where it says agent tasks run in parallel. Tick a box only after its verify command has run and passed.
 
