@@ -1,0 +1,18 @@
+.strip {
+  align-self: stretch;
+  display: flex;
+  gap: var(--space-s);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-x: contain;
+}
+.item { flex: 0 0 100%; scroll-snap-align: center; }
+/* a second photo peeks in, so the strip reads as swipeable */
+.item:not(:only-child) { flex-basis: 88%; }
+.figure { margin: 0; }
+.img { display: block; width: 100%; aspect-ratio: 3 / 2; object-fit: cover; border-radius: var(--radius-m); background: var(--surface); }
+.caption { margin-top: var(--space-xs); color: var(--text-2); font: var(--type-label); text-align: left; }
+.credit { display: block; opacity: 0.8; }

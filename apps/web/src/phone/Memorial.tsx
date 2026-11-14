@@ -10,6 +10,7 @@ import type { PhoneSite } from "../sites/sites";
 import { Between } from "./Between";
 import { Candle } from "./Candle";
 import styles from "./Memorial.module.css";
+import { PhotoStrip } from "./PhotoStrip";
 import { Testimony } from "./Testimony";
 import { TopBar } from "./TopBar";
 
@@ -41,6 +42,7 @@ export function Memorial({ site, demo, remote, primer, notice }: { site: PhoneSi
       {notice}
       <h1 className={styles.name}>{name}</h1>
       <p className={styles.lead}>{t("memorial.lead")}</p>
+      <PhotoStrip siteId={site.id} />
       {items.length > 0 && (
         <>
           <h2 className={styles.heading}>{t("memorial.testimonies")}</h2>
