@@ -1,12 +1,12 @@
 # Site dialogue drafts (Patrick, after Build 4)
 
-**Status: DRAFT for the team.** These are drafts to paste into `content/sites/*.yaml`. Nothing here is in the content files yet. Piața Unirii is already written and is the pattern. Its keys and tone, a short warm greeting and answers of one or two sentences, are copied below for the other three persona sites.
+**Status: DRAFT for the team. The Cathedral section is sourced (2026-11-14).** These are drafts to paste into `content/sites/*.yaml`. Nothing here is in the content files yet. Piața Unirii is already written and is the pattern. Its keys and tone, a short warm greeting and answers of one or two sentences, are copied below for the other three persona sites.
 
 Before anything is published:
 
 - **Facts:** someone on the team checks every fact against a source. Each one I was unsure of is marked `CHECK`.
 - **Romanian:** Ionut reviews the Romanian. It is a draft, like the finale keys.
-- **The Cathedral:** it gets no persona. Its `narrations` are left for sourced testimonies. I did not write any testimony: invented memories of December 1989 must not go into the memorial. There is one short factual context narration at the end, marked `CHECK`, which can be dropped.
+- **The Cathedral:** it gets no persona. Its `narrations` are left for sourced testimonies. I did not write any testimony: invented memories of December 1989 must not go into the memorial. At the end there are four short factual narrations, each with its sources.
 
 Paste each `persona:` block over the site's existing `persona:` block, keeping its `voice:` line. Then:
 
@@ -101,8 +101,8 @@ persona:
         ro: "De ce este important balconul Operei?"
         en: "Why does the Opera balcony matter?"
       a:
-        ro: "În decembrie 1989, oamenii au umplut piața, iar de la acest balcon Timișoara a fost declarată primul oraș liber de comunism."
-        en: "In December 1989, people filled this square, and from that balcony Timișoara was declared the first city free of communism."
+        ro: "În decembrie 1989, oamenii au umplut piața și au vorbit mulțimii de la acest balcon. Pe 20 decembrie, Timișoara a fost proclamată primul oraș din România liber de comunism."
+        en: "In December 1989, people filled this square and spoke to the crowd from that balcony. On 20 December, Timișoara was proclaimed the first city in Romania free of communism."
 ```
 
 CHECK, victoriei:
@@ -162,23 +162,52 @@ CHECK, bastion:
 
 ## 05-cathedral: Metropolitan Cathedral (memorial, no persona)
 
-The Cathedral gets no persona, game, counter or microphone prompt. Its `persona:` block stays as it is. The only speech is the `narrations`, read by `narrator_voice`, and each one needs a real `source`.
+The Cathedral gets no persona, game, counter or microphone prompt. Its `persona:` block stays as it is. The only speech is the `narrations`, read by `narrator_voice`.
 
-**Testimonies:** not drafted on purpose. They should come from published, sourced accounts, for example the Memorialul Revoluției in Timișoara, with permission where needed. The team records the source in `source`.
+**Sources were checked on 2026-11-14.** These four narrations are factual. Every sentence comes from one of the sources in its `source` line. There are no invented testimonies and no invented details. Where the sources disagree, the text says only what they share:
 
-**One optional context narration**, factual and with no invented detail. It is marked CHECK; drop it if the team prefers testimonies only:
+- **Date of the shooting on the steps:** RFE/RL puts the cathedral shooting on 17 December. TVR and Antena 3 put the shooting on the steps on 18 December: young people sang the anthem there, and fire was opened from an armoured carrier (TAB) passing the cathedral. The doors being closed comes from the witnesses in Marius Oprea's column. So narration 1 says "around this cathedral" for the 17th, and narration 2 says "on these steps" for the 18th.
+- **The death toll:** it varies between 58 and 73 by source. Narration 4 gives the Military Prosecutor's figure and names it.
+
+**Testimonies:** real testimonies, with their names, are in Marius Oprea's column (Mediafax, 26 December 2021) and in the Memorialul Revoluției's archive. If the team wants voices, they come from there, with permission. I did not paraphrase them.
 
 ```yaml
 narrations:
-  - id: december-1989
+  - id: december-17
     title:
-      ro: "Decembrie 1989"
-      en: "December 1989"
+      ro: "17 decembrie 1989"
+      en: "17 December 1989"
     text:
-      ro: "În decembrie 1989, Timișoara s-a ridicat prima împotriva regimului comunist. Pe 17 decembrie s-a tras în oamenii adunați aici, pe treptele acestei catedrale. Pe 20 decembrie, Timișoara s-a declarat primul oraș liber. Locul acesta își amintește de ei."
-      en: "In December 1989, Timișoara was the first city to rise against the communist regime. On 17 December, people gathered here on the steps of this cathedral were shot at. On 20 December, Timișoara declared itself the first free city. This place remembers them."
-    source: "CHECK: team confirms against a published source (e.g. Memorialul Revoluției 16-22 Decembrie 1989, Timișoara) and writes it here"
+      ro: "Pe 17 decembrie 1989, la Timișoara s-au auzit primele focuri de armă. În acea seară, miile de oameni adunați în jurul acestei catedrale au ajuns sub foc."
+      en: "On 17 December 1989, the first gunshots were heard in Timișoara. That evening, the thousands of people gathered around this cathedral came under fire."
+    source: "Agerpres, 17 Dec 2024, https://agerpres.ro/english/2024/12/17/the-city-of-timisoara-commemorates-35-years-since-the-romanian-revolution-of-december-1989--1404228; RFE/RL, 14 Dec 1999, https://www.rferl.org/a/1092892.html"
+  - id: the-steps
+    title:
+      ro: "Treptele"
+      en: "The steps"
+    text:
+      ro: "Pe 18 decembrie, tineri s-au adunat din nou pe aceste trepte și au cântat „Deșteaptă-te, române!”, un cântec interzis atunci. Ușile catedralei erau închise. S-a tras asupra lor."
+      en: "On 18 December, young people gathered again on these steps and sang \"Deșteaptă-te, române!\", a song that was forbidden then. The doors of the cathedral were closed. They were fired upon."
+    source: "TVR Info, https://tvrinfo.ro/18-decembrie-1989-o-noua-zi-insangerata-la-timisoara-s-a-cantat-desteapta-te-romane-iar-comunistii-au-vrut-sa-stearga-urmele-masacrului/; Antena 3, 18 Dec 2015, https://www.antena3.ro/actualitate/1989-timisoara-sub-stare-de-asediu-330529.html; Marius Oprea, Mediafax, 26 Dec 2021, https://www.mediafax.ro/stirile-zilei/istoria-fara-perdea-marius-oprea-tragedia-si-maretia-revolutiei-nu-trageti-vrem-piine-20425805"
+  - id: first-free-city
+    title:
+      ro: "Primul oraș liber"
+      en: "The first free city"
+    text:
+      ro: "Pe 20 decembrie, fabricile orașului au intrat în grevă, iar oamenii au umplut piața din fața Operei. Timișoara a fost proclamată primul oraș din România liber de comunism."
+      en: "On 20 December, the city's factories went on strike and people filled the square in front of the Opera. Timișoara was proclaimed the first city in Romania free of communism."
+    source: "Europa Liberă, https://romania.europalibera.org/a/decembrie-1989-timisoara/32734358.html; Digi24, https://www.digi24.ro/stiri/actualitate/evenimente/24-de-ani-de-la-revolutie-pe-20-decembrie-1989-timisoara-a-devenit-primul-oras-liber-de-comunism-172238"
+  - id: remembering
+    title:
+      ro: "Amintirea"
+      en: "Remembering"
+    text:
+      ro: "Procuratura Militară Timișoara a înregistrat atunci 66 de morți și 196 de răniți. În fiecare an, pe 17 decembrie, seara, pe aceste trepte se aprind lumânări."
+      en: "The Timișoara Military Prosecutor's Office recorded 66 dead and 196 wounded. Every year, on the evening of 17 December, candles are lit on these steps."
+    source: "Agerpres, 17 Dec 2024, https://agerpres.ro/english/2024/12/17/the-city-of-timisoara-commemorates-35-years-since-the-romanian-revolution-of-december-1989--1404228"
 ```
+
+Still for the team: Ionut reviews the Romanian, and someone who knows the memorial reads all four before the paid run. They are about 1,100 characters in ro and en, so about 1,100 credits.
 
 ---
 
