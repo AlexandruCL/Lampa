@@ -105,6 +105,7 @@ Anything that differs from the plan, `DESIGN.md` or the contract, and any file o
 | 29 | B3-5.b.1 | `lampa.signInReturnTo` stored before `loginWithRedirect` so a cancelled sign-in returns to the page; `KeepMyColours.module.css` holds one `.root` wrapper | `apps/web/src/auth/` | `DESIGN.md` 7.10 "back where they were" (Decisions, hour 29) |
 | 29 | B1-2.a.1 (fixed) | `/authorize` with `audience=https://lampa-api-b45i.onrender.com` answered "Service not found". Cause: the API's Identifier had a leading space (` https://…`, invisible in the dashboard; probing with `%20` in front gave "Client … is not authorized to access resource server \" https://…\""). Cristea deleted it and created `LAMPA API` again: identifier typed by hand, RS256, RBAC, permissions in the token, offline access, `moderate:echo` and `write:site`, `LAMPA` authorized for user-delegated access with both permissions, roles given their permissions again | none (Auth0 dashboard) | No access token for the API could be issued, so `/curate` could not load the queue. After the fix `/authorize` with the audience goes to `/u/login/identifier` |
 | 30 | Candle hold | The candle's hold changed from 60 s to 10 s in `IMPLEMENTATION_PLAN.md` (lines 227, 273) and `DESIGN.md` (motion table, CandleRing purpose and states, demo note, section 9 item list) | `IMPLEMENTATION_PLAN.md`, `DESIGN.md` | Cristea's decision, hour 30; the team needs to see it |
+| 30 | Plan | Ionut's Build 4 row "Memorial candle" (1 h) widened to "Memorial view" (1.5 h): back and next site, Listen opening the Testimonies with Patrick's narrations, and the candle (10 s); fallback back button, testimonies as text with sources, tap-lit candle; section 11 line changed to match. Ionut's Build 4 is now 3 h of 3 | `IMPLEMENTATION_PLAN.md` (Build 4 table, section 11) | No row covered the back button or the testimonies player; Cristea's decision, hour 30 |
 
 ## Decisions
 The owner's answers only.
@@ -219,6 +220,7 @@ The owner's answers only.
 | 30 | `/screen` runs full screen (F11) at the checkpoint and the demo; the layout is not changed to fit shorter windows in Build 3 | Cristea's decision; headless Chromium at 1920×950 cut the Cathedral's name and at 2560×1080 most of it, while every 16:9 and 16:10 size showed it whole |
 | 30 | The remaining checks (phone candle, Keep my colours on the iPhone, Checkpoint 3 runs, the post-call webhook with a live Talk) run at the end of Build 4, when the other lanes are done | Cristea's decision |
 | 30 | Talk at the Cathedral stays off; the memorial view is handed to Ionut and Patrick as in `DESIGN.md` 7.11 (Hand-offs, hour 30); the memorial rules (`DESIGN.md` 7.11, plan section 7, the concept) allow only sourced testimonies and the candle there | Cristea approved the hand-off ("yes do it") after asking whether the Cathedral could have Talk |
+| 30 | The memorial view (back, next site, testimonies, candle) goes into Ionut's Build 4 row, now 1.5 h | Cristea took the recommendation |
 
 ## Blocked
 | Since hour | ID | Question | Recommendation | Waiting on |

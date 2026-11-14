@@ -224,7 +224,7 @@ Three hours, so each person gets one main item. Anything not working at hour 40 
 | Who | Task | Hours | Fallback if cut |
 |---|---|---|---|
 | Ionut | Language dictionary for ro and en, picked from `navigator.language` | 1.5 | English only |
-| Ionut | Memorial candle: lights after 10 s of stillness (60 s until Cristea's decision, hour 30) measured by motion only (no microphone), 5 s with `?demo=1`, sends a `candle` event | 1 | a tap lights the candle; the memorial site itself is never cut |
+| Ionut | Memorial view (`DESIGN.md` 7.11; widened by Cristea, hour 30): back and a way on to the next site; Listen opens the Testimonies, playing Patrick's narrations with their text and source; the candle lights after 10 s of stillness (60 s until Cristea's decision, hour 30) measured by motion only (no microphone), 5 s with `?demo=1`, sends a `candle` event | 1.5 | back button, testimonies as text with their sources, and a tap lights the candle; the memorial site itself is never cut |
 | Patrick | 1884 finale cue on phones and `/screen`: crackle, silence, waltz, started at a shared server time | 1.5 | play the waltz on `/screen` only |
 | Patrick | One Radio Lampa episode, generated once from today's numbers (first to cut) | 1 | skip |
 | Fabi | Finale trigger at 731 lamps, using the clock offset from Build 3 | 0.5 | broadcast "start now" without sync |
@@ -359,7 +359,7 @@ The same tasks as section 6, regrouped so each person can read their own 48 hour
 | Build 3 | Between sites: arrow, distance, sites list, next-site score, Maps links | 2.5 |
 | Build 3 | Added at hour 7: sites from `packages/shared`, "Say why", `/` opens Between sites, GPS course blend (first to cut) | 0.85 |
 | Build 4 | ro and en dictionary (a native speaker reviews the Romanian strings first) | 1.5 |
-| Build 4 | Memorial candle: motion-only stillness, 5 s in demo mode | 1 |
+| Build 4 | Memorial view: back and next site, testimonies, candle with motion-only stillness (10 s, 5 s in demo mode) | 1.5 |
 
 Needs from others: `POST /events` and `GET /sites` from Fabi by hour 6, `POST /panes` from Fabi by hour 15, `POST /echoes` from Cristea by hour 28. Until each lands, code against the Zod schema in `packages/shared`.
 
