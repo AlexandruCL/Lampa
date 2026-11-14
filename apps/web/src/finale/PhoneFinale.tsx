@@ -51,10 +51,13 @@ function LiveFinale({ site }: { site?: PhoneSite }) {
   const [closed, setClosed] = useState<number | null>(null);
   const [, setTick] = useState(0);
   const rerender = () => setTick((n) => n + 1);
+  const handleRef = useRef<FinaleHandle | null>(null);
 
   useEffect(() => {
     void startClockOffset();
     void preloadFinale();
+    // Any view change stops the waltz, the Memorial included (Patrick, hour 37); Back only closes the overlay.
+    return () => handleRef.current?.stop();
   }, []);
 
   useEffect(() => {
@@ -65,7 +68,7 @@ function LiveFinale({ site }: { site?: PhoneSite }) {
     // One clock for the whole run, as startFinale plays once per `at`: an offset arriving later must not re-time the visuals.
     const clock = (deviceNow: number) => finaleClock(off, at, deviceNow, got);
     const serverNow = clock(Date.now());
-    const handle = startFinale(at, serverNow, { surface: "phone" });
+    const handle = (handleRef.current = startFinale(at, serverNow, { surface: "phone" }));
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     setRun({ at, clock, reduced, delayMs: Math.min(0, at - serverNow), handle });
     const timers = [0, CRACKLE_MS, BURST_AT_MS, FINALE_END_MS, FINALE_END_MS + LIGHT_LEAVE_MS]
