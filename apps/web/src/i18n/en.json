@@ -131,5 +131,8 @@
   "echo.info": "Your recording is stored on our server and transcribed. A curator listens to it. If approved, visitors here hear it in your voice. If rejected, it never plays. We do not ask for your name.",
   "echo.discard_title": "Discard this echo?",
   "echo.discard": "Discard",
-  "echo.keep": "Keep recording"
+  "echo.keep": "Keep recording",
+  "keep.button": "Keep my colours",
+  "keep.saved": "Saved. Your colours stay with your account.",
+  "keep.failed": "You are signed in, but your colours did not move to your account."
 }
