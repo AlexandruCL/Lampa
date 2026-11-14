@@ -1,11 +1,12 @@
 import { MAP_LINES, sites, type SiteDetail } from "@lampa/shared";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useRoomSound } from "../audio/room";
 import { Button } from "../components";
 import { DemoBadge } from "../phone/DemoBadge";
 import { isDemo } from "../sensors/demo";
 import { startCanvas } from "./canvas";
 import { toSite } from "./newSites";
-import { layout } from "./projection";
+import { layout, MAP_WIDTH } from "./projection";
 import { QRBlock } from "./QRBlock";
 import styles from "./ScreenPage.module.css";
 import { Subtitle } from "./Subtitle";
@@ -36,6 +37,7 @@ function LivingMap({ demo }: { demo: boolean }) {
     onSite,
   );
   const [reconnecting, setReconnecting] = useState(false);
+  useRoomSound(glowRef, placed, MAP_WIDTH);
 
   useEffect(() => {
     sitesRef.current = allSites;
