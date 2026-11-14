@@ -359,7 +359,7 @@ Ionut's check. Do not mark it done. After Cristea merges and redeploys the web a
 ### B4-last Integrate and hand over (last, this session)
 
 - [x] The three branches of this block merged into a local throwaway branch, `npm run typecheck && npm run build && npm test` green on it.
-- [ ] Push each branch and open its PR, in this order: `ionut/b4-memorial`, then `ionut/b4-lang`, then `ionut/b4-new-place`. Each PR lists what was verified, what waits for a phone, and that the web app needs Cristea's manual redeploy.
+- [x] Push each branch and open its PR, in this order: `ionut/b4-memorial`, then `ionut/b4-lang`, then `ionut/b4-new-place`. Each PR lists what was verified, what waits for a phone, and that the web app needs Cristea's manual redeploy.
 - [x] Glossary complete: every ID of this prompt is under Done or Blocked; Hand-offs lists `t()`, `LANG`, `Lang`, the dictionary files, `Memorial`, `setBedMuted`, `testimoniesFor`, the `testimonies` field, `siteName`, `fetchSite` and `PhoneSite.interactions`; and for Cristea: `/s/<id>` of a published place opens on a phone.
 - [ ] Ionut's checks on real phones, listed and not claimed: B4-2.d per phone; a phone set to Romanian shows the join, Site view, lens, echo, Between sites and memorial in Romanian, and an English phone in English; the Freeze line (full demo script, twice per phone) with the Build 4 items that survived.
 - Done when: every box is ticked or listed as Ionut's, and the report below is posted.
