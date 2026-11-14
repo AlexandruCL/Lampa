@@ -8,13 +8,15 @@ import { primeDevice, type PrimerResult } from "../sensors/primer";
 import { findSite } from "../sites/sites";
 import { DemoBadge } from "./DemoBadge";
 import styles from "./Join.module.css";
-import { MemorialStub } from "./MemorialStub";
+import { Memorial } from "./Memorial";
 import { RoseWindow } from "./RoseWindow";
 import { Between } from "./Between";
 import { SiteView } from "./SiteView";
 
 // A reload clears this, so history state from before it is ignored: the AudioContext needs a new tap.
 let primedThisLoad = false;
+// This load's primer result: a back to "/" or a site page after the tap has no history state to read it from.
+let lastPrimer: PrimerResult | null = null;
 
 const EMPTY_PANES: null[] = Array(48).fill(null);
 
@@ -37,7 +39,7 @@ export default function Join({ siteId }: { siteId?: string }) {
   const { search, state } = useLocation();
   const navigate = useNavigate();
   const demo = isDemo(search);
-  const [result, setResult] = useState<PrimerResult | null>(primedThisLoad ? (state as PrimerResult | null) : null);
+  const [result, setResult] = useState<PrimerResult | null>(primedThisLoad ? ((state as PrimerResult | null) ?? lastPrimer) : null);
   const [busy, setBusy] = useState(false);
   const [audioBlocked, setAudioBlocked] = useState(result?.audio === "blocked");
 
@@ -69,6 +71,7 @@ export default function Join({ siteId }: { siteId?: string }) {
     setBusy(true);
     primedThisLoad = true;
     const r = await primeDevice({ demo });
+    lastPrimer = r;
     setBusy(false);
     setResult(r);
     setAudioBlocked(r.audio === "blocked");
@@ -97,7 +100,7 @@ export default function Join({ siteId }: { siteId?: string }) {
       return <Between from={null} primer={result} demo={demo} remote={noLocation} notice={denied || undefined} />;
     }
     return memorial ? (
-      <MemorialStub siteId={site!.id} name={name!} demo={demo} notice={notice || undefined} />
+      <Memorial site={site!} demo={demo} remote={remote} primer={result} notice={notice || undefined} />
     ) : (
       <SiteView
         key={site!.id}

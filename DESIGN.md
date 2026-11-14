@@ -580,7 +580,7 @@ The interface speaks plainly and quietly; the sites speak with character (that i
 | Headphones hint | "Put on headphones. LAMPA guides you with sound." | "Pune-ți căștile. LAMPA te ghidează prin sunet." |
 | Keep open | "Keep LAMPA open while you walk. Sound and location stop when the page is in the background." | "Ține LAMPA deschisă cât mergi. Sunetul și locația se opresc când pagina e în fundal." |
 | Lens | "Point at a colour and hold still" | "Țintește o culoare și ține telefonul nemișcat" |
-| Caught | "Your colour is in the window of Muzeul MX Corneliu Miklosi. 47 of 48." | "Culoarea ta e în vitraliul Muzeului MX Corneliu Miklosi. 47 din 48." |
+| Caught | "Your colour is in the window of Muzeul MX Corneliu Miklosi. 47 of 48." | "Culoarea ta e în vitraliul de la Muzeul MX Corneliu Miklosi. 47 din 48." (site names stay in the nominative, Ionut, hour 23) |
 | Talk fallback | "Live conversation is resting. Tap a question." | "Conversația live e în pauză. Alege o întrebare." |
 | Echo sent | "Sent. A curator listens to it before it plays here." | "Trimis. Un curator îl ascultă înainte să se audă aici." |
 | Offline | "No connection. The sound keeps playing. Your colours send when you are back online." | "Fără conexiune. Sunetul continuă. Culorile tale se trimit când revii online." |
@@ -613,6 +613,8 @@ Memorial variant (`/s/` for the Metropolitan Cathedral): no rose window and no "
 | site id unknown | "We could not find this place." plus primary "Show all sites" |
 | first run with no data | the window is empty (48 `--surface-2` panes); the line reads "{Site} is asleep. Be the first light tonight." |
 
+A place published from `/curate` that the web app does not carry (Ionut, hour 37): while it loads from `GET /sites/:id`, the join layout shows "Looking for this place…" / "Caut acest loc…" and no button; a 404 shows "We could not find this place."; any other failure shows an error Notice "We could not reach LAMPA. Check your connection, then try again." with a secondary L "Try again". Once loaded it joins like any site.
+
 ### 7.2 Site view (`/s/:siteId`)
 
 User goal: choose what to do here.
@@ -630,6 +632,8 @@ Sending `wake` happens on open; the glow then follows the 5 s pushes.
 | offline | Notice connection; actions still open (Talk falls back, colours queue) |
 | remote mode (`/?mode=remote`, the `/screen` QR code) | no arrival line; "Raise a lamp" hidden (it needs to be at the lamp sites) |
 | memorial site | never shows this view; it has its own (7.11) |
+
+A place published from `/curate` (Ionut, hour 37) shows Talk, Catch a colour and Raise a lamp only when its interactions list them, and never Leave an echo.
 
 ### 7.3 Talk
 
@@ -757,7 +761,7 @@ The Metropolitan Cathedral is the place where the December 1989 revolution is re
 
 Allowed here: narrated, sourced testimonies and the minute-of-stillness candle. Not allowed here: Talk, the colour lens, the lamp, visitor echoes, glow words or percentages, counters, points, the rose window, the finale, "Keep my colours", persona characters.
 
-Layout (phone, top to bottom): top bar (back, DemoBadge); the name "Metropolitan Cathedral" / "Catedrala Mitropolitană" (`--type-display`); the line "A place of remembrance for December 1989." (`--type-lead` `--text-2`); the heading "Testimonies" / "Mărturii" (`--type-title`) with "Read by a narrator. AI voice." (`--type-meta` `--text-3`); two to four Testimony items (6.23); then, with `--space-2xl` above it, the Candle (6.22) centred; bottom: "Back" (quiet) only. No primary amber button anywhere on this view.
+Layout (phone, top to bottom): top bar (back, DemoBadge); the name "Metropolitan Cathedral" / "Catedrala Mitropolitană" (`--type-display`); the line "A place of remembrance for December 1989." (`--type-lead` `--text-2`); the heading "Testimonies" / "Mărturii" (`--type-title`) with "Read by a narrator. AI voice." (`--type-meta` `--text-3`); two to four Testimony items (6.23), and none of the heading, narrator line or items while the content has no testimony (Ionut, hour 23); then, with `--space-2xl` above it, the Candle (6.22) centred; bottom: "Next site" / "Următorul loc" (quiet L), which opens Between sites from the Cathedral. The top bar's back goes to the previous page when the visitor came from inside the app and is hidden on a cold open from a link or QR (Ionut, hour 23). No primary amber button anywhere on this view.
 
 The site's sound bed plays at 50% of its normal level while no testimony plays and is muted while one plays. Testimonies never start by themselves.
 
@@ -767,10 +771,10 @@ The site's sound bed plays at 50% of its normal level while no testimony plays a
 | testimony playing | 6.23 playing state; the narration text is on screen with its source |
 | candle filling | Ring fills over 10 s (5 s with `?demo=1`) while still, by motion only; moving resets it without a message |
 | candle lit | "Your candle is lit." Its point appears on the Living Map (7.13) and as a mark on Pulse (7.14). No vibration, no sound, no count |
-| leaving and coming back the same day | the candle shows lit again; a second candle can be lit (the Ring is ready again under "Your candle is lit.") |
+| leaving and coming back in the same page load (memory only, no storage; Ionut, hour 23) | the candle shows lit again; a second candle can be lit (the Ring is ready again under "Your candle is lit.") |
 | no motion sensor, motion permission denied, or the stillness check did not ship | the tap fallback in 6.22: "Light a candle" lights it at once |
 | testimony audio fails | 6.23 error state: the text is shown with its source |
-| testimony list fails to load | "The testimonies did not load." with "Try again" (secondary L); the candle still works |
+| testimony list fails to load | not built: the testimonies are built into the web app (`clips.json`), so there is nothing to fetch (Ionut, hour 23) |
 | offline | testimonies already loaded keep playing; a candle lit offline sends on reconnect without telling the visitor anything |
 | remote mode | the same view; the candle counts the same |
 | a 731 finale happens | ignored on this view; no overlay, no sound |

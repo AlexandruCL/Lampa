@@ -1,0 +1,9 @@
+.item { padding: var(--space-m) 0; border-bottom: 1px solid var(--line); text-align: left; }
+.head { display: flex; align-items: center; gap: var(--space-s); }
+.words { min-width: 0; }
+.title { margin: 0; font: var(--type-body); font-weight: 600; }
+.meta { margin: 0; color: var(--text-3); font: var(--type-meta); }
+.source { margin: var(--space-xs) 0 0; color: var(--text-3); font: var(--type-meta); }
+.clock { margin: var(--space-s) 0 0; color: var(--text-2); font: var(--type-meta); font-variant-numeric: tabular-nums; }
+.text { margin: var(--space-s) 0 0; max-width: 65ch; color: var(--text); font: var(--type-body); }
+.error { margin: var(--space-s) 0 0; color: var(--text-2); font: var(--type-meta); }

@@ -1,0 +1,20 @@
+{
+  "back": "Back",
+  "next_site": "Next site",
+  "memorial.lead": "A place of remembrance for December 1989.",
+  "memorial.testimonies": "Testimonies",
+  "memorial.narrator": "Read by a narrator. AI voice.",
+  "testimony.meta": "Narrated, {duration}",
+  "testimony.meta_pending": "Narrated",
+  "testimony.source": "Source: {source}",
+  "testimony.play": "Play testimony: {title}",
+  "testimony.pause": "Pause testimony: {title}",
+  "testimony.loading": "Loading",
+  "testimony.error": "This testimony did not load. The text is below.",
+  "candle.label": "Candle",
+  "candle.ready": "Hold your phone still to light a candle.",
+  "candle.lit": "Your candle is lit.",
+  "candle.tap": "Light a candle",
+  "site_name.cathedral": "Metropolitan Cathedral",
+  "site_name.bastion": "Theresia Bastion"
+}
