@@ -128,7 +128,7 @@ export function useScreenSocket(
     let live = true;
     const fetchState = async () => {
       try {
-        const res = await fetch(`${import.meta.env.VITE_API_URL}/screen/state`);
+        const res = await fetch(`${API_URL}/screen/state`);
         if (res.status !== 200) return;
         const body: unknown = await res.json();
         if (!live) return;
@@ -162,7 +162,7 @@ export function useScreenSocket(
       }
     };
 
-    const socket = io(`${import.meta.env.VITE_API_URL}/live`, { query: { room: "screen" } });
+    const socket = io(`${API_URL}/live`, { query: { room: "screen" } });
     socket.on("connect", () => {
       setConnected(true);
       atConnect = null;
