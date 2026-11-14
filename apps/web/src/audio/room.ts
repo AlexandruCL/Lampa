@@ -25,6 +25,23 @@ function rampTo(gain: GainNode, value: number, seconds: number): void {
   gain.gain.linearRampToValueAtTime(value, t + seconds);
 }
 
+let master: GainNode | undefined;
+
+/** The gain between the room beds and the destination, after ROOM_MASTER; made on first use, never at import. */
+function roomMaster(): GainNode {
+  if (!master) {
+    const ctx = getAudioContext();
+    master = ctx.createGain();
+    master.connect(ctx.destination);
+  }
+  return master;
+}
+
+/** Ramps all the room beds together to `level` over `seconds` (the finale takes them to 0 and back). */
+export function setRoomLevel(level: number, seconds: number): void {
+  rampTo(roomMaster(), level, seconds);
+}
+
 /**
  * The Living Map's room sound: each colour site's bed panned to its place, at its glow.
  * Mounted right after the "Start the Living Map" click; plays to the destination, not the duck bus.
@@ -52,7 +69,7 @@ export function useRoomSound(glowRef: RefObject<Record<string, number>>, placed:
           const level = glowOf(id);
           gain.gain.setValueAtTime(0, ctx.currentTime);
           gain.gain.linearRampToValueAtTime(level, ctx.currentTime + FADE_IN_S);
-          source.connect(panner).connect(gain).connect(ctx.destination);
+          source.connect(panner).connect(gain).connect(roomMaster());
           source.onended = () => {
             source.disconnect();
             panner.disconnect();

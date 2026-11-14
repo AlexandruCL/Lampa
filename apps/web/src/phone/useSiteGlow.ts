@@ -1,9 +1,24 @@
-import { BellMessage, HarmonyMessage, LampsMessage, PaneMessage, SocketMessage } from "@lampa/shared";
+import { BellMessage, HarmonyMessage, LampsMessage, PaneMessage, ScreenState, SocketMessage } from "@lampa/shared";
 import { useCallback, useEffect, useState } from "react";
 import { io } from "socket.io-client";
 import { API_URL } from "../api/client";
 import { siteGlow } from "./glow";
-import { applyPane, emptyWindow, type WindowPanes } from "./panes";
+import { applyPane, applySnapshot, emptyWindow, type WindowPanes } from "./panes";
+
+/** One site's stored window; `undefined` when it has none yet or the fetch fails. */
+export const fetchStoredWindow = async (siteId: string) => (await fetchStoredWindows())?.find((w) => w.siteId === siteId);
+
+/** Every site's window as stored, from the snapshot /screen uses; `undefined` when the fetch fails. */
+export async function fetchStoredWindows(): Promise<{ siteId: string; windowId: string; panes: (string | null)[] }[] | undefined> {
+  try {
+    const res = await fetch(`${API_URL}/screen/state`);
+    if (res.status !== 200) return undefined;
+    const state = ScreenState.safeParse(await res.json());
+    return state.success ? state.data.windows : undefined;
+  } catch {
+    return undefined;
+  }
+}
 
 type AddPane = (pane: { windowId: string; slot: number; hex: string }) => void;
 
@@ -19,7 +34,12 @@ export function useSiteGlow(siteId: string): { glow: number | null; connected: b
   const addPane = useCallback<AddPane>((p) => setPanes((s) => applyPane(s, p)), []);
   useEffect(() => {
     const socket = io(`${API_URL}/live`, { query: { room: `site:${siteId}` } });
-    socket.on("connect", () => setConnected(true));
+    let live = true;
+    socket.on("connect", () => {
+      setConnected(true);
+      // The socket only carries panes caught from now on; a failed fetch leaves the window as it is.
+      void fetchStoredWindow(siteId).then((stored) => live && stored && setPanes((s) => applySnapshot(s, stored)));
+    });
     socket.on("disconnect", () => setConnected(false));
     socket.on(SocketMessage.enum.glow, (m: unknown) => {
       const g = siteGlow(m, siteId);
@@ -42,6 +62,7 @@ export function useSiteGlow(siteId: string): { glow: number | null; connected: b
       if (h.success && h.data.siteId === siteId) setHarmony(h.data);
     });
     return () => {
+      live = false;
       socket.close();
     };
   }, [siteId, addPane]);

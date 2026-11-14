@@ -228,6 +228,8 @@ export type TimeNow = z.infer<typeof TimeNow>;
 /** `finale` on /live, to every socket: the 1884 moment starts at server time `startAt` (epoch ms; clients add their clock offset). */
 export const FinaleMessage = z.object({ startAt: z.number().int() });
 export type FinaleMessage = z.infer<typeof FinaleMessage>;
+/** Lead between the trigger and the crackle (`startAt = now + FINALE_LEAD_MS`), so every socket has the message before it starts. */
+export const FINALE_LEAD_MS = 3000;
 
 const SiteGlow = z.object({ siteId: z.string(), glow: z.number().min(0).max(1) });
 

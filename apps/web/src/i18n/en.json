@@ -63,6 +63,10 @@
   "join.tap_listen": "Tap to listen",
   "join.location_off": "Location is off. This site still works. To walk to the next one, use the list.",
   "join.asleep": "{name} is asleep.",
+  "join.city_asleep": "{name} is asleep, {pct}%.",
+  "join.city_waking": "{name} is waking, {pct}%.",
+  "join.city_awake": "{name} is awake, {pct}%.",
+  "join.city_fully_lit": "{name} is fully lit.",
   "join.headphones": "Put on headphones. LAMPA guides you with sound.",
   "join.keep_open": "Keep LAMPA open while you walk. Sound and location stop when the page is in the background.",
   "join.listen": "Listen",
@@ -175,5 +179,8 @@
   "lamp_counter.label": "lamps lit today",
   "lamp_counter.last_known": "(last known)",
   "lamp_counter.spoken": "{n} of {target} lamps lit today",
-  "lamp_counter.spoken_last_known": "{n} of {target} lamps lit today, last known"
+  "lamp_counter.spoken_last_known": "{n} of {target} lamps lit today, last known",
+  "finale_line": "12 November 1884. 731 lamps. Tonight, again.",
+  "finale_tap_waltz": "Tap to hear the waltz",
+  "finale_label": "The 1884 moment"
 }

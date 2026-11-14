@@ -1,0 +1,17 @@
+/* DESIGN 7.12 and 5.7: --bg over the whole screen at z 40, after the view in the DOM. */
+.veil { position: fixed; inset: 0; z-index: var(--z-light); background: var(--bg); }
+/* crackle: three dips to 40% brightness in 1.5 s, 500ms each */
+.dips { opacity: 0; animation: dips 1500ms ease-in-out both; }
+@keyframes dips {
+  0%, 33.333%, 66.667%, 100% { opacity: 0; }
+  16.667%, 50%, 83.333% { opacity: 0.6; }
+}
+/* reduced motion: a 1500ms fade to dark instead of the dips (5.6) */
+.fade { opacity: 1; animation: to-dark 1500ms linear both; }
+@keyframes to-dark { from { opacity: 0; } }
+/* silence: nothing on screen */
+.dark { opacity: 1; }
+/* burst: the veil lifts off the LightSurface over 800ms; taps reach the exit */
+.unveil { opacity: 0; pointer-events: none; animation: unveil 800ms var(--ease-out); }
+@keyframes unveil { from { opacity: 1; } }
+.line { margin: 0; font: var(--type-title); letter-spacing: var(--type-title-tracking); color: var(--ink-on-light); }
