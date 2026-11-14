@@ -1,5 +1,6 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
+import { shownImage } from "./Archive";
 import { Captions } from "./Captions";
 import type { Question } from "./questions";
 import { TapToAsk } from "./Talk";
@@ -85,4 +86,21 @@ describe("Captions", () => {
     expect(out).toContain('aria-label="Captions"');
     expect(out).not.toContain("aria-live");
   });
+});
+
+describe("archive image card", () => {
+  const image = { id: "tram-1910", file: "unirii/tram.jpg", alt: { en: "A tram", ro: "Un tramvai" }, credit: "City archive", year: "1910" };
+
+  it("Captions show the image with its alt text in the visitor's language and the credit", () => {
+    const out = renderToStaticMarkup(
+      <Captions name="Piața Unirii" lines={[{ key: "image-0", role: "image", image: shownImage(image, "ro") }]} timeUp={false} tapToAsk={false} />,
+    );
+    expect(out).toContain('src="/archive/unirii/tram.jpg"');
+    expect(out).toContain('alt="Un tramvai"');
+    expect(out).toContain("City archive");
+    expect(count(out, "<button")).toBe(1);
+    expect(out).not.toContain("is listening");
+  });
+
+  it("the alt text falls back to English", () => expect(shownImage(image, "hu").alt).toBe("A tram"));
 });

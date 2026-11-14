@@ -8,7 +8,8 @@
       "greeting": {},
       "answers": {},
       "narrations": {},
-      "tapToAsk": []
+      "tapToAsk": [],
+      "archive": []
     },
     "unirii": {
       "beds": [
@@ -68,7 +69,8 @@
             "en": "Because Timișoara always has. Romanians, Hungarians, Germans, Serbs, Jews and many others have talked across this square, often all at once."
           }
         }
-      ]
+      ],
+      "archive": []
     },
     "victoriei": {
       "beds": [
@@ -78,7 +80,8 @@
       "greeting": {},
       "answers": {},
       "narrations": {},
-      "tapToAsk": []
+      "tapToAsk": [],
+      "archive": []
     },
     "bastion": {
       "beds": [
@@ -88,7 +91,8 @@
       "greeting": {},
       "answers": {},
       "narrations": {},
-      "tapToAsk": []
+      "tapToAsk": [],
+      "archive": []
     },
     "cathedral": {
       "beds": [
@@ -98,7 +102,8 @@
       "greeting": {},
       "answers": {},
       "narrations": {},
-      "tapToAsk": []
+      "tapToAsk": [],
+      "archive": []
     }
   },
   "project": {

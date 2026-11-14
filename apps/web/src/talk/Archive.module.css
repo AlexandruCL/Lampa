@@ -1,0 +1,15 @@
+.image { display: block; width: 100%; object-fit: contain; }
+.hidden { display: none; }
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  background: var(--surface-2);
+  font: var(--type-meta);
+  color: var(--text-2);
+}
+.error { margin: 0; font: var(--type-body); color: var(--text-2); }
+.alt { margin: var(--space-s) 0 0; font: var(--type-body); color: var(--text); }
+.meta { margin: var(--space-2xs) 0 0; font: var(--type-meta); color: var(--text-2); }

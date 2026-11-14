@@ -61,6 +61,23 @@ describe("renderPersonaPrompt", () => {
     expect(renderPersonaPrompt({ ...site(), facts: [] }, "en")).toContain("Your knowledge base:\n- (none yet)\n\n");
   });
 
+  it("lists archive images after the facts, in order, falling back to en", () => {
+    const archive = [
+      { id: "pump_1900", file: "pump_1900.jpg", alt: { en: "The pump in snow.", ro: "Pompa in zapada." }, credit: "Test Archive", year: "1900" },
+      { id: "pump_1950", file: "pump_1950.jpg", alt: { en: "The pump, green.", ro: "" }, credit: "Test Archive", year: "1950" },
+    ];
+    const out = renderPersonaPrompt({ ...site(), persona: { ...persona(), archive } }, "ro");
+    expect(out).toContain(
+      "- Pigeons prefer the north side. (source: Test Survey)\nArchive image pump_1900: Pompa in zapada.\nArchive image pump_1950: The pump, green.\n\nIf the visitor asks",
+    );
+  });
+
+  it("gives the same prompt with no archive images", () => {
+    const today = renderPersonaPrompt(site(), "en");
+    expect(renderPersonaPrompt({ ...site(), persona: { ...persona(), archive: [] } }, "en")).toBe(today);
+    expect(today).not.toContain("Archive image");
+  });
+
   it("adds the Cathedral line in the visitor's language", () => {
     const out = renderPersonaPrompt(site(), "ro");
     expect(out.endsWith("\n\nIf the visitor asks about the Metropolitan Cathedral or December 1989, say only this: Linie de test in romana.")).toBe(true);
