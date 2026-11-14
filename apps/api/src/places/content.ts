@@ -4,7 +4,7 @@ import { SiteFile } from "../db/seed.js";
 export const NEW_PLACE_VOICE = "2V7k6GOisfFlHlBdz8ec"; // MX's persona.voice
 export const NEW_PLACE_CITY = "timisoara";
 export const NEW_PLACE_RADIUS_M = 40;
-export const NEW_PLACE_GLOW_K = 5;
+export const NEW_PLACE_GLOW_K = 30;
 export const PLACE_LIMIT = 10;
 export const PLACE_WINDOW_MS = 3_600_000;
 export const PLACE_MAX_CREDITS = 2000;

@@ -78,7 +78,9 @@ describe("Lamp", () => {
     expect(off).toContain("Ridică telefonul deasupra capului.");
     expect(off).toContain("Aprinde fără să ridici");
     expect(off).toContain("Înapoi la Piața Victoriei");
-    expect(off).toContain("lămpi aprinse azi");
+    // The visible label (right after its tag), not the hidden spoken line: the target 731 takes "de".
+    expect(off).toMatch(/>de lămpi aprinse azi/);
+    expect(off).not.toContain("{de}");
     expect(off).not.toContain("Raise your phone above your head.");
     const lit = view({ lang: "ro", surface: "on", presence: "Tu și încă 4 persoane aprindeți Piața Victoriei acum." });
     expect(lit).toContain("Lampa ta e aprinsă.");
