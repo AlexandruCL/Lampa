@@ -1,6 +1,6 @@
 # Prompt: Patrick's Build 2: Colours and Talk (Patrick, LAMPA)
 
-**Status: prompt completed and checked against `IMPLEMENTATION_PLAN.md` at hour 10.5 (2026-11-13 23:52 +0200). Implementation not started.**
+**Status: prompt completed and checked against `IMPLEMENTATION_PLAN.md` at hour 10.5 (2026-11-13 23:52 +0200). Build 2 done at hour 13 (2026-11-14). Two items wait for Build 3: Ionut's Android check of the lens sounds, and one live session to see the webhook store a transcript.**
 
 You are implementing Patrick's part of Build 2: Colours and Talk (hours 12 to 18 in the plan; Patrick runs it from hour 10.5 to hour 16.5) in this repository. Follow the checklist in section 3 in order, except where it says agent tasks run in parallel. Tick a box only after its verify command has run and passed.
 

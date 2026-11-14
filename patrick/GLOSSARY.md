@@ -46,6 +46,7 @@ Hour 0: 2026-11-13 13:21 (+0200).
 | Checkpoint 2 line 4 | With the ElevenLabs key removed, Talk at `/s/unirii` showed the resting line within 8 s and the questions played, a second tap on the same question included. Patrick's report, not this session's | Patrick's report | none (phone, with Cristea) | 13 |
 | Mic refused | Microphone refused in the iOS prompt: the microphone notice and the questions. Patrick's report | Patrick's report | none (phone) | 13 |
 | Bed after Google Maps | The Unirii bed comes back after the visitor leaves for Google Maps and returns (#43). Patrick's report | Patrick's report | none (phone) | 13 |
+| Build 2 | Closed by Patrick at hour 13. Every ID of the prompt is under Done or Blocked. Waiting for Build 3, not cut: Ionut's Android check of the lens tone, clink and chord, and one live Talk session to see the webhook store a transcript (both under Blocked) | `main` `826da79`: `npm run typecheck` exit 0; `npm run build` ok; `npm test` api 310, web 363 passed; `npm run publish:site -- --site all` → `total new 0 credits` | 826da79 | 13 |
 
 ## Changes
 Anything that differs from the plan, `DESIGN.md` or the contract, and any file outside this lane that was touched.
@@ -179,8 +180,8 @@ The owner's answers only.
 |---|---|---|---|---|
 | 9 | Speech clips | Persona and memorial content for the five sites is not written (`persona.name`, `traits`, `first_message`, `cathedral_line`, `tap_to_ask`, `narrations`); the dry run plans no speech clip | The team writes it with the keys of `apps/api/src/content.ts`, ro and en first; then one `publish:site` run per site after Patrick's go (about 18,000 credits for ro and en) | team |
 | 9 | B1-1.b | New `persona` keys reach the `sites` table only through `npm run db:reset`, which wipes every event | Fabi adds a reseed that updates `sites` without touching events, or the team runs one reset before real visitors | Fabi, through Patrick |
-| 13 | Android lens | Ionut's Android has not been reported: the lens tone changes with the colour, a clink on a catch. The chord may lack the completing pane's colour (`ColourLens` fires `onComplete` before the panes re-render) | Ionut hands the final hexes into `onComplete` from `ColourLens.tsx` | Ionut |
-| 13 | Webhook end to end | `POST /webhooks/elevenlabs` unsigned → 401, so the secret is set; no live Talk session has been checked for a stored transcript | One short live session, Fabi checks the stored row | Patrick, Fabi |
+| 13 | Android lens (waiting for Build 3) | Ionut's Android has not been reported: the lens tone changes with the colour, a clink on a catch. The chord may lack the completing pane's colour (`ColourLens` fires `onComplete` before the panes re-render) | Ionut hands the final hexes into `onComplete` from `ColourLens.tsx` | Ionut |
+| 13 | Webhook end to end (waiting for Build 3) | `POST /webhooks/elevenlabs` unsigned → 401, so the secret is set; no live Talk session has been checked for a stored transcript | One short live session, Fabi checks the stored row | Patrick, Fabi |
 
 ## Hand-offs
 What other lanes can use now: endpoints, hooks, socket messages, scripts, env vars.
