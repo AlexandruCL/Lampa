@@ -93,6 +93,7 @@ Anything that differs from the plan, `DESIGN.md` or the contract, and any file o
 | 23 | Build 4 prompt | The seam's `t.ts` sets `document.documentElement.lang = LANG`, so screen readers read Romanian with a Romanian voice (session's addition, accessibility); `engine.ts` gains a pure `bedTarget(glow, memorial, muted)` so `setBedMuted` is tested like the engine's other pure functions | `apps/web/src/i18n/t.ts`, `apps/web/src/audio/engine.ts` (planned) | Accessibility; the engine tests use no Web Audio stub |
 | 37 | Build 4 prompt | Plan: Ionut's Build 4 row "New-place pages" (0.5 h) and section 11 row added, Ionut 19.1 h → 19.6 h. Prompt: B4-3 added; `site.name[LANG]` replaced by `siteName(site)` | `IMPLEMENTATION_PLAN.md`, `ionut/build_4/build_4_prompt.md` | Cristea's request, team agreed at hour 37; the team needs to see the plan rows |
 | 37 | Build 4 prompt | `DESIGN.md` 7.1 and 7.2: the new-place loading line, unreachable Notice and interaction-driven buttons | `DESIGN.md` | Ionut's decisions, hour 37; the subagents follow `DESIGN.md` |
+| 37 | B4-0 | `SiteClips` gains the optional `testimonies` field (narrations' title, text, source); Patrick's `publish:site` writes it, his API-side `SiteClips` follows | `apps/web/src/audio/clips.ts` (Patrick's file) | Patrick agreed, hour 23 |
 
 ## Decisions
 The owner's answers only.
