@@ -302,10 +302,10 @@ Runs on `ionut/b4-lang`, made from `ionut/b4-memorial` after B4-2.c.1 is committ
 
 **B4-1.b.1** `nav/format.ts` through `t()` (Ionut's decision, hour 23). Subagent: `ionut-sensors`. Files: `apps/web/src/nav/format.ts`, `apps/web/src/nav/format.test.ts`, `apps/web/src/i18n/en.json`, `apps/web/src/i18n/ro.json`.
 
-- [ ] Every user-visible string `format.ts` builds (distance words, "about N min walk", the eight compass words, the spoken directions of the hour 7 decision, the spoken line) comes from a `nav.*` key; each exported function that returns text gains a last parameter `lang: Lang = LANG`, so callers do not change. Numbers keep their format; the Romanian decimal separator is a comma ("1,2 km"; Ionut's decision, hour 23). Tests pass `lang` explicitly and never rely on `LANG`.
-- [ ] The ro values are drafted by this agent from the en values and marked for Ionut's review in its report (B4-1.d). Site names come from `siteName(site, lang)` and stay in the nominative: a sentence that needs another case is rephrased ("spre {site}", "la {site}").
-- [ ] The score tags `"nearest"` and `"going dark"` stay as values in `score.ts`; their display text gets `nav.tag_nearest` and `nav.tag_going_dark` keys here, used by `SiteRow` in B4-1.c.1.
-- [ ] Every existing `format.test.ts` case still passes unchanged for en; new ro cases: one per function, including "1,2 km" and one spoken line.
+- [x] Every user-visible string `format.ts` builds (distance words, "about N min walk", the eight compass words, the spoken directions of the hour 7 decision, the spoken line) comes from a `nav.*` key; each exported function that returns text gains a last parameter `lang: Lang = LANG`, so callers do not change. Numbers keep their format; the Romanian decimal separator is a comma ("1,2 km"; Ionut's decision, hour 23). Tests pass `lang` explicitly and never rely on `LANG`.
+- [x] The ro values are drafted by this agent from the en values and marked for Ionut's review in its report (B4-1.d). Site names come from `siteName(site, lang)` and stay in the nominative: a sentence that needs another case is rephrased ("spre {site}", "la {site}").
+- [x] The score tags `"nearest"` and `"going dark"` stay as values in `score.ts`; their display text gets `nav.tag_nearest` and `nav.tag_going_dark` keys here, used by `SiteRow` in B4-1.c.1.
+- [x] Every existing `format.test.ts` case still passes unchanged for en; new ro cases: one per function, including "1,2 km" and one spoken line.
 - Verify: `npm run test -w @lampa/web -- src/nav src/i18n && npm run typecheck -w @lampa/web`. Paste the summary line.
 - Done when: every case passes, and the key-parity test of B4-1.a.1 passes with the new keys.
 
