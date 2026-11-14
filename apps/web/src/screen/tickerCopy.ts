@@ -8,6 +8,7 @@ const MAX_EVENTS = 6;
 export function tickerText(event: ScreenEvent, siteName: string, name: string): string {
   if (event.kind === "candle") return "A candle was lit at the Cathedral.";
   if (event.kind === "echo") return `New echo at ${siteName}`;
+  if (event.kind === "place") return `New place: ${siteName}`;
   return event.kind === "pane" ? `New colour at ${siteName}: ${name}` : `The ${siteName} window is complete.`;
 }
 
