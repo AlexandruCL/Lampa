@@ -12,7 +12,15 @@ interactions: [bottle]
 is_memorial: false
 glow_k: 30
 persona: {}
-facts: []
+facts:
+  - text: "The Decebal Bridge crosses the Bega between the Fabric and Cetate districts. Its eastern end lies between the Neptune Baths and the entrance to Queen Marie Park."
+    source: "Wikipedia, Decebalus Bridge, Timișoara, https://en.wikipedia.org/wiki/Decebalus_Bridge,_Timi%C8%99oara"
+  - text: "It was finished in 1909, built by the Budapest company of Péter Melocco, and trams have crossed it since 5 August of that year."
+    source: "Wikipedia, Decebalus Bridge, Timișoara, https://en.wikipedia.org/wiki/Decebalus_Bridge,_Timi%C8%99oara"
+  - text: "It was one of three bridges built when the Bega was straightened over 2.4 kilometres in the Fabric district, under a plan drawn up between 1901 and 1903."
+    source: "Wikipedia, Decebalus Bridge, Timișoara, https://en.wikipedia.org/wiki/Decebalus_Bridge,_Timi%C8%99oara"
+  - text: "It is named after the Dacian king Decebalus, a name it received after the Second World War. People also call it the Neptune Bridge, after the baths beside it."
+    source: "Wikipedia, Decebalus Bridge, Timișoara, https://en.wikipedia.org/wiki/Decebalus_Bridge,_Timi%C8%99oara"
 directions_hint: {}
 active:
   from: null

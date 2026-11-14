@@ -14,7 +14,16 @@ glow_k: 20
 persona:
   voice: ""
   traits: ""
-facts: []
+# The building only. December 1989 is told by the sourced narrations below, not here.
+facts:
+  - text: "The Metropolitan Cathedral is a Romanian Orthodox church, the seat of the Archbishopric of Timișoara and the Metropolis of Banat. It is dedicated to the Three Holy Hierarchs."
+    source: "Wikipedia, Timișoara Orthodox Cathedral, https://en.wikipedia.org/wiki/Timi%C8%99oara_Orthodox_Cathedral"
+  - text: "It has 11 towers. The central one is 90.5 metres high."
+    source: "Wikipedia, Timișoara Orthodox Cathedral, https://en.wikipedia.org/wiki/Timi%C8%99oara_Orthodox_Cathedral"
+  - text: "The architect was Ion Trajanescu. Construction began on 16 March 1936, on land donated by the City Hall, and the building was designed to hold 5,000 people."
+    source: "Wikipedia, Timișoara Orthodox Cathedral, https://en.wikipedia.org/wiki/Timi%C8%99oara_Orthodox_Cathedral"
+  - text: "The cathedral was inaugurated on 6 October 1946, in the presence of King Michael I."
+    source: "Wikipedia, Timișoara Orthodox Cathedral, https://en.wikipedia.org/wiki/Timi%C8%99oara_Orthodox_Cathedral"
 sound_bed: "Quiet evening on a cathedral square: gentle steady wind in the trees, soft distant city traffic hum, a few small birds chirping far away, a very faint distant church bell tolling now and then, natural outdoor ambience, steady calm loop, no speech, no music"
 narrator_voice: "SXJapgMSAyIX0L4RMtRR"
 narrations:

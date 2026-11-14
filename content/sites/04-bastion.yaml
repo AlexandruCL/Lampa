@@ -45,7 +45,21 @@ persona:
       a:
         ro: "Cândva, soldați și praf de pușcă. Acum expoziții, cafenele și muzică. Recunosc, prefer muzica."
         en: "Once, soldiers and gunpowder. Now exhibitions, cafés and music. I admit I prefer the music."
-facts: []
+facts:
+  - text: "The Theresia Bastion is the largest preserved piece of the defensive wall of the Habsburg fortress of Timișoara. It covers about 1.7 hectares of the city centre."
+    source: "Wikipedia, Theresia Bastion, https://en.wikipedia.org/wiki/Theresia_Bastion"
+  - text: "The Habsburg army under Eugene of Savoy took Timișoara in October 1716 and then rebuilt the whole fortress, which had nine bastions."
+    source: "Wikipedia, Theresia Bastion, https://en.wikipedia.org/wiki/Theresia_Bastion"
+  - text: "It was the first of the nine bastions to be built, between 1732 and 1734; some sources give 1730 to 1735. It began as a ravelin surrounded by water, called the Ravelin of the Food Warehouse."
+    source: "Wikipedia, Theresia Bastion, https://en.wikipedia.org/wiki/Theresia_Bastion; Timișoara 2023, https://timisoara2023.eu/language/en/9154"
+  - text: "In 1744 it was renamed the Theresia Bastion, in honour of Maria Theresa of Austria."
+    source: "Wikipedia, Theresia Bastion, https://en.wikipedia.org/wiki/Theresia_Bastion"
+  - text: "Timișoara's status as a fortress was cancelled on 23 April 1892, and demolition of the fortifications began in 1899."
+    source: "Wikipedia, Victory Square, Timișoara, https://en.wikipedia.org/wiki/Victory_Square,_Timi%C8%99oara"
+  - text: "The bastion was restored in 2008 to 2010, in five construction phases."
+    source: "Wikipedia, Theresia Bastion, https://en.wikipedia.org/wiki/Theresia_Bastion"
+  - text: "Today it is a passage with shops, restaurants, bars, a library and two permanent exhibitions of the National Museum of Banat."
+    source: "Wikipedia, Theresia Bastion, https://en.wikipedia.org/wiki/Theresia_Bastion"
 sound_bed: "Evening in an old brick fortress courtyard: steady light wind through stone archways, pigeons cooing and wings flapping now and then, distant traffic and tram hum beyond the walls, faint gravel footsteps far away, natural outdoor ambience, steady calm loop, no speech, no music"
 directions_hint: {}
 active:

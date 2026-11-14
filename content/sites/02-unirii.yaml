@@ -45,7 +45,21 @@ persona:
       a:
         ro: "Pentru că Timișoara le-a vorbit mereu. Români, maghiari, germani, sârbi, evrei și mulți alții au vorbit peste piața aceasta, adesea toți deodată."
         en: "Because Timișoara always has. Romanians, Hungarians, Germans, Serbs, Jews and many others have talked across this square, often all at once."
-facts: []
+facts:
+  - text: "Piața Unirii, also called Dome Square, is the oldest square in Timișoara. It is named for the Romanian troops who entered the city on 3 August 1919 and set up the Romanian administration."
+    source: "Wikipedia, Union Square, Timișoara, https://en.wikipedia.org/wiki/Union_Square,_Timi%C8%99oara"
+  - text: "The square holds the city's most important group of Baroque buildings, among them two cathedrals, one Roman Catholic and one Serbian Orthodox, the Baroque Palace and the Plague Column."
+    source: "Wikipedia, Union Square, Timișoara, https://en.wikipedia.org/wiki/Union_Square,_Timi%C8%99oara"
+  - text: "Construction of the Roman Catholic Dome began in 1736 and lasted 38 years. It was built after the seat of the Catholic Diocese of Cenad moved from Szeged to Timișoara."
+    source: "Wikipedia, Union Square, Timișoara, https://en.wikipedia.org/wiki/Union_Square,_Timi%C8%99oara"
+  - text: "The Serbian Orthodox Cathedral was built in Baroque style between 1745 and 1748, in the time of Bishop Georgije Popović."
+    source: "Wikipedia, Union Square, Timișoara, https://en.wikipedia.org/wiki/Union_Square,_Timi%C8%99oara"
+  - text: "The Baroque Palace was built in 1754 as the seat of the civil governors of Banat. Today it is the Museum of Art."
+    source: "Wikipedia, Union Square, Timișoara, https://en.wikipedia.org/wiki/Union_Square,_Timi%C8%99oara"
+  - text: "The Holy Trinity Column, also called the Plague Column, dates from 1740 and gives thanks for the end of the plague of 1738 to 1739."
+    source: "Heritage of Timișoara, https://heritageoftimisoara.ro/en/buildings/Cetate/address/Unirii/monument"
+  - text: "From the end of 1903 until 1969 the city's food and animal markets were held in the square. It was redesigned in 1988 to 1989 by the architect Șerban Sturdza."
+    source: "Wikipedia, Union Square, Timișoara, https://en.wikipedia.org/wiki/Union_Square,_Timi%C8%99oara"
 sound_bed: "Baroque cobbled city square at dusk: gentle fountain trickle, pigeons fluttering softly, distant footsteps on cobblestones, faint low murmur of a cafe terrace far away with no words, calm warm steady ambient loop, no speech, no music"
 directions_hint: {}
 active:

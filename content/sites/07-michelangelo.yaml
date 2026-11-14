@@ -12,7 +12,15 @@ interactions: [bottle]
 is_memorial: false
 glow_k: 30
 persona: {}
-facts: []
+facts:
+  - text: "The Michelangelo Bridge crosses the Bega between the Cetate and Elisabetin districts. It carries cars and trolleybuses."
+    source: "Wikipedia, Michelangelo Bridge, Timișoara, https://en.wikipedia.org/wiki/Michelangelo_Bridge,_Timi%C8%99oara"
+  - text: "It was completed in 1970, the only new bridge built in the city in the second half of the 20th century. It was designed by the engineer Decebal Anastasescu and the architect Nicolae Danciu."
+    source: "Wikipedia, Michelangelo Bridge, Timișoara, https://en.wikipedia.org/wiki/Michelangelo_Bridge,_Timi%C8%99oara"
+  - text: "It has the widest span of the city's bridges and is also the lowest above the water, kept low so that it would not block the view along Michelangelo Boulevard."
+    source: "Wikipedia, Michelangelo Bridge, Timișoara, https://en.wikipedia.org/wiki/Michelangelo_Bridge,_Timi%C8%99oara"
+  - text: "A wooden footbridge crossed the Bega here from 1940. It was replaced by a new footbridge in 1964."
+    source: "Wikipedia, Michelangelo Bridge, Timișoara, https://en.wikipedia.org/wiki/Michelangelo_Bridge,_Timi%C8%99oara"
 directions_hint: {}
 active:
   from: null

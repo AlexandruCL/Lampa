@@ -12,7 +12,17 @@ interactions: [bottle]
 is_memorial: false
 glow_k: 30
 persona: {}
-facts: []
+facts:
+  - text: "The Maria Bridge crosses the Bega between the Cetate and Iosefin districts, close to the Water Palace and the Metropolitan Cathedral. It is 32.8 metres wide and 40 metres long."
+    source: "Wikipedia, Mary Bridge, Timișoara, https://en.wikipedia.org/wiki/Mary_Bridge,_Timi%C8%99oara"
+  - text: "It was earlier called the Hunyadi Bridge, and from 1919 the Trajan Bridge. The City Council renamed it Podul Maria in 2016."
+    source: "Wikipedia, Mary Bridge, Timișoara, https://en.wikipedia.org/wiki/Mary_Bridge,_Timi%C8%99oara"
+  - text: "The first bridge here was wooden. A steel truss bridge made at the Reșița Ironworks replaced it in 1870 to 1871, and it carried the horse tram and, from 1899, the electric tram."
+    source: "Wikipedia, Mary Bridge, Timișoara, https://en.wikipedia.org/wiki/Mary_Bridge,_Timi%C8%99oara"
+  - text: "Work on today's concrete bridge began in March 1913. It opened to pedestrians on 1 January 1916 and to road traffic in 1917."
+    source: "Wikipedia, Mary Bridge, Timișoara, https://en.wikipedia.org/wiki/Mary_Bridge,_Timi%C8%99oara"
+  - text: "The old steel bridge was moved in 1915 about 500 metres downstream as a footbridge. It is now known as Podul de Fier, the Iron Bridge."
+    source: "Wikipedia, Mary Bridge, Timișoara, https://en.wikipedia.org/wiki/Mary_Bridge,_Timi%C8%99oara"
 directions_hint: {}
 active:
   from: null
