@@ -36,7 +36,7 @@ Checkpoint this block must pass (Freeze, hours 40 to 44; Build 4 has no checkpoi
 ## 1. Current state (checked at hour 23, 2026-11-14 12:20 +0200)
 
 - Previous block: every ID of Ionut's Build 3 prompt is done and merged (PRs #31 to #38; `ionut/build_3/build_3_report.md`). Phone results of 2026-11-14 in the glossary (`B3-last.phone`): echo on iPhone and Android, curator queue and the outdoors walk passed. Carried over, not in this block: "Tap to listen again" is silent until Patrick wires the beacon (Blocked B3-2.b); the `?demo=1` step 1:40 check with Patrick.
-- `main` is `23dcf0f` (B4-0, hour 37: moved from `b579612` by four docs commits of Patrick and Cristea; `ionut/b4-memorial` fast-forwarded to it). No open PRs of Ionut's. B4-0 baseline: the local `node_modules` lacked `@auth0/auth0-react`, `recharts` and `@elevenlabs/react` (already in the lockfile); after `npm install` (Ionut's approval, hour 37; lockfile unchanged) `npm run typecheck` exit 0, `npm run build` exit 0, `npm test` 310 + 363 passed.
+- `main` is `23dcf0f` (B4-0, hour 37: moved from `b579612` by four docs commits of Patrick and Cristea; `ionut/b4-memorial` fast-forwarded to it). No open PRs of Ionut's. B4-0 baseline: the local `node_modules` lacked `@auth0/auth0-react`, `recharts` and `@elevenlabs/react` (already in the lockfile); after `npm install` (Ionut's approval, hour 37; npm rewrote `package-lock.json` with `"peer": true` flags only, reverted, not committed) `npm run typecheck` exit 0, `npm run build` exit 0, `npm test` 310 + 363 passed.
 - The plan row was widened by Cristea at hour 30 (`IMPLEMENTATION_PLAN.md` Build 4 table and section 11): "Memorial view" is now 1.5 h, the candle hold is 10 s (5 s with `?demo=1`), not 60 s. `DESIGN.md` 5.2, 6.22, 7.11, 7.16 and 7.17 say 10 s.
 - `apps/web/src/phone/MemorialStub.tsx`: name, "Memorial", "Listen" and "Light a candle" buttons with no action, `useBed(siteId, null)`, no way out. `Join.tsx` line 100 renders it for the Cathedral with `siteId`, `name`, `demo`, `notice` (no `primer`, no `remote`). B4-2.c replaces it with `Memorial.tsx`.
 - The candle path from the API to `/screen` works: one `POST /events` `{ kind: "candle", siteId: "cathedral" }` answered `202 {"accepted":1}` and `/screen` drew it (`cristea/GLOSSARY.md` Hand-offs, hour 30). `CLIENT_KINDS` in `apps/api/src/events/weights.ts` holds `candle`. The phone sends it with `track("candle", "cathedral")` (`apps/web/src/events/index.ts`), queued and retried.
@@ -217,12 +217,12 @@ Rules for this session:
 
 ### B4-0 Preflight and seam (first, this session)
 
-- [ ] `git status`, `git branch --show-current`, `git pull` of `main`. List local changes; do not touch them. If `main` moved, bring `ionut/b4-memorial` up to it.
-- [ ] Baseline before any change, summary lines recorded: `npm run typecheck && npm run build && npm test`.
-- [ ] Re-check each fact of section 1 that can have moved: `content/sites/05-cathedral.yaml` `narrations`, `clips.json` `testimonies` and Cathedral clips, `engine.ts` exports, `MemorialStub.tsx` and its line in `Join.tsx`, the deployed web and API. Update section 1 and the Blocked rows where a fact moved.
-- [ ] Docs commit on `ionut/b4-memorial`: this prompt, the glossary rows of hour 23, the `IMPLEMENTATION_PLAN.md` and `DESIGN.md` updates of hour 23. Message `docs(ionut) wrote the Build 4 prompt and recorded the memorial and dictionary decisions`.
-- [ ] Ionut reviews the 18 Romanian strings of the seam table before the seam commit (Ionut's decision, hour 23): show him the table through the question prompt, apply his corrections to `ro.json` and to this prompt's table.
-- [ ] Seam commit: `apps/web/src/i18n/t.ts`, `en.json`, `ro.json` with the keys of the seam table, and the `testimonies?` line in `apps/web/src/audio/clips.ts`, exactly as in section 3. `npm run typecheck -w @lampa/web` exit 0. Message `feat(web) added the ro and en dictionary seam and the testimonies field`.
+- [x] `git status`, `git branch --show-current`, `git pull` of `main`. List local changes; do not touch them. If `main` moved, bring `ionut/b4-memorial` up to it.
+- [x] Baseline before any change, summary lines recorded: `npm run typecheck && npm run build && npm test`.
+- [x] Re-check each fact of section 1 that can have moved: `content/sites/05-cathedral.yaml` `narrations`, `clips.json` `testimonies` and Cathedral clips, `engine.ts` exports, `MemorialStub.tsx` and its line in `Join.tsx`, the deployed web and API. Update section 1 and the Blocked rows where a fact moved.
+- [x] Docs commit on `ionut/b4-memorial`: this prompt, the glossary rows of hour 23, the `IMPLEMENTATION_PLAN.md` and `DESIGN.md` updates of hour 23. Message `docs(ionut) wrote the Build 4 prompt and recorded the memorial and dictionary decisions`.
+- [x] Ionut reviews the 18 Romanian strings of the seam table before the seam commit (Ionut's decision, hour 23): show him the table through the question prompt, apply his corrections to `ro.json` and to this prompt's table.
+- [x] Seam commit: `apps/web/src/i18n/t.ts`, `en.json`, `ro.json` with the keys of the seam table, and the `testimonies?` line in `apps/web/src/audio/clips.ts`, exactly as in section 3. `npm run typecheck -w @lampa/web` exit 0. Message `feat(web) added the ro and en dictionary seam and the testimonies field`.
 - Done when: the baseline is recorded, failures that were already there are listed and not fixed silently, and both commits exist.
 
 ### B4-2 Memorial view: back and next site, testimonies, candle with motion-only stillness (1.5 h, plus 0.75 h styling)
