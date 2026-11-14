@@ -151,7 +151,7 @@
   "lamp.presence_lit_one": "Tu și încă o persoană aprindeți {site} acum.",
   "lamp.presence_lit_many": "Tu și încă {others} {de}persoane aprindeți {site} acum.",
   "lamp_counter.loading": "...",
-  "lamp_counter.label": "lămpi aprinse azi",
+  "lamp_counter.label": "{de}lămpi aprinse azi",
   "lamp_counter.last_known": "(ultima valoare cunoscută)",
   "lamp_counter.spoken": "{n} din {target} {de}lămpi aprinse azi",
   "lamp_counter.spoken_last_known": "{n} din {target} {de}lămpi aprinse azi, ultima valoare cunoscută"

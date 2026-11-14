@@ -29,7 +29,8 @@ export function LampCounter({ lamps, connected, size, light, presence, lang = LA
     </span>
   );
   const muted = lastKnown && <span className={styles.muted}> {t("lamp_counter.last_known", {}, lang)}</span>;
-  const label = t("lamp_counter.label", {}, lang);
+  // Romanian "de" follows the target shown before the label, as in the spoken line.
+  const label = t("lamp_counter.label", { de: roDe(LAMP_TARGET) }, lang);
 
   if (size === "s") {
     return (
