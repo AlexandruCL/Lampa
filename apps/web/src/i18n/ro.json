@@ -1,0 +1,20 @@
+{
+  "back": "Înapoi",
+  "next_site": "Următorul loc",
+  "memorial.lead": "Un loc de amintire pentru decembrie 1989.",
+  "memorial.testimonies": "Mărturii",
+  "memorial.narrator": "Citite de un narator. Voce AI.",
+  "testimony.meta": "Narațiune, {duration}",
+  "testimony.meta_pending": "Narațiune",
+  "testimony.source": "Sursa: {source}",
+  "testimony.play": "Ascultă mărturia: {title}",
+  "testimony.pause": "Oprește mărturia: {title}",
+  "testimony.loading": "Se încarcă",
+  "testimony.error": "Mărturia nu s-a încărcat. Textul e mai jos.",
+  "candle.label": "Lumânare",
+  "candle.ready": "Ține telefonul nemișcat ca să aprinzi o lumânare.",
+  "candle.lit": "Lumânarea ta e aprinsă.",
+  "candle.tap": "Aprinde o lumânare",
+  "site_name.cathedral": "Catedrala Mitropolitană",
+  "site_name.bastion": "Bastionul Theresia"
+}

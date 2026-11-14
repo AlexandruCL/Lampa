@@ -22,6 +22,8 @@ type Bed = {
 };
 
 let current: Bed | null = null;
+/** True while a testimony plays: the bed holds at 0 (B4-2.b). */
+let muted = false;
 const buffers = new Map<string, AudioBuffer>();
 
 /** Bed level: 0.3 asleep to 1 at full glow; the memorial always at 0.5 (DESIGN.md 7.11). */
@@ -29,6 +31,11 @@ export function bedGain(glow: number | null, memorial: boolean): number {
   if (memorial) return MEMORIAL_GAIN;
   const g = Math.min(1, Math.max(0, glow ?? 0));
   return ASLEEP_GAIN + (1 - ASLEEP_GAIN) * g;
+}
+
+/** The level the engine sets: 0 while muted, else bedGain. */
+export function bedTarget(glow: number | null, memorial: boolean, muted: boolean): number {
+  return muted ? 0 : bedGain(glow, memorial);
 }
 
 export function bedUrl(siteId: string, c: Clips = clips, p: Record<string, 1 | 2> = picks): string | null {
@@ -81,7 +88,7 @@ function connect(bed: Bed, buffer: AudioBuffer): void {
   source.buffer = buffer;
   source.loop = true;
   const gain = ctx.createGain();
-  bed.target = bedGain(bed.glow, bed.memorial);
+  bed.target = bedTarget(bed.glow, bed.memorial, muted);
   gain.gain.setValueAtTime(0, ctx.currentTime);
   gain.gain.linearRampToValueAtTime(bed.target, ctx.currentTime + FADE_IN_S);
   source.connect(gain).connect(ambientBus());
@@ -128,6 +135,7 @@ export function playBed(siteId: string, glow: number | null): Promise<BedState> 
     setBedGlow(glow);
     return current.promise;
   }
+  muted = false;
   stopBed();
   const bed = { siteId, glow, memorial: sites.find((s) => s.id === siteId)?.is_memorial ?? false } as Bed;
   current = bed;
@@ -143,10 +151,16 @@ export function playBed(siteId: string, glow: number | null): Promise<BedState> 
 export function setBedGlow(glow: number | null): void {
   if (!current) return;
   current.glow = glow;
-  const level = bedGain(glow, current.memorial);
+  const level = bedTarget(glow, current.memorial, muted);
   if (!current.gain || level === current.target) return;
   current.target = level;
   rampTo(current.gain, level, RAMP_S);
+}
+
+/** Ramps the current bed to 0, or back to its level, over RAMP_S. */
+export function setBedMuted(m: boolean): void {
+  muted = m;
+  if (current) setBedGlow(current.glow);
 }
 
 export function stopBed(): void {

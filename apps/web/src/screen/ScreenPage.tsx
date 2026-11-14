@@ -1,10 +1,11 @@
-import { MAP_LINES, sites } from "@lampa/shared";
-import { useEffect, useRef, useState } from "react";
+import { MAP_LINES, sites, type SiteDetail } from "@lampa/shared";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "../components";
 import { DemoBadge } from "../phone/DemoBadge";
 import { isDemo } from "../sensors/demo";
 import { startCanvas } from "./canvas";
-import { layout, SITE_RADIUS } from "./projection";
+import { toSite } from "./newSites";
+import { layout } from "./projection";
 import { QRBlock } from "./QRBlock";
 import styles from "./ScreenPage.module.css";
 import { Subtitle } from "./Subtitle";
@@ -12,19 +13,37 @@ import { Ticker } from "./Ticker";
 import { useScreenSocket } from "./useScreenSocket";
 
 const RECONNECT_NOTICE_MS = 3000;
-// Module scope keeps one array identity, so renders never reconnect the socket.
-const COLOUR_SITE_IDS = sites.filter((s) => !s.is_memorial).map((s) => s.id);
-const SITE_NAMES = Object.fromEntries(sites.map((s) => [s.id, s.name]));
-const PLACED = new Map(layout(sites, MAP_LINES).map((p) => [p.id, p]));
+const BUNDLED_COLOUR_IDS = sites.filter((s) => !s.is_memorial).map((s) => s.id);
 
 function LivingMap({ demo }: { demo: boolean }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const { glowRef, windowsRef, effectsRef, candlesRef, connected, coloursToday, events, subtitles } = useScreenSocket(COLOUR_SITE_IDS, demo);
+  // The bundled sites plus the places published since the build, learned from the glow list.
+  const [added, setAdded] = useState<SiteDetail[]>([]);
+  const allSites = useMemo(() => [...sites, ...added.map(toSite)], [added]);
+  const colourSiteIds = useMemo(
+    () => [...BUNDLED_COLOUR_IDS, ...added.filter((d) => d.interactions.includes("colours")).map((d) => d.id)],
+    [added],
+  );
+  const knownIds = useMemo(() => allSites.map((s) => s.id), [allSites]);
+  const siteNames = useMemo(() => Object.fromEntries(allSites.map((s) => [s.id, s.name])), [allSites]);
+  const placed = useMemo(() => layout(allSites, MAP_LINES), [allSites]);
+  const onSite = useCallback((d: SiteDetail) => setAdded((list) => (list.some((s) => s.id === d.id) ? list : [...list, d])), []);
+  const sitesRef = useRef(allSites);
+  const { glowRef, windowsRef, effectsRef, candlesRef, connected, coloursToday, events, subtitles } = useScreenSocket(
+    colourSiteIds,
+    demo,
+    knownIds,
+    onSite,
+  );
   const [reconnecting, setReconnecting] = useState(false);
+
+  useEffect(() => {
+    sitesRef.current = allSites;
+  }, [allSites]);
 
   useEffect(
     () =>
-      canvasRef.current ? startCanvas(canvasRef.current, sites, MAP_LINES, { glowRef, windowsRef, effectsRef, candlesRef }) : undefined,
+      canvasRef.current ? startCanvas(canvasRef.current, MAP_LINES, { sitesRef, glowRef, windowsRef, effectsRef, candlesRef }) : undefined,
     [glowRef, windowsRef, effectsRef, candlesRef],
   );
 
@@ -42,20 +61,8 @@ function LivingMap({ demo }: { demo: boolean }) {
       <div className={styles.map}>
         <canvas ref={canvasRef} className={styles.canvas} aria-hidden="true" />
         {subtitles.map((s) => {
-          const p = PLACED.get(s.siteId);
-          return (
-            p && (
-              <Subtitle
-                key={`${s.siteId}-${s.at}`}
-                x={p.x}
-                y={p.y}
-                r={SITE_RADIUS}
-                labelBelow={p.label === "below"}
-                text={s.text}
-                lang={s.lang}
-              />
-            )
-          );
+          const p = placed.find((q) => q.id === s.siteId);
+          return p && <Subtitle key={`${s.siteId}-${s.at}`} point={p} others={placed} text={s.text} lang={s.lang} />;
         })}
         <p className={styles.credit}>© OpenStreetMap contributors</p>
         {demo && (
@@ -75,7 +82,7 @@ function LivingMap({ demo }: { demo: boolean }) {
           <p className={styles.statLabel}>Colours caught today</p>
           <p className={styles.number}>{coloursToday ?? "..."}</p>
         </div>
-        <Ticker events={events} siteNames={SITE_NAMES} />
+        <Ticker events={events} siteNames={siteNames} />
         <p className={styles.status} role="status">
           {reconnecting ? "Reconnecting to the city…" : ""}
         </p>

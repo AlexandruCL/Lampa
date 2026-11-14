@@ -22,7 +22,7 @@ These were settled after `DESIGN.md` was written and override anything older in 
 | Bucket | Per person | Team | Notes |
 |---|---|---|---|
 | Setup and kick-off | 2 h | 8 h | repo, deploys, accounts wired, contracts agreed |
-| Feature tasks | 20 h | 80 h | the estimates in section 6. After the 10 November moves: Ionut 19.1 h (18.25 h plus 0.85 h added on 13 November), Patrick 23 h, Fabi 21 h, Cristea 23.75 h (86.85 h) |
+| Feature tasks | 20 h | 80 h | the estimates in section 6. After the 10 November moves: Ionut 19.6 h (18.25 h plus 0.85 h added on 13 November and 0.5 h added at hour 37), Patrick 23 h, Fabi 21 h, Cristea 23.75 h (87.35 h) |
 | Slack inside build blocks | 4 h | 16 h | meals, breaks, small blockers; blocks are planned at about 80% |
 | Checkpoints (integrate, then fix) | 5 h | 20 h | three of them, everyone stops building |
 | Freeze: bugs only, device pass, load test | 4 h | 16 h | no new features after hour 40 |
@@ -225,7 +225,8 @@ Three hours, so each person gets one main item. Anything not working at hour 40 
 | Who | Task | Hours | Fallback if cut |
 |---|---|---|---|
 | Ionut | Language dictionary for ro and en, picked from `navigator.language` | 1.5 | English only |
-| Ionut | Memorial view (`DESIGN.md` 7.11; widened by Cristea, hour 30): back and a way on to the next site; Listen opens the Testimonies, playing Patrick's narrations with their text and source; the candle lights after 10 s of stillness (60 s until Cristea's decision, hour 30) measured by motion only (no microphone), 5 s with `?demo=1`, sends a `candle` event | 1.5 | back button, testimonies as text with their sources, and a tap lights the candle; the memorial site itself is never cut |
+| Ionut | Memorial view (`DESIGN.md` 7.11; widened by Cristea, hour 30): back and a way on to the next site; the Testimonies on the same page (Ionut, hour 23), playing Patrick's narrations with their text and source; the candle lights after 10 s of stillness (60 s until Cristea's decision, hour 30) measured by motion only (no microphone), 5 s with `?demo=1`, sends a `candle` event | 1.5 | back button, testimonies as text with their sources, and a tap lights the candle; the memorial site itself is never cut |
+| Ionut | New-place pages (added at hour 37 at Cristea's request, team agreed): `/s/<id>` of a place published from `/curate` loads from `GET /sites/:id` when it is not in `sites.json`; a new place shows only the buttons of its interactions and never "Leave an echo"; first to cut in Ionut's Build 4 | 0.5 | the QR of a new place shows "We could not find this place."; its window still appears on `/screen` |
 | Patrick | 1884 finale cue on phones and `/screen`: crackle, silence, waltz, started at a shared server time | 1.5 | play the waltz on `/screen` only |
 | Patrick | One Radio Lampa episode, generated once from today's numbers (first to cut) | 1 | skip |
 | Fabi | Finale trigger at 731 lamps, using the clock offset from Build 3 | 0.5 | broadcast "start now" without sync |
@@ -344,7 +345,7 @@ From section 10.7, checked at hour 44:
 
 The same tasks as section 6, regrouped so each person can read their own 48 hours top to bottom. Checkpoints, freeze and submission (section 5) are shared by all four and are not repeated here. In earlier versions of this plan Ionut was P1, Patrick was P2, Fabi was P3 and Cristea was P4.
 
-### Ionut: phone experience (19.1 h of tasks)
+### Ionut: phone experience (19.6 h of tasks)
 
 | Block | Task | Hours |
 |---|---|---|
@@ -361,6 +362,7 @@ The same tasks as section 6, regrouped so each person can read their own 48 hour
 | Build 3 | Added at hour 7: sites from `packages/shared`, "Say why", `/` opens Between sites, GPS course blend (first to cut) | 0.85 |
 | Build 4 | ro and en dictionary (a native speaker reviews the Romanian strings first) | 1.5 |
 | Build 4 | Memorial view: back and next site, testimonies, candle with motion-only stillness (10 s, 5 s in demo mode) | 1.5 |
+| Build 4 | Added at hour 37: new-place pages from `GET /sites/:id` (Cristea's request) | 0.5 |
 
 Needs from others: `POST /events` and `GET /sites` from Fabi by hour 6, `POST /panes` from Fabi by hour 15, `POST /echoes` from Cristea by hour 28. Until each lands, code against the Zod schema in `packages/shared`.
 

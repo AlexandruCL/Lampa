@@ -124,6 +124,7 @@ Anything that differs from the plan, `DESIGN.md` or the contract, and any file o
 | 26 | B3-3.d.1 | One more line in `SiteView.tsx`: `setNextTarget(undefined)` in "Next site" | `apps/web/src/phone/SiteView.tsx` | Patrick's decision; Ionut agreed |
 | 26 | B3-6.b.1 | Whispers open a second `/live` socket on the Site view, beside `useSiteGlow`'s | `apps/web/src/audio/useWhispers.ts` | Patrick's decision; sharing it needs more lines in Ionut's `useSiteGlow.ts` |
 | 26 | B3-last | PR branches are built in a separate worktree `../Lampa-pr` (with its own `npm ci`). Before that, the shared tree was checked out on `patrick/b3-lamp` for about a minute while an agent ran; no edit landed (tree clean), and the agent re-read its files | none | A branch switch under a running agent could put its edits on the wrong branch |
+| 26 | B3-last (PR 2) | #49 conflicted with Ionut's Build 4 `testimonies?` field in `clips.ts` (#45). `origin/main` merged into `patrick/b3-nav` (no force-push), both fields kept; `SiteClips.archive` made optional (`archive?:`) because Ionut's new `memorial/testimonies.test.ts` fixture has no `archive`; its one reader in `useLiveTalk.ts` already falls back with `?? []` | `apps/web/src/audio/clips.ts` | Avoids an edit in Ionut's test file |
 | 26 | B3-5.a.1 | `MAP_WIDTH` added to the existing projection import in `ScreenPage.tsx`, beside the one hook line and its import | `apps/web/src/screen/ScreenPage.tsx` | The map width the projection uses |
 
 ## Decisions

@@ -7,6 +7,7 @@ import { createEchoesRouter } from "./echoes/router.js";
 import { createEventsRouter } from "./events/router.js";
 import { createClaimRouter } from "./me/claim.js";
 import { createPanesRouter } from "./panes/router.js";
+import { createPlacesRouter } from "./places/router.js";
 import { createScreenStateRouter } from "./panes/state.js";
 import { createSitesRouter } from "./sites/router.js";
 import { createGetSiteStats } from "./stats/stats.js";
@@ -38,6 +39,7 @@ export function createApp(deps: AppDeps = {}): Express {
   app.use(createClaimRouter({ tx: deps.tx }));
   app.use(createTimeRouter());
   app.use(createPulseRouter({ db: deps.db, latestGlow: deps.latestGlow ?? (() => null) }));
+  app.use(createPlacesRouter({ db: deps.db, tx: deps.tx, onStored: deps.onEventsStored }));
   app.get("/health", (_req, res) => {
     res.json({ ok: true });
   });

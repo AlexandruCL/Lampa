@@ -5,8 +5,12 @@
 .consolePanes { flex: 1; display: flex; min-height: 0; }
 .consoleList { flex: none; width: 360px; margin: 0; padding: 0; list-style: none; border-right: var(--border-divider) solid var(--line); overflow-y: auto; }
 
-/* The only tab, so a heading rather than a tab control */
-.consoleTab { margin: 0; padding: var(--space-m) var(--space-l); font: var(--type-label); color: var(--text); border-bottom: var(--border-divider) solid var(--line); }
+/* Two tabs: Echo queue and Add a place. The selected tab takes the selected-row fill. */
+.consoleTabs { display: flex; flex-wrap: wrap; border-bottom: var(--border-divider) solid var(--line); }
+.consoleTab { min-height: var(--tap-min); margin: 0; padding: var(--space-m) var(--space-l); border: 0; background: transparent; font: var(--type-label); color: var(--text-2); cursor: pointer; }
+.consoleTab[aria-selected="true"] { background: var(--surface-2); color: var(--text); }
+.panel { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+.panel[hidden] { display: none; }
 
 .queueRow {
   display: flex;

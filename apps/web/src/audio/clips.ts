@@ -9,7 +9,8 @@ export type SiteClips = {
   answers: Record<string, Record<string, string>>; // tap_to_ask id -> lang -> file
   narrations: Record<string, Record<string, string>>; // narration id -> lang -> file
   tapToAsk: { id: string; q: Record<string, string>; a: Record<string, string> }[]; // persona.tap_to_ask text, file order
-  archive: ArchiveImage[]; // persona.archive, file order; `file` is relative to /archive/
+  archive?: ArchiveImage[]; // persona.archive, file order; `file` is relative to /archive/
+  testimonies?: { id: string; title: Record<string, string>; text: Record<string, string>; source: string }[]; // narrations' text, file order; audio in `narrations`
 };
 export type ProjectClips = { glass?: string; crackle?: string; chime?: string; waltz: string[] };
 export type Clips = { sites: Record<string, SiteClips>; project: ProjectClips };
