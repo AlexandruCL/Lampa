@@ -334,9 +334,9 @@ Runs on `ionut/b4-new-place`, made from `ionut/b4-lang` after B4-1 is committed.
 
 **B4-3.a.1** `fetchSite`. Subagent: `ionut-api`. Files: `apps/web/src/api/sites.ts`, `apps/web/src/api/sites.test.ts`, `apps/web/src/sites/sites.ts`.
 
-- [ ] `sites.ts`: `PhoneSite` becomes `Site & { lamp: boolean; interactions?: string[] }`; `interactions` is set only for a fetched place, so the bundled sites do not change.
-- [ ] `api/sites.ts`: `fetchSite(id: string, lang: Lang = LANG): Promise<PhoneSite | null>` calls `api(`/sites/${encodeURIComponent(id)}?lang=${lang}`, { schema: SiteDetail })` and returns `{ id, name, lat, lng, is_memorial, lamp: interactions.includes("lamp"), interactions }`; an `ApiError` with status 404 → `null`; any other error is thrown unchanged.
-- [ ] Tests by name (`fetch` and `localStorage` stubbed, as `client.test.ts` does; `lang` passed explicitly): "a SiteDetail becomes a PhoneSite with its interactions"; "lamp is true only when interactions list lamp"; "a 404 gives null"; "a 503 throws ApiError 503"; "a network error throws"; "the path encodes the id and carries lang".
+- [x] `sites.ts`: `PhoneSite` becomes `Site & { lamp: boolean; interactions?: string[] }`; `interactions` is set only for a fetched place, so the bundled sites do not change.
+- [x] `api/sites.ts`: `fetchSite(id: string, lang: Lang = LANG): Promise<PhoneSite | null>` calls `api(`/sites/${encodeURIComponent(id)}?lang=${lang}`, { schema: SiteDetail })` and returns `{ id, name, lat, lng, is_memorial, lamp: interactions.includes("lamp"), interactions }`; an `ApiError` with status 404 → `null`; any other error is thrown unchanged.
+- [x] Tests by name (`fetch` and `localStorage` stubbed, as `client.test.ts` does; `lang` passed explicitly): "a SiteDetail becomes a PhoneSite with its interactions"; "lamp is true only when interactions list lamp"; "a 404 gives null"; "a 503 throws ApiError 503"; "a network error throws"; "the path encodes the id and carries lang".
 - Verify: `npm run test -w @lampa/web -- src/api && npm run typecheck -w @lampa/web`. Paste the summary line.
 - Done when: every case passes, and returning `null` for every `ApiError` fails "a 503 throws ApiError 503".
 
