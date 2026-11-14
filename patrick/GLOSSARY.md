@@ -87,6 +87,7 @@ Hour 0: 2026-11-13 13:21 (+0200).
 | B4-1.c.1 | `useScreenFinale` (offset and preload on mount after the start click, one clock per message, `startFinale` surface screen); `FinaleMapLayer` (one evenodd SVG path in `--bg` at the canvas scale, holes over the Cathedral circle and its label box as `canvas.ts` places them; three dips, 2 s black, 800 ms fade; 1500 ms fade under reduced motion); `FinalePanel` ("731 / 731" and "12 November 1884" from the burst, 4 s fade from +48500). Room check: B4-3 | `npm test -w @lampa/web -- finale` → 28 passed; web typecheck exit 0; web build ok; removing the hole fails 1 test | 4e32def | 37 |
 | B4-last (finale PR) | #69 `patrick/b4-finale` cut from `origin/main` `9a0d2d4`, B4-1.0 to B4-1.c.1 cherry-picked with no conflict, merged by Patrick | on the branch: `npm run typecheck` exit 0; `npm run build` exit 0; `npm test` api 394, web 590 passed; secret scan 0 | #69 | 37 |
 | B4-2.c.1 | `radio.ts`: `playRadio` (own source to `ctx.destination`, `"none"` with no file, one at a time, room to `DUCK_GAIN` over 0.2 s and back over 0.8 s, `"failed"` on a suspended context), `stopRadio` (also cancels a load), `isRadioPlaying`; `FinalePanel`: R or r on `window` while `LivingMap` is mounted, ignored while playing or while the finale shows, a finale stops the episode, "Radio Lampa" in the finale lines' slot; no `ScreenPage.tsx` line. Room check: B4-3 | `npm test -w @lampa/web -- radio finale` → 39 passed; web typecheck exit 0; web build ok; removing the while-playing, one-at-a-time or finale-shows guard each fails 1 test. The listener wiring in `useEffect` has no test | 6d626a5, 4165d73 | 37 |
+| B4-last (radio PR) | #71 `patrick/b4-radio` cut from `origin/main` `9f78fd0` after #69, B4-2.0, B4-2.a.1, B4-2.c.1 cherry-picked with no conflict, merged by Patrick | on the branch: `npm run typecheck` exit 0; `npm run build` exit 0; `npm test` api 409, web 605 passed; `npm run radio:lampa` → `chars 249`, `estimate 249 credits`; secret scan 0 | #71 | 37 |
 
 ## Changes
 Anything that differs from the plan, `DESIGN.md` or the contract, and any file outside this lane that was touched.
@@ -284,6 +285,7 @@ The owner's answers only.
 | 37 | Phone finale: Back shows during the burst only, not "the whole time" of DESIGN 7.12 | Patrick accepted the recommendation |
 | 37 | `/screen`: R does nothing while the finale shows (crackle to the end of the 4 s settle) | Patrick accepted the recommendation |
 | 37 | Radio Lampa estimate: keep 1 credit per character for Text to Dialogue on `eleven_v3`; the 2,000-character stop caps the spend; Patrick checks the dashboard usage after the run | Patrick accepted the recommendation |
+| 37 | All B4-3 checks (Build 3 phone checks, finale, Radio Lampa in the room, freeze lines) run together at the end, not as each PR deploys | Patrick: "we'll test everything at the end" |
 
 ## Blocked
 | Since hour | ID | Question | Recommendation | Waiting on |
