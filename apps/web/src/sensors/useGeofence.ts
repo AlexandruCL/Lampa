@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { initialFence, stepFence, type FenceState, type Fix } from "../geo/geofence";
-import { SITES } from "../sites/sites";
+import { PLACES } from "../sites/sites";
 
 /**
  * Each fix goes through stepFence exactly once (it is not idempotent near the exit band),
@@ -19,5 +19,5 @@ export function useGeofence(position: Fix | null, qrSiteId?: string): FenceState
 }
 
 function stepIf(fence: FenceState, position: Fix | null): FenceState {
-  return position ? stepFence(fence, position, SITES) : fence;
+  return position ? stepFence(fence, position, PLACES) : fence;
 }

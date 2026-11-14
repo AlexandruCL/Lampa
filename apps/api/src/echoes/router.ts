@@ -1,7 +1,10 @@
 import { randomUUID } from "node:crypto";
 import express, { Router, type RequestHandler } from "express";
 import { rateLimit } from "express-rate-limit";
-import { ApprovedEchoes, EchoAccepted, EchoApprovedMessage, PendingEchoes, SocketMessage, sites } from "@lampa/shared";
+import {
+  ApprovedEchoes, BOTTLE_SPEED_MPS, Bottles, EchoAccepted, EchoApprovedMessage, PendingEchoes, SocketMessage,
+  alongM, bottleAlongM, bridges, catchable, sites,
+} from "@lampa/shared";
 import type { Db, Emit, Tx } from "../seam.js";
 import { requireVisitor, visitorLimiter, type Visitor } from "../auth/session.js";
 import { INSERT_EVENTS, userSub } from "../events/router.js";
@@ -24,6 +27,10 @@ WHERE e.status = 'pending' ORDER BY e.created_at ASC, e.id ASC`;
 // The table has no approval time, so newest means newest recorded.
 export const SELECT_APPROVED = `SELECT id, audio_url, lang FROM echoes
 WHERE status = 'approved' AND site_id = $1 ORDER BY created_at DESC, id DESC LIMIT 5`;
+// A bottle is an ordinary echo recorded at a bridge.
+export const SELECT_BOTTLES = `SELECT id, audio_url, lang, site_id, created_at FROM echoes
+WHERE status = 'approved' AND site_id = ANY($1) AND created_at > now() - interval '24 hours'
+ORDER BY created_at ASC, id ASC`;
 export const APPROVE_ECHO = `UPDATE echoes SET status = 'approved', public_audio_url = audio_url
 WHERE id = $1 AND status = 'pending' RETURNING site_id, audio_url, transcript, lang, anon_id, author_sub`;
 export const REJECT_ECHO = "UPDATE echoes SET status = 'rejected' WHERE id = $1 AND status = 'pending' RETURNING audio_url";
@@ -44,7 +51,13 @@ export const canModerate = (visitor: Visitor): boolean =>
 const curatorOnly: RequestHandler = (req, res, next) =>
   canModerate(req.visitor!) ? next() : void res.status(403).json({ error: "forbidden" });
 
-export type EchoesDeps = { db?: Db; tx?: Tx; onStored?: () => void; emit?: Emit; fetch?: typeof fetch };
+export type EchoesDeps = { db?: Db; tx?: Tx; onStored?: () => void; emit?: Emit; fetch?: typeof fetch; now?: () => number };
+
+/** BOTTLE_SPEED_MPS from the environment, in metres per second; the default when it is unset or not a positive number. */
+export function bottleSpeed(raw = process.env.BOTTLE_SPEED_MPS): number {
+  const n = Number(raw);
+  return n > 0 && Number.isFinite(n) ? n : BOTTLE_SPEED_MPS;
+}
 
 const AUDIO_TYPES = ["audio/webm", "audio/mp4"];
 
@@ -70,6 +83,10 @@ export function createEchoesRouter(deps: EchoesDeps): Router {
   // shortcut: memory store, counts reset on restart and are per instance; move to a shared store if the API runs on more than one instance
   const approvedLimiter = rateLimit({ windowMs: 60_000, limit: 120, message: { error: "rate_limited" } });
 
+  // Its own count: a bridge polls every 10 s, which must not use up the whispers' allowance.
+  // shortcut: memory store, counts reset on restart and are per instance; move to a shared store if the API runs on more than one instance
+  const bottlesLimiter = rateLimit({ windowMs: 60_000, limit: 120, message: { error: "rate_limited" } });
+
   router.post("/echoes", requireVisitor, echoLimiter, readBody, async (req, res) => {
     const invalid = () => void res.status(400).json({ error: "invalid_echo" });
     if (!Buffer.isBuffer(req.body)) return invalid();
@@ -81,7 +98,7 @@ export function createEchoesRouter(deps: EchoesDeps): Router {
       return invalid();
     }
 
-    const site = sites.find((s) => s.id === form.get("siteId"));
+    const site = [...sites, ...bridges].find((s) => s.id === form.get("siteId"));
     if (!site) return void res.status(404).json({ error: "unknown_site" });
     if (site.is_memorial) return void res.status(404).json({ error: "no_echo" });
     if (form.get("consent") !== "true") return invalid();
@@ -164,6 +181,27 @@ export function createEchoesRouter(deps: EchoesDeps): Router {
       res.set("Cache-Control", "no-store").json(ApprovedEchoes.parse({ echoes }));
     } catch (err) {
       console.error("approved echoes read failed: " + (err instanceof Error ? err.message : "unknown"));
+      res.status(503).json({ error: "unavailable" });
+    }
+  });
+
+  router.get("/echoes/bottles", bottlesLimiter, async (req, res) => {
+    const bridge = bridges.find((s) => s.id === req.query.site);
+    if (!bridge) return void res.status(404).json({ error: "unknown_site" });
+    if (!deps.db) return void res.status(503).json({ error: "unavailable" });
+    try {
+      const upstream = bridges.filter((b) => alongM(b) > alongM(bridge));
+      const { rows } = await deps.db.query(SELECT_BOTTLES, [upstream.map((b) => b.id)]);
+      const [here, now, speed] = [alongM(bridge), (deps.now ?? Date.now)(), bottleSpeed()];
+      const echoes = rows
+        .filter((r) => {
+          const from = upstream.find((b) => b.id === r.site_id);
+          return from && catchable(bottleAlongM(alongM(from), new Date(r.created_at).getTime(), now, speed), here);
+        })
+        .map((r) => ({ echoId: r.id, audioUrl: r.audio_url, lang: r.lang, fromSiteId: r.site_id }));
+      res.set("Cache-Control", "no-store").json(Bottles.parse({ echoes }));
+    } catch (err) {
+      console.error("bottles read failed: " + (err instanceof Error ? err.message : "unknown"));
       res.status(503).json({ error: "unavailable" });
     }
   });

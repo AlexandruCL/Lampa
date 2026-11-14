@@ -1,4 +1,4 @@
-import { GlowMessage, PaneMessage, SocketMessage } from "@lampa/shared";
+import { bridges, GlowMessage, PaneMessage, SocketMessage } from "@lampa/shared";
 import { useEffect, useState } from "react";
 import { io } from "socket.io-client";
 import { API_URL } from "../api/client";
@@ -18,7 +18,7 @@ export function useCityWindow(): { filled: (string | null)[]; glow: number | nul
     });
     socket.on(SocketMessage.enum.glow, (m: unknown) => {
       const g = GlowMessage.safeParse(m);
-      if (g.success) setGlow(averageGlow(g.data.sites.map((s) => s.glow)));
+      if (g.success) setGlow(averageGlow(g.data.sites.filter((s) => !bridges.some((b) => b.id === s.siteId)).map((s) => s.glow)));
     });
     socket.on(SocketMessage.enum.pane, (m: unknown) => {
       const p = PaneMessage.safeParse(m);

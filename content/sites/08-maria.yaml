@@ -1,0 +1,19 @@
+# A bridge on the Bega (Message in a Bottle). Coordinates from OpenStreetMap, 2026-11-14: check them on site.
+id: pod-maria
+city: timisoara
+name:
+  ro: "Podul Maria"
+  en: "Maria Bridge"
+location:
+  lat: 45.74973
+  lng: 21.22097
+radius_m: 40
+interactions: [bottle]
+is_memorial: false
+glow_k: 30
+persona: {}
+facts: []
+directions_hint: {}
+active:
+  from: null
+  until: null

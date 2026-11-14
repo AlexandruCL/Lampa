@@ -3,12 +3,12 @@ import type { AddressInfo } from "node:net";
 import express from "express";
 import { SignJWT } from "jose";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { ApprovedEchoes, PendingEchoes } from "@lampa/shared";
+import { ApprovedEchoes, Bottles, PendingEchoes } from "@lampa/shared";
 import type { Db, Tx } from "../seam.js";
 import { INSERT_EVENTS } from "../events/router.js";
 import {
   APPROVE_ECHO, DELETE_BLOB, ECHO_LIMIT, ECHO_MAX_BYTES, INSERT_BLOB, INSERT_ECHO, REJECT_ECHO, SELECT_BLOB, SELECT_PENDING,
-  SELECT_STATUS, createEchoesRouter, SELECT_APPROVED,
+  SELECT_STATUS, createEchoesRouter, SELECT_APPROVED, SELECT_BOTTLES, bottleSpeed,
 } from "./router.js";
 
 const keys = vi.hoisted(() => import("jose").then((jose) => jose.generateKeyPair("RS256")));
@@ -361,6 +361,70 @@ describe("GET /echoes/approved", () => {
 
   it("no database is 503", async () => {
     await expectError(await (await start({})).get("/echoes/approved?site=mx"), 503, "unavailable");
+  });
+});
+
+describe("GET /echoes/bottles", () => {
+  // Along the Bega: pod-decebal 2261 m, pod-michelangelo 1445 m, pod-maria 308 m. At 0.05 m/s a bottle
+  // from Decebal is level with Michelangelo after 16 320 s and within 150 m of it from 13 320 s to 19 320 s.
+  const NOW = Date.parse("2026-11-14T20:00:00.000Z");
+  const ago = (s: number) => new Date(NOW - s * 1000);
+  const bottle = (id: string, site_id: string, s: number) => ({ id, audio_url: `/blob/echo-${id}`, lang: "ron", site_id, created_at: ago(s) });
+  const bottles = async (rows: any[], site = "pod-michelangelo") => {
+    const r = readDb(rows);
+    const res = await (await start({ db: r.db, now: () => NOW })).get(`/echoes/bottles?site=${site}`);
+    return { res, body: await res.json(), calls: r.calls };
+  };
+
+  it("a bottle from upstream and in range is returned with its launch bridge, without a token, with no-store", async () => {
+    const { res, body, calls } = await bottles([bottle("b1", "pod-decebal", 16_320)]);
+    expect(res.status).toBe(200);
+    expect(res.headers.get("cache-control")).toBe("no-store");
+    expect(Bottles.parse(body)).toEqual(body);
+    expect(body.echoes).toEqual([{ echoId: "b1", audioUrl: "/blob/echo-b1", lang: "ron", fromSiteId: "pod-decebal" }]);
+    expect(calls).toEqual([{ text: SELECT_BOTTLES, params: [["pod-decebal"]] }]);
+  });
+
+  it("a bottle is caught from 150 m before the bridge to 150 m after it", async () => {
+    const rows = [13_300, 13_340, 19_300, 19_340].map((s) => bottle(`at-${s}`, "pod-decebal", s));
+    expect((await bottles(rows)).body.echoes.map((e: { echoId: string }) => e.echoId)).toEqual(["at-13340", "at-19300"]);
+  });
+
+  it("a bottle from a downstream bridge or from a site that is not a bridge is not returned", async () => {
+    const rows = [bottle("down", "pod-maria", 60), bottle("square", "mx", 16_320)];
+    expect((await bottles(rows)).body.echoes).toEqual([]);
+  });
+
+  it("the highest bridge asks for no launch bridge and the lowest for both above it", async () => {
+    expect((await bottles([], "pod-decebal")).calls[0]!.params).toEqual([[]]);
+    expect((await bottles([], "pod-maria")).calls[0]!.params).toEqual([["pod-decebal", "pod-michelangelo"]]);
+  });
+
+  it("asks for approved echoes of the last 24 hours only", () => {
+    expect(SELECT_BOTTLES).toContain("WHERE status = 'approved' AND site_id = ANY($1) AND created_at > now() - interval '24 hours'");
+  });
+
+  it("a site that is not a bridge, or none, is 404 unknown_site", async () => {
+    for (const site of ["mx", "atlantis", ""]) {
+      const { res, body, calls } = await bottles([], site);
+      expect([res.status, body]).toEqual([404, { error: "unknown_site" }]);
+      expect(calls).toHaveLength(0);
+    }
+  });
+
+  it("no database is 503", async () => {
+    await expectError(await (await start({})).get("/echoes/bottles?site=pod-maria"), 503, "unavailable");
+  });
+
+  it("the speed is BOTTLE_SPEED_MPS when that is a positive number, else 0.05 m/s", () => {
+    expect(bottleSpeed("13.6")).toBe(13.6);
+    for (const raw of [undefined, "", "fast", "0", "-1", "Infinity"]) expect(bottleSpeed(raw)).toBe(0.05);
+  });
+
+  it("an echo can be recorded at a bridge, and a bridge has no whispers", async () => {
+    const f = fakeTx();
+    expect((await (await start({ tx: f.tx }))(echo({ siteId: "pod-decebal" }))).status).toBe(201);
+    await expectError(await (await start({ db: readDb([]).db })).get("/echoes/approved?site=pod-decebal"), 404, "unknown_site");
   });
 });
 

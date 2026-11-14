@@ -44,6 +44,10 @@ it("gallery is never unknown", () => {
   expect(unknownIds(glow("gallery"), known)).toEqual([]);
 });
 
+it("a bridge is never unknown, so it stays off the screen", () => {
+  expect(unknownIds(glow("pod-decebal", "pod-maria"), known)).toEqual([]);
+});
+
 it("an unknown id is listed once", () => {
   expect(unknownIds(glow("mx", "opera", "opera"), known)).toEqual(["opera"]);
 });

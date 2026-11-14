@@ -4,7 +4,7 @@ import { siteName, t } from "../i18n/t";
 import { ECHO_MAX_MS, canRecord, openMicrophone, secondsLeft, startRecording } from "../echo/recorder";
 import type { Recording } from "../echo/recording";
 import { sendEcho, toEchoForm } from "../echo/upload";
-import type { PhoneSite } from "../sites/sites";
+import { isBridge, type PhoneSite } from "../sites/sites";
 import styles from "./EchoRecorder.module.css";
 import { Sheet } from "./Sheet";
 import { TopBar } from "./TopBar";
@@ -152,7 +152,7 @@ export function EchoRecorder({ site, demo, prompt, onBack, onSent }: { site: Pho
   let body;
   let bottom = null;
   if (phase === "sent") {
-    body = <p className={styles.prompt} role="status">{t("echo.sent")}</p>;
+    body = <p className={styles.prompt} role="status">{t(isBridge(site) ? "bottle.sent" : "echo.sent")}</p>;
     bottom = <Button variant="primary" size="l" block onClick={onBack}>{t("back_to", { name })}</Button>;
   } else if (phase === "unavailable") {
     body = (
@@ -202,7 +202,7 @@ export function EchoRecorder({ site, demo, prompt, onBack, onSent }: { site: Pho
             <input type="checkbox" checked={consent} disabled={sending} onChange={(e) => setConsent(e.target.checked)} />
             <span className={styles.tick}><Icon name="check" /></span>
           </span>
-          {t("echo.consent")}
+          {t(isBridge(site) ? "bottle.consent" : "echo.consent")}
         </label>
         <Button variant="quiet" aria-haspopup="dialog" onClick={() => setInfo(true)}>{t("echo.what_happens")}</Button>
       </>
@@ -231,7 +231,7 @@ export function EchoRecorder({ site, demo, prompt, onBack, onSent }: { site: Pho
       {info && (
         <Sheet title={t("echo.what_happens")} onClose={() => setInfo(false)}>
           <p className={styles.info}>
-            {t("echo.info")}
+            {t(isBridge(site) ? "bottle.info" : "echo.info")}
           </p>
         </Sheet>
       )}
