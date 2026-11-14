@@ -206,7 +206,7 @@ The pure logic is well covered (about 1000 tests). The screens, the hooks that t
 | Site view, glow, rose window | glow and pane maths | `SiteView`, `GlowMark`, `RoseWindow`, the live socket hooks |
 | Talk | state machine, tools, captions logic | `Talk.tsx`, `useLiveTalk`, the live ElevenLabs session and microphone |
 | Catch a colour | colour picking, hold, bins, pane sender | `ColourLens`, the rear camera, `useLensReading`, offline sending |
-| Paint with light | frame stacking | `PaintLight`, the camera, save and share |
+| Paint with light | trail offset maths | `PaintLight`, the camera, save and share |
 | Raise a lamp | pitch and lamp maths, pulse | `Lamp`, `usePitch`, `useWakeLock`, the counter |
 | Bells | flick detection, harmony on the API | `Bells`, `bellSound`, two phones ringing together |
 | Echo and whispers | recorder logic, upload, whisper queue | `EchoRecorder`, `useWhispers`, playback on iOS |
@@ -300,9 +300,13 @@ Same phones and laptop as Part 1. Use `?demo=1` links for everything except test
 
 ### O. Paint with light
 
-1. At MX tap **Paint with light**. Read "Works best in the dark…".
-2. In a dim room tap **Start painting** and move a torch or a second phone's screen in front of the camera for 8 seconds.
-   - Expect: a countdown, then a picture with the light trails.
+1. At MX tap **Paint with light**. Read "Tap start, then move your phone…" and see a dot of light in the middle of the camera view.
+2. Tap **Start painting** (on iOS allow motion if asked), hold the phone upright and turn it slowly to draw a shape for 8 seconds.
+   - Expect: a countdown, the trail staying on the buildings as the phone turns, then a picture with the trail.
+   - Note: whether the trail slips off the scene, runs the wrong way, or bends.
+   - Paint again and tap **Finish painting** before the countdown ends: the picture shows at once, with the trail so far.
+   - Paint again and drag a finger across the picture: the light follows the finger, as a separate stroke.
+   - On iOS, refuse motion (or use a device with no gyroscope): expect "This phone gives no motion reading…" and a finger drag that still paints.
 3. Tap **Save or share**: the iOS share sheet opens with an image. **Save Image** puts it in Photos.
 4. Tap **Paint again**: a clean new painting starts.
 5. Deny the camera: expect the "LAMPA needs the camera to paint with light…" text.

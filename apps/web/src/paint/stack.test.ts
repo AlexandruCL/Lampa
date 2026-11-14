@@ -1,5 +1,18 @@
 import { describe, expect, it } from "vitest";
-import { stackProgress, stackSize } from "./stack";
+import { FOV_LONG_DEG, stackProgress, stackSize, trailOffset } from "./stack";
+
+describe("trailOffset", () => {
+  it("a turn of half the field of view reaches the edge of the frame, on either side", () => {
+    expect(trailOffset(0, 1280)).toBe(0);
+    expect(trailOffset(FOV_LONG_DEG / 2, 1280)).toBeCloseTo(640);
+    expect(trailOffset(-FOV_LONG_DEG / 2, 1280)).toBeCloseTo(-640);
+  });
+
+  it("a turn past 90 degrees stays far off the same side", () => {
+    expect(trailOffset(170, 1280)).toBeGreaterThan(1280);
+    expect(trailOffset(-170, 1280)).toBeLessThan(-1280);
+  });
+});
 
 describe("stackSize", () => {
   it("caps the long edge at 1280 and keeps the aspect ratio", () => {
