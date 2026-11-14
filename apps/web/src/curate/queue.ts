@@ -1,7 +1,13 @@
 import { sites, type PendingEcho } from "@lampa/shared";
+import { SIGN_IN_RETURN_KEY, writeSession } from "../auth/claimFlow";
 import { timeAgo } from "../screen/tickerCopy";
 
 export const QUEUE_REFRESH_MS = 30_000;
+
+/** A visitor's Keep my colours return key left in this tab would send a cancelled curator sign-in back to the phone page. */
+export function clearVisitorReturn(): void {
+  writeSession(SIGN_IN_RETURN_KEY, null);
+}
 
 // shortcut: only the shared site list is known here, so a site added later shows its id until the queue carries names.
 export function siteName(siteId: string): string {

@@ -6,7 +6,7 @@ import { authApi } from "../auth/authApi";
 import { Button, Notice } from "../components";
 import { AddPlace } from "./AddPlace";
 import { EchoDetail } from "./EchoDetail";
-import { keepSelection, metaLine, QUEUE_REFRESH_MS, removeEcho, sessionEnded, siteName } from "./queue";
+import { clearVisitorReturn, keepSelection, metaLine, QUEUE_REFRESH_MS, removeEcho, sessionEnded, siteName } from "./queue";
 import styles from "./CuratePage.module.css";
 
 type Queue = { echoes: PendingEcho[]; selected: string | null };
@@ -39,11 +39,13 @@ export function CuratePage() {
   const placeTabRef = useRef<HTMLButtonElement>(null);
   const detailRef = useRef<HTMLHeadingElement>(null);
 
-  const signIn = () =>
-    loginWithRedirect({
+  const signIn = () => {
+    clearVisitorReturn();
+    return loginWithRedirect({
       authorizationParams: { redirect_uri: window.location.origin + "/curate" },
       appState: { returnTo: "/curate" },
     });
+  };
 
   /** A background refresh (`quiet`) that fails keeps the last list without a Notice. */
   const load = useCallback(

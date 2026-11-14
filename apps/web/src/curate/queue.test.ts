@@ -1,6 +1,7 @@
 import type { PendingEcho } from "@lampa/shared";
-import { describe, expect, it } from "vitest";
-import { formatDuration, keepSelection, metaLine, removeEcho, sessionEnded } from "./queue";
+import { describe, expect, it, vi } from "vitest";
+import { SIGN_IN_RETURN_KEY } from "../auth/claimFlow";
+import { clearVisitorReturn, formatDuration, keepSelection, metaLine, removeEcho, sessionEnded } from "./queue";
 
 const NOW = Date.parse("2026-11-14T12:00:00.000Z");
 
@@ -56,5 +57,21 @@ describe("queue", () => {
   it("the duration 19.4 s reads 0:19", () => {
     expect(formatDuration(19.4)).toBe("0:19");
     expect(formatDuration(75)).toBe("1:15");
+  });
+
+  it("curate sign-in clears the visitor return key", () => {
+    const store = new Map<string, string>([[SIGN_IN_RETURN_KEY, "/s/piata-unirii"], ["other", "kept"]]);
+    vi.stubGlobal("sessionStorage", {
+      getItem: (k: string) => store.get(k) ?? null,
+      setItem: (k: string, v: string) => store.set(k, v),
+      removeItem: (k: string) => store.delete(k),
+    });
+    try {
+      clearVisitorReturn();
+      expect(store.has(SIGN_IN_RETURN_KEY)).toBe(false);
+      expect(store.get("other")).toBe("kept");
+    } finally {
+      vi.unstubAllGlobals();
+    }
   });
 });
