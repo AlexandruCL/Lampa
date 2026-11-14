@@ -17,6 +17,39 @@ persona:
 facts: []
 sound_bed: "Quiet evening on a cathedral square: gentle steady wind in the trees, soft distant city traffic hum, a few small birds chirping far away, a very faint distant church bell tolling now and then, natural outdoor ambience, steady calm loop, no speech, no music"
 narrator_voice: "SXJapgMSAyIX0L4RMtRR"
+narrations:
+  - id: december-17
+    title:
+      ro: "17 decembrie 1989"
+      en: "17 December 1989"
+    text:
+      ro: "Pe 17 decembrie 1989, la Timișoara s-au auzit primele focuri de armă. În acea seară, miile de oameni adunați în jurul acestei catedrale au ajuns sub foc."
+      en: "On 17 December 1989, the first gunshots were heard in Timișoara. That evening, the thousands of people gathered around this cathedral came under fire."
+    source: "Agerpres, 17 Dec 2024, https://agerpres.ro/english/2024/12/17/the-city-of-timisoara-commemorates-35-years-since-the-romanian-revolution-of-december-1989--1404228; RFE/RL, 14 Dec 1999, https://www.rferl.org/a/1092892.html"
+  - id: the-steps
+    title:
+      ro: "Treptele"
+      en: "The steps"
+    text:
+      ro: "Pe 18 decembrie, tineri s-au adunat din nou pe aceste trepte și au cântat „Deșteaptă-te, române!”, un cântec interzis atunci. Ușile catedralei erau închise. S-a tras asupra lor."
+      en: "On 18 December, young people gathered again on these steps and sang \"Deșteaptă-te, române!\", a song that was forbidden then. The doors of the cathedral were closed. They were fired upon."
+    source: "TVR Info, https://tvrinfo.ro/18-decembrie-1989-o-noua-zi-insangerata-la-timisoara-s-a-cantat-desteapta-te-romane-iar-comunistii-au-vrut-sa-stearga-urmele-masacrului/; Antena 3, 18 Dec 2015, https://www.antena3.ro/actualitate/1989-timisoara-sub-stare-de-asediu-330529.html; Marius Oprea, Mediafax, 26 Dec 2021, https://www.mediafax.ro/stirile-zilei/istoria-fara-perdea-marius-oprea-tragedia-si-maretia-revolutiei-nu-trageti-vrem-piine-20425805"
+  - id: first-free-city
+    title:
+      ro: "Primul oraș liber"
+      en: "The first free city"
+    text:
+      ro: "Pe 20 decembrie, fabricile orașului au intrat în grevă, iar oamenii au umplut piața din fața Operei. Timișoara a fost proclamată primul oraș din România liber de comunism."
+      en: "On 20 December, the city's factories went on strike and people filled the square in front of the Opera. Timișoara was proclaimed the first city in Romania free of communism."
+    source: "Europa Liberă, https://romania.europalibera.org/a/decembrie-1989-timisoara/32734358.html; Digi24, https://www.digi24.ro/stiri/actualitate/evenimente/24-de-ani-de-la-revolutie-pe-20-decembrie-1989-timisoara-a-devenit-primul-oras-liber-de-comunism-172238"
+  - id: remembering
+    title:
+      ro: "Amintirea"
+      en: "Remembering"
+    text:
+      ro: "Procuratura Militară Timișoara a înregistrat atunci 66 de morți și 196 de răniți. În fiecare an, pe 17 decembrie, seara, pe aceste trepte se aprind lumânări."
+      en: "The Timișoara Military Prosecutor's Office recorded 66 dead and 196 wounded. Every year, on the evening of 17 December, candles are lit on these steps."
+    source: "Agerpres, 17 Dec 2024, https://agerpres.ro/english/2024/12/17/the-city-of-timisoara-commemorates-35-years-since-the-romanian-revolution-of-december-1989--1404228"
 directions_hint: {}
 active:
   from: null
