@@ -12,7 +12,7 @@ export type SiteClips = {
   archive?: ArchiveImage[]; // persona.archive, file order; `file` is relative to /archive/
   testimonies?: { id: string; title: Record<string, string>; text: Record<string, string>; source: string }[]; // narrations' text, file order; audio in `narrations`
 };
-export type ProjectClips = { glass?: string; crackle?: string; chime?: string; waltz: string[]; radio?: string };
+export type ProjectClips = { glass?: string; crackle?: string; chime?: string; waltz: string[]; radio?: string; bell_catholic?: string; bell_serbian?: string };
 export type Clips = { sites: Record<string, SiteClips>; project: ProjectClips };
 
 export const AUDIO_BASE = "/audio/";

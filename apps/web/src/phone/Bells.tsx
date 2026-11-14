@@ -1,6 +1,6 @@
 import type { BellMessage, BellTower, HarmonyMessage } from "@lampa/shared";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { harmonyChord, ringBell } from "../bells/bellSound";
+import { harmonyChord, preloadBells, ringBell } from "../bells/bellSound";
 import { createFlickDetector } from "../bells/flick";
 import { postRing } from "../bells/ring";
 import { Button } from "../components";
@@ -37,6 +37,7 @@ export function Bells({ site, demo, motion, bell, harmony, onBack }: Props) {
   const name = siteName(site);
 
   useEffect(() => {
+    preloadBells();
     // Five pings, once; until they answer, and when they all fail, the phone clock is used as it is.
     void getClockOffset().then((o) => (offset.current = o ?? 0));
   }, []);

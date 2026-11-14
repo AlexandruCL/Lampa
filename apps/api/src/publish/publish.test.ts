@@ -64,7 +64,7 @@ describe("publish", () => {
     expect(calls).toHaveLength(0);
     expect(files.size).toBe(0);
     expect([r.outcome, p.outcome]).toEqual(["dry", "dry"]);
-    expect(p.newCredits).toBe(4452); // 120 + 160 + 80 + 2 x ceil(0.75 x 2727)
+    expect(p.newCredits).toBe(4852); // 120 + 160 + 80 + 2 x ceil(0.75 x 2727) + 2 x 200 for the bells
   });
 
   it("plans greetings, answers and two bed takes per language", async () => {
@@ -213,6 +213,8 @@ describe("publish", () => {
       ["/sound-generation?output_format=mp3_44100_128", "eleven_text_to_sound_v2", false, 2],
       ["/music?output_format=mp3_44100_128", "music_v2_5", undefined, 45000],
       ["/music?output_format=mp3_44100_128", "music_v2_5", undefined, 45000],
+      ["/sound-generation?output_format=mp3_44100_128", "eleven_text_to_sound_v2", false, 5],
+      ["/sound-generation?output_format=mp3_44100_128", "eleven_text_to_sound_v2", false, 5],
     ]);
     expect(project[3]!.body).toEqual({
       prompt: "1880s Viennese waltz, small salon orchestra, warm, wonder, slow crescendo",
@@ -248,7 +250,7 @@ describe("publish", () => {
       testimonies: memorial.narrations,
     });
     const pf = p.items.map((i) => i.file);
-    expect(clips.project).toEqual({ glass: pf[0], crackle: pf[1], chime: pf[2], waltz: [pf[3], pf[4]] });
+    expect(clips.project).toEqual({ glass: pf[0], crackle: pf[1], chime: pf[2], waltz: [pf[3], pf[4]], bell_catholic: pf[5], bell_serbian: pf[6] });
     expect(toClips([], () => false)).toEqual({ sites: {}, project: { waltz: [] } });
   });
 

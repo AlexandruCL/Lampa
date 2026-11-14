@@ -18,7 +18,7 @@ export const CREDITS_PER_SFX_SECOND = 40;
 export const CREDITS_PER_MUSIC_MINUTE = 2727;
 export const MAX_CREDITS_DEFAULT = 6000;
 
-type ProjectName = "glass" | "crackle" | "chime" | "waltz";
+type ProjectName = "glass" | "crackle" | "chime" | "waltz" | "bell_catholic" | "bell_serbian";
 export const PROJECT_SOUNDS: { name: ProjectName; kind: "sfx" | "music"; seconds: number; takes: number; prompt: string }[] = [
   { name: "glass", kind: "sfx", seconds: 3, takes: 1, prompt: "single soft glass bell note, clear, long gentle decay" },
   {
@@ -31,6 +31,21 @@ export const PROJECT_SOUNDS: { name: ProjectName; kind: "sfx" | "music"; seconds
   },
   { name: "chime", kind: "sfx", seconds: 2, takes: 1, prompt: "soft warm two-note glass chime, gentle, short decay, no reverb tail" },
   { name: "waltz", kind: "music", seconds: 45, takes: 2, prompt: "1880s Viennese waltz, small salon orchestra, warm, wonder, slow crescendo" },
+  // The two towers of the Dialogue of the Bells at Piața Unirii; last, so the sounds above keep their order.
+  {
+    name: "bell_catholic",
+    kind: "sfx",
+    seconds: 5,
+    takes: 1,
+    prompt: "a single strike of a large bronze cathedral bell, deep and low, resonant, long natural decay, close recording, no other sounds",
+  },
+  {
+    name: "bell_serbian",
+    kind: "sfx",
+    seconds: 5,
+    takes: 1,
+    prompt: "a single strike of a smaller bronze church bell, bright and clear, higher pitch, long natural decay, close recording, no other sounds",
+  },
 ];
 
 export type PublishOpts = {
@@ -59,7 +74,7 @@ export type SiteClips = {
   archive: NonNullable<PersonaContent["archive"]>; // persona.archive, file order; `file` is relative to /archive/
   testimonies?: NonNullable<MemorialContent["narrations"]>; // memorial only: narrations' text, file order; audio in `narrations`
 };
-type ProjectClips = { glass?: string; crackle?: string; chime?: string; waltz: string[]; radio?: string };
+type ProjectClips = { glass?: string; crackle?: string; chime?: string; waltz: string[]; radio?: string; bell_catholic?: string; bell_serbian?: string };
 
 type Job = {
   file: string;
@@ -222,7 +237,7 @@ export function toClips(
   for (const { file, slot } of planProject()) {
     if (!exists(file)) continue;
     if (slot.kind === "waltz") out.project.waltz.push(file);
-    else if (slot.kind === "glass" || slot.kind === "crackle" || slot.kind === "chime") out.project[slot.kind] = file;
+    else if (slot.kind === "glass" || slot.kind === "crackle" || slot.kind === "chime" || slot.kind === "bell_catholic" || slot.kind === "bell_serbian") out.project[slot.kind] = file;
   }
   if (radio) out.project.radio = radio; // the Radio Lampa episode is made by radio:lampa, not planned here
   return out;
