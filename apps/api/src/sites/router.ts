@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { rateLimit } from "express-rate-limit";
-import { NearbySites, SiteDetail, type SiteSound } from "@lampa/shared";
+import { NearbySites, SiteDetail } from "@lampa/shared";
 import type { Db, LatestGlow } from "../seam.js";
 import { SELECT_SITE_KEYS, siteBlobKey } from "../places/publish.js";
 
@@ -14,7 +14,8 @@ ORDER BY geom <-> ST_SetSRID(ST_MakePoint($1, $2), 4326)::geography
 LIMIT 5`;
 
 export const SITE_SQL = `SELECT id, name, ST_Y(geom::geometry) AS lat, ST_X(geom::geometry) AS lng, is_memorial,
-       radius_m, interactions, facts, directions_hint
+       radius_m, interactions, facts, directions_hint,
+       (SELECT key FROM blobs WHERE starts_with(key, 'site-' || sites.id || '_bed-1-') ORDER BY key LIMIT 1) AS bed_key
 FROM sites
 WHERE id = $1 AND status = 'published'`;
 
@@ -28,23 +29,18 @@ export function parseNear(text: unknown): { lat: number; lng: number } | null {
 }
 
 const siteKeyPrefix = (id: string) => siteBlobKey(id + "/");
-// The rest of a key after its site prefix, as publishSite names the files: bed-<take>-<hash>.<ext>, greeting-<lang>-<hash>.mp3.
-const SOUND_FILE = /^(?:bed-(\d+)|greeting-(.+))-[0-9a-f]{12}\.(?:mp3|wav)$/;
+// The rest of a key after its site prefix, as publishSite names greetings: greeting-<lang>-<hash>.mp3.
+const GREETING_FILE = /^greeting-(.+)-[0-9a-f]{12}\.mp3$/;
 
-/** The sound of an added place from its blob keys, or {} when it has none. */
-export function soundOf(id: string, keys: string[]): { sound?: SiteSound } {
+/** The greetings of an added place from its blob keys (language → "/blob/<key>"), or {} when it has none. Its bed comes from SITE_SQL. */
+export function greetingsOf(id: string, keys: string[]): { greeting?: Record<string, string> } {
   const prefix = siteKeyPrefix(id);
-  let bed: { take: number; key: string } | null = null;
   const greeting: Record<string, string> = {};
-  let any = false;
   for (const key of keys) {
-    const m = key.startsWith(prefix) ? SOUND_FILE.exec(key.slice(prefix.length)) : null;
-    if (!m) continue;
-    any = true;
-    if (m[2]) greeting[m[2]] = "/blob/" + key;
-    else if (!bed || Number(m[1]) < bed.take) bed = { take: Number(m[1]), key };
+    const m = key.startsWith(prefix) ? GREETING_FILE.exec(key.slice(prefix.length)) : null;
+    if (m) greeting[m[1]] = "/blob/" + key;
   }
-  return any ? { sound: { bed: bed && "/blob/" + bed.key, greeting } } : {};
+  return Object.keys(greeting).length ? { greeting } : {};
 }
 
 // shortcut: memory store, counts reset on restart and are per instance; move to a shared store if the API runs on more than one instance
@@ -84,11 +80,13 @@ export function createSitesRouter(deps: { db?: Db; latestGlow: LatestGlow }): Ro
     const lang = req.query.lang === "ro" ? "ro" : "en";
     const keys = await run(deps.db, SELECT_SITE_KEYS, [siteKeyPrefix(r.id)]);
     res.json(SiteDetail.parse({
-      ...(keys && soundOf(r.id, keys.map((k) => k.key))),
+      ...(keys && greetingsOf(r.id, keys.map((k) => k.key))),
       id: r.id, name: r.name[lang], lat: r.lat, lng: r.lng, is_memorial: r.is_memorial,
       radius_m: r.radius_m, interactions: r.interactions, facts: r.facts,
       directions_hint: r.directions_hint?.[lang] ?? r.directions_hint?.en ?? "",
       glow: glowOf(r.id),
+      // Take 1 of the bed that publishing stored in blobs; the bundled sites have none there.
+      ...(r.bed_key ? { bed: "/blob/" + r.bed_key } : {}),
     }));
   });
 

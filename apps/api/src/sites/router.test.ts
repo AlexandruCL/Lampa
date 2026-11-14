@@ -99,6 +99,11 @@ describe("GET /sites/:id", () => {
     const b = await start([{ ...siteRow, directions_hint: {} }]);
     expect((await (await b.get("/sites/mx?lang=ro")).json()).directions_hint).toBe("");
   });
+  it("a place with a bed in blobs answers its path; SITE_SQL looks only at take 1 of this site", async () => {
+    const { get } = await start([{ ...siteRow, id: "new-place", bed_key: "site-new-place_bed-1-abc123abc123.wav" }]);
+    expect((await (await get("/sites/new-place")).json()).bed).toBe("/blob/site-new-place_bed-1-abc123abc123.wav");
+    expect(SITE_SQL).toContain("'site-' || sites.id || '_bed-1-'");
+  });
   it("an unknown id answers 404 unknown_site", async () => {
     const res = await (await start([])).get("/sites/nope");
     expect(res.status).toBe(404);
@@ -111,39 +116,34 @@ describe("GET /sites/:id", () => {
   });
 });
 
-describe("GET /sites/:id sound", () => {
+describe("GET /sites/:id greeting", () => {
   const bed1 = "site-mx_bed-1-0123456789ab.wav";
-  const bed2 = "site-mx_bed-2-ba9876543210.wav";
   const en = "site-mx_greeting-en-aaaaaaaaaaaa.mp3";
   const ro = "site-mx_greeting-ro-bbbbbbbbbbbb.mp3";
   const answer = "site-mx_answer-q1-en-cccccccccccc.mp3";
-  const sound = async (keys: string[] | "fail") => (await (await start([siteRow], { keys })).get("/sites/mx")).json();
+  const body = async (keys: string[] | "fail") => (await (await start([siteRow], { keys })).get("/sites/mx")).json();
 
-  it("a place with bed takes 1 and 2 and greetings en and ro answers bed take 1 and both greetings", async () => {
-    const { get, calls } = await start([siteRow], { keys: [bed2, en, answer, bed1, ro] });
-    const body = await (await get("/sites/mx")).json();
-    expect(body.sound).toEqual({ bed: "/blob/" + bed1, greeting: { en: "/blob/" + en, ro: "/blob/" + ro } });
-    expect(SiteDetail.parse(body)).toEqual(body);
+  it("an added place with greetings en and ro answers both, and asks for the site prefix", async () => {
+    const { get, calls } = await start([siteRow], { keys: [bed1, en, answer, ro] });
+    const b = await (await get("/sites/mx")).json();
+    expect(b.greeting).toEqual({ en: "/blob/" + en, ro: "/blob/" + ro });
+    expect(SiteDetail.parse(b)).toEqual(b);
     expect(calls[1]).toEqual({ text: SELECT_SITE_KEYS, params: ["site-mx_"] });
   });
-  it("only take 2 present answers take 2, and greetings alone answer a null bed", async () => {
-    expect((await sound([bed2])).sound).toEqual({ bed: "/blob/" + bed2, greeting: {} });
-    expect((await sound([en])).sound).toEqual({ bed: null, greeting: { en: "/blob/" + en } });
+  it("no greeting blob answers no greeting key", async () => {
+    expect(await body([])).not.toHaveProperty("greeting");
+    expect(await body([bed1, answer])).not.toHaveProperty("greeting");
   });
-  it("no blobs answers no sound key", async () => {
-    expect(await sound([])).not.toHaveProperty("sound");
-    expect(await sound([answer])).not.toHaveProperty("sound");
+  it("greetings of a site whose id starts with this id are not mixed in", async () => {
+    const other = ["site-mx2_greeting-en-aaaaaaaaaaaa.mp3", "site-mx_x_greeting-ro-bbbbbbbbbbbb.mp3"];
+    expect((await body([en, ...other])).greeting).toEqual({ en: "/blob/" + en });
+    expect(await body(other)).not.toHaveProperty("greeting");
   });
-  it("blobs of a site whose id starts with this id are not mixed in", async () => {
-    const other = ["site-mx2_bed-1-0123456789ab.wav", "site-mx_x_greeting-ro-bbbbbbbbbbbb.mp3", "site-mx_x_bed-1-0123456789ab.wav"];
-    expect((await sound([bed2, ...other])).sound).toEqual({ bed: "/blob/" + bed2, greeting: {} });
-    expect(await sound(other)).not.toHaveProperty("sound");
-  });
-  it("a failing key query answers 200 without sound and logs one line", async () => {
+  it("a failing key query answers 200 without greeting and logs one line", async () => {
     const err = vi.spyOn(console, "error").mockImplementation(() => {});
     const res = await (await start([siteRow], { keys: "fail" })).get("/sites/mx");
     expect(res.status).toBe(200);
-    expect(await res.json()).not.toHaveProperty("sound");
+    expect(await res.json()).not.toHaveProperty("greeting");
     expect(err).toHaveBeenCalledTimes(1);
     expect(err).toHaveBeenCalledWith("sites query failed: keys down");
   });

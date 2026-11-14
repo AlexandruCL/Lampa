@@ -97,9 +97,9 @@ describe("session tokens", () => {
 });
 
 describe("rate limits", () => {
-  it("11th POST /session/anon in a minute gets 429 with Retry-After", async () => {
+  it("121st POST /session/anon in a minute gets 429 with Retry-After", async () => {
     // A client IP of its own (trust proxy 1) so the other tests' POSTs do not count.
-    for (let i = 0; i < 10; i++) expect((await postAnon("203.0.113.7")).status).toBe(200);
+    for (let i = 0; i < 120; i++) expect((await postAnon("203.0.113.7")).status).toBe(200);
     const res = await postAnon("203.0.113.7");
     expect(res.status).toBe(429);
     expect(res.headers.get("retry-after")).toMatch(/^\d+$/);

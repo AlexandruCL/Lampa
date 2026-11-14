@@ -1,6 +1,6 @@
 # Prompt: Patrick's Build 3: Echo, navigation, Lamp, Pulse, sign-in (Patrick, LAMPA)
 
-**Status: prompt completed and checked against `IMPLEMENTATION_PLAN.md` at hour 23.8 (2026-11-14 13:11 +0200). Implementation not started.**
+**Status: prompt completed and checked against `IMPLEMENTATION_PLAN.md` at hour 23.8 (2026-11-14 13:11 +0200). Build 3 done at hour 27.5 (2026-11-14 16:52 +0200): #44, #49 and #51 merged, the three client tools on the agent. Every phone check, the live Talk smoke test and the Checkpoint 3 rehearsal move to Build 4 (Patrick's decision).**
 
 You are implementing Patrick's part of Build 3: Echo, navigation, Lamp, Pulse, sign-in (hours 25 to 32 in the plan; Patrick runs it from hour 24 to hour 31, 13:21 to 20:21 on 2026-11-14) in this repository. Follow the checklist in section 3 in order, except where it says agent tasks run in parallel. Tick a box only after its verify command has run and passed.
 

@@ -2,13 +2,13 @@ import { SiteDetail } from "@lampa/shared";
 import { registerSiteSound } from "../audio/siteSound";
 import { LANG, type Lang } from "../i18n/t";
 import type { PhoneSite } from "../sites/sites";
-import { ApiError, api } from "./client";
+import { API_URL, ApiError, api } from "./client";
 
 /** GET /sites/:id. An unknown id (404) gives null; any other failure is thrown. */
 export async function fetchSite(id: string, lang: Lang = LANG): Promise<PhoneSite | null> {
   try {
     const s = await api(`/sites/${encodeURIComponent(id)}?lang=${lang}`, { schema: SiteDetail });
-    if (s.sound) registerSiteSound(s.id, s.sound);
+    if (s.bed || s.greeting) registerSiteSound(s.id, { bed: s.bed ?? null, greeting: s.greeting ?? {} });
     return {
       id: s.id,
       name: s.name,
@@ -17,6 +17,7 @@ export async function fetchSite(id: string, lang: Lang = LANG): Promise<PhoneSit
       is_memorial: s.is_memorial,
       lamp: s.interactions.includes("lamp"),
       interactions: s.interactions,
+      ...(s.bed ? { bed: API_URL + s.bed } : {}),
     };
   } catch (e) {
     if (e instanceof ApiError && e.status === 404) return null;
