@@ -124,7 +124,7 @@ Anything that differs from the plan, `DESIGN.md` or the contract, and any file o
 | 39 | B4-2.b.2 | `EchoDetail.tsx` changed as a caller of `siteName(echo)` | `apps/web/src/curate/EchoDetail.tsx` | `siteName` now takes the echo; inside this lane |
 | 39 | B4-2.b.1 | `SELECT_PENDING` columns prefixed `e.` (the join with `sites` made `status` ambiguous); one SQL-text assertion in the existing echoes test updated to match | `apps/api/src/echoes/router.ts`, `router.test.ts` | Needed for the join |
 | 39 | B4-1.d.1 | The refit uses the canvas's cubic ease-out `1-(1-t)^3` (as the other canvas animations), not the exact `--ease-out` bezier | `apps/web/src/screen/canvas.ts` | Canvas cannot read the CSS token; same curve family |
-
+| after #56 | glow | `glow_k` goes from 5 to 30 for the four colour sites and for added places (`NEW_PLACE_GLOW_K`), and to 20 for the Cathedral, which only wakes light. A site is fully lit after ten colours or fifteen lamps; two colours give 20%. Places already published keep 5 in the table until Fabi's database reset and reseed | `content/sites/*.yaml`, `apps/api/src/places/content.ts` | At 5, two caught colours fully lit a site, and after a day of testing every site on `/screen` was fully lit (Cristea's decision) |
 
 ## Decisions
 The owner's answers only.
