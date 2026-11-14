@@ -221,6 +221,25 @@ The owner's answers only.
 | 30 | The remaining checks (phone candle, Keep my colours on the iPhone, Checkpoint 3 runs, the post-call webhook with a live Talk) run at the end of Build 4, when the other lanes are done | Cristea's decision |
 | 30 | Talk at the Cathedral stays off; the memorial view is handed to Ionut and Patrick as in `DESIGN.md` 7.11 (Hand-offs, hour 30); the memorial rules (`DESIGN.md` 7.11, plan section 7, the concept) allow only sourced testimonies and the candle there | Cristea approved the hand-off ("yes do it") after asking whether the Cathedral could have Talk |
 | 30 | The memorial view (back, next site, testimonies, candle) goes into Ionut's Build 4 row, now 1.5 h | Cristea took the recommendation |
+| 37 | Build 4 hour stamp: hour 37 is 2026-11-14 13:21 +0200; Build 4 runs to hour 40 | Cristea's answer |
+| 37 | B4-1: Add a place is built live (form, `POST /sites`, `POST /sites/:id/publish`, `publishSite` into `blobs`, QR code), with a `/curate?demo=1` pre-fill | Cristea took the recommendation |
+| 37 | B4-1: a new place reaches `/screen` through the `glow` list plus `GET /sites/:id` (no contract change), refits, fades in, adds "New place: {Site}"; the QR code encodes `origin + /s/<id>`; the phone, `/live` rooms, echoes, agent tools and clip playback stay out of this block and go to Ionut, Fabi and Patrick as requests; site audio is stored and public but not played in the demo | Cristea took the recommendation |
+| 37 | Build 4 carry-overs: the four checks moved at hour 30 stay in B4-last; `/curate` clears `lampa.signInReturnTo` before sign-in; `siteName` on `PendingEcho` (optional field, team told); the Unirii subtitle flips above when below covers another site, below otherwise | Cristea's answer (the last two were against the recommendation to drop them) |
+| 37 | `write:site` stays on `admin` only; the demo publisher signs in as an admin | Cristea's answer |
+| 37 | The `?demo=1` pre-fill holds a name and a location only; the presenter types facts and persona. The place is chosen by the team at the checkpoint | Cristea's answer |
+| 37 | Build 4 process: branches `cristea/b4-places`, `cristea/b4-screen`, `cristea/b4-console` in that PR order; subagents `cristea-api`, `cristea-console`, `cristea-canvas` reused on opus; prompt and glossary commits straight to `main` | Cristea took the recommendation |
+| 37 | B4-1 content: voice `NEW_PLACE_VOICE` = MX's voice; greeting ro "Bună seara. Sunt {nume}." / en "Good evening. I am {name}." (name only; the persona description goes to `persona.traits`); bed prompt "Quiet evening city ambience at {name}, Timișoara, calm steady ambient loop, no speech, no music" | Cristea took the recommendation |
+| 37 | B4-1 credits: at most 2,000 per publish call; tests use a fake `fetch`; live publishes only at Cristea's checks and rehearsals; `POST /sites` at most 10 an hour per account | Cristea took the recommendation |
+| 37 | B4-1 steps: `POST /sites` saves a draft; `POST /sites/:id/publish` takes `{ step: greeting \| bed \| live }`, called in turn; a retry resends the failed step | Cristea took the recommendation |
+| 37 | B4-1 id: English name lower-cased, diacritics stripped, other runs to `-`, at most 40, `^[a-z0-9-]{2,40}$`; a draft id is overwritten, a published or seeded id is 409 `site_exists`; `demo:reset` or Cristea removes the demo place between runs | Cristea took the recommendation |
+| 37 | B4-1 limits: names 2 to 60; facts 2 to 5, text 10 to 280, source an https URL; persona 10 to 400; at least one interaction, all four ticked at start; city `timisoara`, `radius_m` 40, `glow_k` 5, never a memorial | Cristea took the recommendation |
+| 37 | B4-1.d: on a new place the five circles refit and ease over 1200 ms while the new window fades in | Cristea took the recommendation |
+| 37 | Build 4 cut order: subtitle flip, then `siteName`, then the step-list styling, then the refit easing; never cut `POST /sites`, the publish steps, the `/screen` fade-in, the QR code | Cristea took the recommendation |
+| 37 | B4-1: the live publish step nudges glow so the window appears in about 1 s | Cristea took the recommendation |
+| 37 | B4-1.e: `npm run place:reset -w @lampa/api -- <id>` puts a published place back to draft (never a seeded site, no delete); the place the last rehearsal published is the plan's pre-published fallback | Cristea took the recommendation; a published id answers 409 and the foreign keys forbid a delete |
+| 37 | B4-1: a place at an existing site's coordinates is accepted; `/screen` spacing pushes it apart, with a test | Cristea took the recommendation |
+| 37 | B4-1 fill-ins accepted: the console's field and step error strings and "Link copied", "Page: /s/{id}"; `site-` audio public for drafts too; a place already in the first glow after load gets no ticker line; location timeout 15 s with high accuracy; the 403 shows at "Saving place"; the refit eases with `--ease-out` | Cristea's answer |
+| 37 | The team agrees with the Build 4 prompt: the plan line for `place:reset` and the three carry-overs, the place schemas and the optional `siteName` on `PendingEcho` in the contract, and the requests to Ionut, Fabi and Patrick | Cristea took it to the team |
 
 ## Blocked
 | Since hour | ID | Question | Recommendation | Waiting on |
@@ -236,6 +255,10 @@ The owner's answers only.
 | 25 | B3-5 | Ionut's recorder landed (#31, #35) and works (Cristea's Test 1, hour 30): `apps/web/src/echo/upload.ts` posts `audio`, `siteId`, `consent=true` (plus `durationMs` and `prompt`, which the API ignores). Left: Ionut places `KeepMyColours` on the Site view and after a catch (not on `main` at hour 30) | As in Hand-offs | Ionut |
 | 29 | B3-5.b.1 | Edge case: a curator who cancels sign-in on `/curate` while an old `lampa.signInReturnTo` from an abandoned Keep my colours attempt is in the same tab is sent to that visitor page | Have `/curate` clear the key before its `loginWithRedirect` (one line) | Cristea |
 | 29 | B3-6, B3-7 | Patrick's echo whispers read `echo_approved` and `GET /blob/:key` | As in Hand-offs | Patrick |
+| 37 | B4-1.c | The demo place for `DEMO_PLACE` (Romanian and English name, lat and lng, at least about 300 m from the five sites) | The team picks it at the checkpoint | Team |
+| 37 | B4-1 | A published place's QR page `/s/<id>` does not open a site view on a phone: `findSite` reads the bundled `sites.json` | `findSite` falls back to `GET /sites/:id` for an unknown id | Ionut |
+| 37 | B4-1 | `/live` admits `site:<id>` only for bundled ids, and `POST /echoes` and the agent tools check bundled ids; whether `demo:reset` touches added places (Cristea resets them with `place:reset`) | Admit published ids from the table; say what `demo:reset` does with `sites` | Fabi, Cristea |
+| 37 | B4-1 | A new place's greeting and beds are in `blobs` (`GET /blob/site-<id>_<file>`, public) but the engine reads the bundled `clips.json` | Patrick decides whether a new place plays its bed and greeting | Patrick |
 
 ## Hand-offs
 What other lanes can use now: endpoints, hooks, socket messages, scripts, env vars.
